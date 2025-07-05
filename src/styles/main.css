@@ -2,16 +2,16 @@
 
 /* CSS Custom Properties for theming */
 :root {
-  --tp-primary-color: #667eea;
-  --tp-primary-hover: #5a6fd8;
-  --tp-text-primary: #333333;
-  --tp-text-secondary: #6c757d;
-  --tp-text-muted: #999999;
+  --tp-primary-color: #030712;
+  --tp-primary-hover: #1f2937;
+  --tp-text-primary: #374151;
+  --tp-text-secondary: #747d8f;
+  --tp-text-muted: #d1d5db;
   --tp-background: #ffffff;
-  --tp-background-secondary: #f8f9fa;
-  --tp-background-tertiary: #e9ecef;
-  --tp-border: #dee2e6;
-  --tp-border-light: #f1f3f4;
+  --tp-background-secondary: #f9fafb;
+  --tp-background-tertiary: #e5e7eb;
+  --tp-border: #d1d5db;
+  --tp-border-light: #e5e7eb;
   --tp-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   --tp-shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.25);
   --tp-border-radius: 12px;
@@ -253,21 +253,26 @@
 /* Tabs */
 .chat-tabs {
   display: flex;
-  background: var(--tp-background-secondary);
-  border-bottom: 1px solid var(--tp-border);
+  flex-direction: row;
+  justify-content: space-between;
+  border-top: 1px solid var(--tp-border);
 }
 
 .tab {
-  flex: 1;
-  padding: var(--tp-spacing-md) var(--tp-spacing-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  row-gap: 0.25rem;
+  width: 100%;
+  padding: var(--tp-spacing-md) var(--tp-spacing-xl);
   background: none;
   border: none;
   cursor: pointer;
   font-size: var(--tp-font-size-base);
-  font-weight: var(--tp-font-weight-medium);
+  font-weight: var(--tp-font-weight-normal);
   color: var(--tp-text-secondary);
   transition: all var(--tp-animation-speed-fast) ease;
-  border-bottom: 2px solid transparent;
   font-family: inherit;
 }
 
@@ -276,9 +281,21 @@
 }
 
 .tab.active {
-  color: var(--tp-primary-color);
-  border-bottom-color: var(--tp-primary-color);
-  background: var(--tp-background);
+  color: var(--tp-text-primary);
+  font-weight: var(--tp-font-weight-medium);
+}
+
+.tab .icon-active {
+  display: none;
+}
+.tab .icon-inactive {
+  display: block;
+}
+.tab.active .icon-active {
+  display: block;
+}
+.tab.active .icon-inactive {
+  display: none;
 }
 
 /* Content areas */

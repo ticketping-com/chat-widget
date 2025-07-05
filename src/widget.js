@@ -1,7 +1,7 @@
 // src/widget.js - Main entry point
 import './styles/main.css';
 import { ChatBubble } from './components/chat-bubble.js';
-import { ChatWindow } from './components/chatWindow.js';
+import { ChatWindow } from './components/chat-window.js';
 import { WebSocketService } from './services/websocket.js';
 import { ApiService } from './services/api.js';
 import { StorageService } from './services/storage.js';
@@ -117,7 +117,9 @@ class TicketpingChat {
 
   // Public API methods
   open() {
-    if (!this.isInitialized) return;
+    if (!this.isInitialized) {
+      return;
+    }
     this.isOpen = true;
     this.chatBubble.setOpen(true);
     this.chatWindow.show();
@@ -125,7 +127,9 @@ class TicketpingChat {
   }
 
   close() {
-    if (!this.isInitialized) return;
+    if (!this.isInitialized) {
+      return;
+    }
     this.isOpen = false;
     this.chatBubble.setOpen(false);
     this.chatWindow.hide();
@@ -236,18 +240,18 @@ class TicketpingChat {
 
   handleWebSocketMessage(data) {
     switch (data.type) {
-      case 'message':
-        this.addMessageToConversation(data.conversationId, data);
-        if (data.conversationId === this.currentConversation) {
-          this.chatWindow.addMessage(data);
-        }
-        break;
-      case 'conversation_updated':
-        this.updateConversation(data.conversationId, data.updates);
-        break;
-      case 'agent_joined':
-        this.handleAgentJoined(data);
-        break;
+    case 'message':
+      this.addMessageToConversation(data.conversationId, data);
+      if (data.conversationId === this.currentConversation) {
+        this.chatWindow.addMessage(data);
+      }
+      break;
+    case 'conversation_updated':
+      this.updateConversation(data.conversationId, data.updates);
+      break;
+    case 'agent_joined':
+      this.handleAgentJoined(data);
+      break;
     }
   }
 

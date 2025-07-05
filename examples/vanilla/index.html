@@ -1,0 +1,318 @@
+<!-- examples/index.html - Updated for development -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticketping Chat Widget - Development</title>
+    <style>
+        /* This is messing with chat widget styles, so commenting out
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .dev-notice {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            color: #0d47a1;
+        }
+
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #5a6fd8;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+
+        .user-form {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input, textarea {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        } */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Ticketping Chat Widget - Development Mode</h1>
+
+        <div class="dev-notice">
+            <strong>Development Mode:</strong> The widget is loaded directly from source files with hot reload enabled.
+        </div>
+
+        <div class="section">
+            <h2>Widget Status</h2>
+            <div id="status" class="status info">
+                Widget loading...
+            </div>
+
+            <div class="controls">
+                <button onclick="openWidget()" id="openBtn">Open Widget</button>
+                <button onclick="closeWidget()" id="closeBtn">Close Widget</button>
+                <button onclick="startConversation()" id="startBtn">Start Conversation</button>
+                <button onclick="destroyWidget()" id="destroyBtn">Destroy Widget</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>User Management</h2>
+            <div class="user-form">
+                <div class="form-group">
+                    <label for="userName">Name:</label>
+                    <input type="text" id="userName" value="John Doe" />
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email:</label>
+                    <input type="email" id="userEmail" value="john@example.com" />
+                </div>
+                <div class="form-group">
+                    <label for="userCompany">Company:</label>
+                    <input type="text" id="userCompany" value="Acme Corp" />
+                </div>
+            </div>
+
+            <div class="controls">
+                <button onclick="identifyUser()" id="identifyBtn">Identify User</button>
+                <button onclick="clearUser()">Clear User Data</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Events Log</h2>
+            <div class="controls">
+                <button onclick="clearLog()">Clear Log</button>
+            </div>
+            <pre id="eventLog">Widget events will appear here...</pre>
+        </div>
+
+        <div class="section">
+            <h2>Development Notes</h2>
+            <ul>
+                <li>Hot reload is enabled - changes to source files will auto-refresh</li>
+                <li>Console logging is enabled for debugging</li>
+                <li>Widget loads from <code>src/widget.js</code> directly</li>
+                <li>Build with <code>npm run build</code> to test production version</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Development Configuration -->
+    <script>
+        // Configuration for development
+        window.ticketpingConfig = {
+            appId: 'dev-app-id',
+            apiBase: 'http://localhost:8000', // Your dev API
+            debug: true,
+            analytics: false, // Disable for dev
+            onReady: () => logEvent('Widget ready'),
+            onOpen: () => logEvent('Widget opened'),
+            onClose: () => logEvent('Widget closed'),
+            onMessageSent: (message) => logEvent('Message sent', message),
+            onMessageReceived: (message) => logEvent('Message received', message),
+            onConversationStarted: (id) => logEvent('Conversation started', { id }),
+            onError: (error) => logEvent('Error', error)
+        };
+    </script>
+
+    <!-- Load widget directly from source in development -->
+    <script type="module" src="/src/widget.js"></script>
+
+    <!-- Demo controls -->
+    <script>
+        let widget = null;
+        let eventCounter = 0;
+
+        function logEvent(event, data = null) {
+            eventCounter++;
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('eventLog');
+
+            let logEntry = `[${timestamp}] ${event}`;
+            if (data) {
+                logEntry += `: ${JSON.stringify(data, null, 2)}`;
+            }
+
+            logElement.textContent = logEntry + '\n' + logElement.textContent;
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+
+        // Wait for widget to be available
+        function waitForWidget() {
+            if (window.TicketpingChat && window.TicketpingChat.instance) {
+                widget = window.TicketpingChat.instance;
+                updateStatus('Widget loaded and ready!', 'success');
+                return;
+            }
+
+            // Check again in 100ms
+            setTimeout(waitForWidget, 100);
+        }
+
+        // Start checking for widget
+        waitForWidget();
+
+        function openWidget() {
+            if (widget) {
+                widget.open();
+                logEvent('Open widget called');
+            }
+        }
+
+        function closeWidget() {
+            if (widget) {
+                widget.close();
+                logEvent('Close widget called');
+            }
+        }
+
+        function startConversation() {
+            if (widget) {
+                const conversationId = widget.startConversation();
+                logEvent('Start conversation called', { conversationId });
+            }
+        }
+
+        function destroyWidget() {
+            if (widget) {
+                widget.destroy();
+                widget = null;
+                updateStatus('Widget destroyed', 'info');
+                logEvent('Widget destroyed');
+            }
+        }
+
+        function identifyUser() {
+            if (widget) {
+                const userData = {
+                    id: Date.now().toString(),
+                    name: document.getElementById('userName').value,
+                    email: document.getElementById('userEmail').value,
+                    company: document.getElementById('userCompany').value
+                };
+
+                widget.identify(userData);
+                logEvent('User identified', userData);
+                updateStatus('User identified successfully', 'success');
+            }
+        }
+
+        function clearUser() {
+            document.getElementById('userName').value = '';
+            document.getElementById('userEmail').value = '';
+            document.getElementById('userCompany').value = '';
+            logEvent('User data cleared');
+        }
+
+        function clearLog() {
+            document.getElementById('eventLog').textContent = 'Widget events will appear here...';
+            eventCounter = 0;
+        }
+    </script>
+</body>
+</html>

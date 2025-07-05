@@ -40,11 +40,6 @@ export class ChatWindow {
         </button>
       </div>
 
-      <div class="chat-tabs">
-        <button class="tab active" data-tab="home">Home</button>
-        <button class="tab" data-tab="messages">Messages</button>
-      </div>
-
       <div class="chat-content">
         <div class="tab-content active" id="homeTab">
           <div class="home-content">
@@ -126,6 +121,24 @@ export class ChatWindow {
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="chat-tabs">
+        <button class="tab active" data-tab="home">
+          <div class="tab-icon">
+            <svg class="icon-inactive" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"></path></svg>
+            <svg class="icon-active" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z"></path></svg>
+          </div>
+
+          <span>Home</span>
+        </button>
+        <button class="tab" data-tab="messages">
+          <div class="tab-icon">
+            <svg class="icon-inactive" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.85,15.85,0,0,0,9.24,14.5A16.13,16.13,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78l.09-.07L83,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM40,224h0ZM216,192H80a8,8,0,0,0-5.23,1.95L40,224V64H216ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm0,32a8,8,0,0,1,8-8h64a8,8,0,1,1,0,16H96A8,8,0,0,1,88,144Z"></path></svg>
+            <svg class="icon-active" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.84,15.84,0,0,0,9.25,14.5A16.05,16.05,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78l.09-.07L83,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM160,152H96a8,8,0,0,1,0-16h64a8,8,0,0,1,0,16Zm0-32H96a8,8,0,0,1,0-16h64a8,8,0,0,1,0,16Z"></path></svg>
+          </div>
+          <span>Messages</span>
+        </button>
       </div>
     `;
 
@@ -297,7 +310,9 @@ export class ChatWindow {
 
   sendMessage(input, sendBtn) {
     const text = input.value.trim();
-    if (!text) return;
+    if (!text) {
+      return;
+    }
 
     this.options.onSendMessage({ text });
     input.value = '';
@@ -316,7 +331,9 @@ export class ChatWindow {
   showTypingIndicator(show = true) {
     const indicator = this.element.querySelector('#typingIndicator');
     indicator.classList.toggle('show', show);
-    if (show) this.scrollToBottom();
+    if (show) {
+      this.scrollToBottom();
+    }
   }
 
   autoResizeTextarea(textarea) {
@@ -376,12 +393,16 @@ export class EventEmitter {
   }
 
   off(event, callback) {
-    if (!this.events[event]) return;
+    if (!this.events[event]) {
+      return;
+    }
     this.events[event] = this.events[event].filter(cb => cb !== callback);
   }
 
   emit(event, ...args) {
-    if (!this.events[event]) return;
+    if (!this.events[event]) {
+      return;
+    }
     this.events[event].forEach(callback => {
       try {
         callback(...args);

@@ -76,18 +76,13 @@
     }
   ],
   "keywords": [
-    "chat",
-    "widget",
+    "chat-widget",
     "customer-support",
     "ticketping",
     "help-desk",
     "live-chat",
-    "intercom",
-    "zendesk",
     "support-widget",
     "real-time",
-    "websocket",
-    "embeddable",
     "javascript",
     "typescript"
   ],
