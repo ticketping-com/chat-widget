@@ -96,7 +96,6 @@
 }
 
 .chat-bubble:hover {
-  transform: scale(1.1);
   box-shadow: var(--tp-shadow-hover);
 }
 
@@ -153,7 +152,7 @@
 /* Chat window */
 .chat-window {
   position: absolute;
-  bottom: 80px;
+  bottom: 0;
   right: 0;
   width: 400px;
   height: 600px;
