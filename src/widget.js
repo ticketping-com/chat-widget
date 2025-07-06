@@ -256,7 +256,6 @@ class TicketpingChat {
   }
 
   handleTabSwitch(tab) {
-    this.chatWindow.switchTab(tab);
     this.track('tab_switched', { tab });
   }
 

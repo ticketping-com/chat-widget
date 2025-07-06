@@ -28,47 +28,47 @@ export class ChatWindow {
     });
 
     this.element.innerHTML = `
-      <div class="chat-header">
-        <div class="chat-header-content">
-          <h3>Ticketping</h3>
-          <p>We're here to help!</p>
-        </div>
-        <button class="close-btn" aria-label="Close chat">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="chat-content">
-        <div class="tab-content active" id="homeTab">
-          <div class="home-content">
-            <h4>👋 Welcome!</h4>
-            <p>Hi there! How can we help you today?</p>
-
-            <button class="start-conversation-btn">
-              Send us a message
+      <div class="ticketping-chat-content">
+        <div class="ticketping-tab-content active" id="homeTab">
+          <div class="ticketping-chat-header">
+            <div class="ticketping-workspace-logo">
+              <img src="https://spendcrypto.com/android-chrome-192x192.png" alt="logo">
+            </div>
+            <button class="ticketping-close-btn" aria-label="Close chat">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              </svg>
             </button>
+          </div>
+          <div class="ticketping-home-container">
+            <div class="ticketping-home-content">
+              <h4>Hi there 👋</h4>
+              <p>How can we help you?</p>
+            </div>
+            <div class="ticketping-actions-container">
 
-            <div class="help-articles">
-              <h5>Popular articles</h5>
-              <a href="#" class="help-article">
-                <svg viewBox="0 0 24 24">
-                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-                </svg>
-                Getting started guide
-              </a>
-              <a href="#" class="help-article">
-                <svg viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-                How to create tickets
-              </a>
+              <button class="ticketping-start-conversation-btn">
+                <div class="ticketping-start-conversation-btn-content">
+                  <span class="ticketping-start-conversation-btn-text">Send us a message</span>
+                  <span class="ticketping-start-conversation-btn-subtext">Typically respond within minutes</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M231.4,44.34s0,.1,0,.15l-58.2,191.94a15.88,15.88,0,0,1-14,11.51q-.69.06-1.38.06a15.86,15.86,0,0,1-14.42-9.15L107,164.15a4,4,0,0,1,.77-4.58l57.92-57.92a8,8,0,0,0-11.31-11.31L96.43,148.26a4,4,0,0,1-4.58.77L17.08,112.64a16,16,0,0,1,2.49-29.8l191.94-58.2.15,0A16,16,0,0,1,231.4,44.34Z"></path></svg>
+              </button>
             </div>
           </div>
         </div>
 
-        <div class="tab-content" id="messagesTab">
+        <div class="ticketping-tab-content" id="messagesTab">
+          <div class="ticketping-messages-header">
+            <div class="ticketping-tab-heading">
+              <span>Messages</span>
+            </div>
+            <button class="ticketping-close-btn-2" aria-label="Close chat">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              </svg>
+            </button>
+          </div>
           <div class="messages-content">
             <div class="conversation-list" id="conversationList">
               <!-- Conversations will be populated here -->
@@ -123,8 +123,8 @@ export class ChatWindow {
         </div>
       </div>
 
-      <div class="chat-tabs">
-        <button class="tab active" data-tab="home">
+      <div class="ticketping-chat-tabs">
+        <button class="ticketping-tab active" data-tab="home">
           <div class="tab-icon">
             <svg class="icon-inactive" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"></path></svg>
             <svg class="icon-active" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z"></path></svg>
@@ -132,7 +132,7 @@ export class ChatWindow {
 
           <span>Home</span>
         </button>
-        <button class="tab" data-tab="messages">
+        <button class="ticketping-tab" data-tab="messages">
           <div class="tab-icon">
             <svg class="icon-inactive" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.85,15.85,0,0,0,9.24,14.5A16.13,16.13,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78l.09-.07L83,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM40,224h0ZM216,192H80a8,8,0,0,0-5.23,1.95L40,224V64H216ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm0,32a8,8,0,0,1,8-8h64a8,8,0,1,1,0,16H96A8,8,0,0,1,88,144Z"></path></svg>
             <svg class="icon-active" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.84,15.84,0,0,0,9.25,14.5A16.05,16.05,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78l.09-.07L83,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM160,152H96a8,8,0,0,1,0-16h64a8,8,0,0,1,0,16Zm0-32H96a8,8,0,0,1,0-16h64a8,8,0,0,1,0,16Z"></path></svg>
@@ -147,19 +147,22 @@ export class ChatWindow {
 
   attachEventListeners() {
     // Close button
-    this.element.querySelector('.close-btn').addEventListener('click', () => {
+    this.element.querySelector('.ticketping-close-btn').addEventListener('click', () => {
+      this.options.onClose();
+    });
+    this.element.querySelector('.ticketping-close-btn-2').addEventListener('click', () => {
       this.options.onClose();
     });
 
     // Tab switching
-    this.element.querySelectorAll('.tab').forEach(tab => {
+    this.element.querySelectorAll('.ticketping-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         this.switchTab(tab.dataset.tab);
       });
     });
 
     // Start conversation button
-    this.element.querySelector('.start-conversation-btn').addEventListener('click', () => {
+    this.element.querySelector('.ticketping-start-conversation-btn').addEventListener('click', () => {
       this.switchTab('messages');
       this.options.onConversationSelect('new');
     });
@@ -203,12 +206,12 @@ export class ChatWindow {
     this.activeTab = tabName;
 
     // Update tab buttons
-    this.element.querySelectorAll('.tab').forEach(tab => {
+    this.element.querySelectorAll('.ticketping-tab').forEach(tab => {
       tab.classList.toggle('active', tab.dataset.tab === tabName);
     });
 
     // Update tab content
-    this.element.querySelectorAll('.tab-content').forEach(content => {
+    this.element.querySelectorAll('.ticketping-tab-content').forEach(content => {
       content.classList.toggle('active', content.id === `${tabName}Tab`);
     });
 
@@ -359,7 +362,7 @@ export class ChatWindow {
   }
 
   updateAgentStatus(status) {
-    const headerSubtext = this.element.querySelector('.chat-header-content p');
+    const headerSubtext = this.element.querySelector('.ticketping-chat-header-content p');
     if (status === 'online') {
       headerSubtext.textContent = 'We\'re online and ready to help!';
     } else {

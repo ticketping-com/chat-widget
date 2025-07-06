@@ -170,8 +170,8 @@ export const STORAGE_KEYS = {
 
 export const CSS_CLASSES = {
   WIDGET: 'ticketping-widget',
-  BUBBLE: 'chat-bubble',
-  WINDOW: 'chat-window',
+  BUBBLE: 'ticketping-chat-bubble',
+  WINDOW: 'ticketping-chat-window',
   OPEN: 'open',
   CLOSED: 'closed',
   PULSE: 'pulse',
@@ -197,12 +197,9 @@ export const ANIMATION_DURATIONS = {
 
 export const FILE_UPLOAD_LIMITS = {
   MAX_SIZE: 10 * 1024 * 1024, // 10MB
-  MAX_FILES: 3,
+  MAX_FILES: 2,
   ALLOWED_TYPES: [
     'image/*',
     'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'text/plain'
   ]
 };

@@ -10,11 +10,11 @@
   --tp-background: #ffffff;
   --tp-background-secondary: #f9fafb;
   --tp-background-tertiary: #e5e7eb;
-  --tp-border: #d1d5db;
-  --tp-border-light: #e5e7eb;
-  --tp-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --tp-border: #e9e9e9;
+  --tp-border-light: #f3f3f3;
+  --tp-shadow: 0 4px 12px rgba(15, 15, 15, 0.1);
   --tp-shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.25);
-  --tp-border-radius: 12px;
+  --tp-border-radius: 16px;
   --tp-border-radius-small: 8px;
   --tp-border-radius-large: 20px;
   --tp-spacing-xs: 4px;
@@ -29,7 +29,8 @@
   --tp-font-size-base: 14px;
   --tp-font-size-lg: 16px;
   --tp-font-size-xl: 18px;
-  --tp-font-size-xxl: 20px;
+  --tp-font-size-2xl: 24px;
+  --tp-font-size-3xl: 28px;
   --tp-font-weight-normal: 400;
   --tp-font-weight-medium: 500;
   --tp-font-weight-semibold: 600;
@@ -78,7 +79,7 @@
 }
 
 /* Chat bubble button */
-.chat-bubble {
+.ticketping-chat-bubble {
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -95,16 +96,16 @@
   outline: none;
 }
 
-.chat-bubble:hover {
+.ticketping-chat-bubble:hover {
   box-shadow: var(--tp-shadow-hover);
 }
 
-.chat-bubble:focus-visible {
+.ticketping-chat-bubble:focus-visible {
   outline: 2px solid var(--tp-primary-color);
   outline-offset: 2px;
 }
 
-.chat-bubble.pulse {
+.ticketping-chat-bubble.pulse {
   animation: tp-pulse 2s infinite;
 }
 
@@ -120,19 +121,19 @@
   }
 }
 
-.chat-bubble svg {
-  width: 24px;
-  height: 24px;
+.ticketping-chat-bubble svg {
+  width: 28px;
+  height: 28px;
   fill: white;
   transition: transform var(--tp-animation-speed) ease;
 }
 
-.chat-bubble.open svg {
+.ticketping-chat-bubble.open svg {
   transform: rotate(180deg);
 }
 
 /* Notification badge */
-.chat-bubble .notification-badge {
+.ticketping-chat-bubble .notification-badge {
   position: absolute;
   top: -2px;
   right: -2px;
@@ -150,54 +151,78 @@
 }
 
 /* Chat window */
-.chat-window {
+.ticketping-chat-window {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 400px;
+  width: 360px;
   height: 600px;
   background: var(--tp-background);
   border-radius: var(--tp-border-radius);
-  box-shadow: var(--tp-shadow-hover);
-  display: none;
+  box-shadow: rgba(15, 15, 15, 0.16) 0px 5px 40px 0px;
+  display: flex;
   flex-direction: column;
   overflow: hidden;
-  transform: scale(0.8);
+  transform: scale(0.8) translate(0, 0);
+  transform-origin: bottom right;
   opacity: 0;
-  transition: all var(--tp-animation-speed) var(--tp-animation-easing);
   border: 1px solid var(--tp-border);
+  z-index: 2147483000;
+  visibility: hidden;
+  transition: transform 300ms cubic-bezier(0, 1.2, 1, 1), opacity 150ms ease-out, visibility 150ms ease-out;
+  pointer-events: none;
 }
 
-.chat-window.open {
-  display: flex;
-  transform: scale(1);
+.ticketping-chat-window.open {
+  transform: scale(1) translate(0, 0);
   opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+  transition: transform 300ms cubic-bezier(0, 1.2, 1, 1), opacity 300ms ease-out, visibility 300ms ease-out;
 }
 
 /* Header */
-.chat-header {
+.ticketping-chat-header {
   background: linear-gradient(135deg, var(--tp-primary-color) 0%, var(--tp-primary-hover) 100%);
   color: white;
-  padding: var(--tp-spacing-lg) var(--tp-spacing-xl);
+  padding: 28px 36px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   min-height: 60px;
 }
 
-.chat-header-content h3 {
-  font-size: var(--tp-font-size-xl);
-  font-weight: var(--tp-font-weight-semibold);
-  margin: 0;
+.ticketping-messages-header {
+  padding: 20px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 60px;
+  background: var(--tp-background);
+  border-bottom: 1px solid var(--tp-border-light);
 }
 
-.chat-header-content p {
+.ticketping-tab-heading {
+  font-size: var(--tp-font-size-lg);
+  font-weight: var(--tp-font-weight-semibold);
+  color: var(--tp-text-primary);
+  margin-left: 12px;
+}
+
+.ticketping-workspace-logo img {
+  max-height: 40px;
+  max-width: 100%;
+  object-fit: scale-down;
+  border-radius: 12px
+}
+
+.ticketping-chat-header-content p {
   font-size: var(--tp-font-size-base);
   opacity: 0.9;
   margin-top: 2px;
 }
 
-.close-btn {
+.ticketping-close-btn {
   background: none;
   border: none;
   color: white;
@@ -210,13 +235,41 @@
   justify-content: center;
   width: 32px;
   height: 32px;
+  position: absolute;
+  top: 32px;
+  right: 20px;
 }
 
-.close-btn:hover {
+.ticketping-close-btn:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.close-btn svg {
+.ticketping-close-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.ticketping-close-btn-2 {
+  background: none;
+  border: none;
+  color: var(--tp-text-secondary);
+  cursor: pointer;
+  padding: var(--tp-spacing-xs);
+  border-radius: var(--tp-border-radius-small);
+  transition: background var(--tp-animation-speed-fast) ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.ticketping-close-btn-2:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ticketping-close-btn-2 svg {
   width: 16px;
   height: 16px;
   fill: currentColor;
@@ -250,14 +303,19 @@
 }
 
 /* Tabs */
-.chat-tabs {
+.ticketping-chat-tabs {
   display: flex;
   flex-direction: row;
+  -webkit-box-pack: justify;
   justify-content: space-between;
-  border-top: 1px solid var(--tp-border);
+  border-top: 1px solid var(--tp-border-light);
+  box-shadow: rgba(15, 15, 15, 0.06) 0px 0px 25px 0px;
+  background-color: rgb(255, 255, 255);
+  height: 80px;
+  padding: 0px;
 }
 
-.tab {
+.ticketping-tab {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -269,42 +327,43 @@
   border: none;
   cursor: pointer;
   font-size: var(--tp-font-size-base);
+  line-height: 21px;
   font-weight: var(--tp-font-weight-normal);
   color: var(--tp-text-secondary);
   transition: all var(--tp-animation-speed-fast) ease;
   font-family: inherit;
 }
 
-.tab:hover {
+.ticketping-tab:hover {
   color: var(--tp-text-primary);
 }
 
-.tab.active {
+.ticketping-tab.active {
   color: var(--tp-text-primary);
   font-weight: var(--tp-font-weight-medium);
 }
 
-.tab .icon-active {
+.ticketping-tab .icon-active {
   display: none;
 }
-.tab .icon-inactive {
+.ticketping-tab .icon-inactive {
   display: block;
 }
-.tab.active .icon-active {
+.ticketping-tab.active .icon-active {
   display: block;
 }
-.tab.active .icon-inactive {
+.ticketping-tab.active .icon-inactive {
   display: none;
 }
 
 /* Content areas */
-.chat-content {
+.ticketping-chat-content {
   flex: 1;
   overflow: hidden;
   position: relative;
 }
 
-.tab-content {
+.ticketping-tab-content {
   position: absolute;
   top: 0;
   left: 0;
@@ -317,55 +376,94 @@
   flex-direction: column;
 }
 
-.tab-content.active {
+.ticketping-tab-content.active {
   opacity: 1;
   visibility: visible;
 }
 
 /* Home tab */
-.home-content {
-  padding: var(--tp-spacing-xxl) var(--tp-spacing-xl);
-  text-align: center;
+.ticketping-home-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 
-.home-content h4 {
-  font-size: var(--tp-font-size-xxl);
+.ticketping-home-content {
+  padding: 28px 36px;
+}
+
+.ticketping-home-content h4 {
+  font-size: var(--tp-font-size-2xl);
   color: var(--tp-text-primary);
-  margin-bottom: var(--tp-spacing-sm);
   font-weight: var(--tp-font-weight-semibold);
 }
 
-.home-content p {
+.ticketping-home-content p {
+  font-size: var(--tp-font-size-2xl);
+  font-weight: var(--tp-font-weight-semibold);
   color: var(--tp-text-secondary);
   margin-bottom: var(--tp-spacing-xxl);
   line-height: 1.5;
 }
 
-.start-conversation-btn {
-  background: linear-gradient(135deg, var(--tp-primary-color) 0%, var(--tp-primary-hover) 100%);
-  color: white;
-  border: none;
-  padding: var(--tp-spacing-md) var(--tp-spacing-xxl);
-  border-radius: var(--tp-border-radius-small);
-  font-size: var(--tp-font-size-base);
-  font-weight: var(--tp-font-weight-medium);
+.ticketping-actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tp-spacing-md);
+  padding: 20px 16px;
+}
+
+.ticketping-start-conversation-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid rgb(245, 245, 245);
+  padding: 0px;
+  background: rgb(255, 255, 255);
+  border-radius: 12px;
+  transition: box-shadow 150ms;
+  box-shadow: rgba(15, 15, 15, 0.06) 0px 4px 28px 0px, rgba(15, 15, 15, 0.06) 0px 1px 4px 0px;
   cursor: pointer;
-  transition: transform var(--tp-animation-speed-fast) ease;
+  transition: all var(--tp-animation-speed) ease;
   margin-bottom: var(--tp-spacing-lg);
   width: 100%;
   font-family: inherit;
+  padding: 16px 20px;
+  color: var(--tp-text-secondary);
 }
 
-.start-conversation-btn:hover {
+.ticketping-start-conversation-btn:hover {
   transform: translateY(-1px);
+  color: var(--tp-text-primary);
 }
 
-.start-conversation-btn:active {
+.ticketping-start-conversation-btn:active {
   transform: translateY(0);
 }
 
+.ticketping-start-conversation-btn-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--tp-spacing-xs);
+}
+
+.ticketping-start-conversation-btn-text {
+  font-size: var(--tp-font-size-lg);
+  font-weight: var(--tp-font-weight-semibold);
+}
+
+.ticketping-start-conversation-btn-subtext {
+  font-size: var(--tp-font-size-sm);
+  font-weight: var(--tp-font-weight-normal);
+}
+
 /* Help articles */
-.help-articles {
+/* .help-articles {
   text-align: left;
   margin-top: var(--tp-spacing-xxl);
 }
@@ -402,7 +500,7 @@
   margin-right: var(--tp-spacing-sm);
   fill: currentColor;
   flex-shrink: 0;
-}
+} */
 
 /* Messages tab */
 .messages-content {
@@ -873,7 +971,7 @@
     left: var(--tp-spacing-lg);
   }
 
-  .chat-window {
+  .ticketping-chat-window {
     width: 100%;
     height: calc(100vh - 120px);
     bottom: 80px;
@@ -890,17 +988,17 @@
     max-width: 85%;
   }
 
-  .home-content {
+  .ticketping-home-content {
     padding: var(--tp-spacing-lg);
   }
 }
 
 @media (max-width: 320px) {
-  .chat-header {
+  .ticketping-chat-header {
     padding: var(--tp-spacing-md);
   }
 
-  .chat-header-content h3 {
+  .ticketping-chat-header-content h3 {
     font-size: var(--tp-font-size-lg);
   }
 }
@@ -922,7 +1020,7 @@
     transition-duration: 0.01ms !important;
   }
 
-  .chat-bubble.pulse {
+  .ticketping-chat-bubble.pulse {
     animation: none;
   }
 }
