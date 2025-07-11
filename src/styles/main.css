@@ -6,7 +6,7 @@
   --tp-primary-hover: #1f2937;
   --tp-text-primary: #374151;
   --tp-text-secondary: #747d8f;
-  --tp-text-muted: #d1d5db;
+  --tp-text-muted: #c3c5ca;
   --tp-background: #ffffff;
   --tp-background-secondary: #f9fafb;
   --tp-background-tertiary: #e5e7eb;
@@ -436,6 +436,24 @@
   flex-direction: column;
   gap: var(--tp-spacing-md);
   padding: 20px 16px;
+}
+
+.ticketping-plug {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--tp-spacing-sm) var(--tp-spacing-md);
+}
+
+.ticketping-plug a {
+  text-decoration: none;
+  font-size: var(--tp-font-size-xs);
+  color: var(--tp-text-muted);
+  transition: color var(--tp-animation-speed-fast) ease;
+}
+
+.ticketping-plug a:hover {
+  color: var(--tp-text-secondary);
 }
 
 .ticketping-start-conversation-btn {

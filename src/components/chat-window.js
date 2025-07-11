@@ -55,6 +55,11 @@ export class ChatWindow {
               </button>
             </div>
           </div>
+          <div class="ticketping-plug">
+            <a href="https://ticketping.com" target="_blank" rel="noopener noreferrer">
+              Powered by Ticketping
+            </a>
+          </div>
         </div>
 
         <div class="ticketping-tab-content" id="messagesTab">
