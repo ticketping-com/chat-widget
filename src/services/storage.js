@@ -209,7 +209,9 @@ export class StorageService {
 
   // Storage size management
   getStorageSize() {
-    if (!this.isAvailable) return 0;
+    if (!this.isAvailable) {
+      return 0;
+    }
 
     let total = 0;
     Object.values(STORAGE_KEYS).forEach(key => {
@@ -224,7 +226,9 @@ export class StorageService {
 
   getStorageSizeHuman() {
     const bytes = this.getStorageSize();
-    if (bytes === 0) return '0 B';
+    if (bytes === 0) {
+      return '0 B';
+    }
 
     const k = 1024;
     const sizes = ['B', 'KB', 'MB'];

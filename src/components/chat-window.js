@@ -46,7 +46,6 @@ export class ChatWindow {
               <p>How can we help you?</p>
             </div>
             <div class="ticketping-actions-container">
-
               <button class="ticketping-start-conversation-btn">
                 <div class="ticketping-start-conversation-btn-content">
                   <span class="ticketping-start-conversation-btn-text">Send us a message</span>
@@ -60,6 +59,9 @@ export class ChatWindow {
 
         <div class="ticketping-tab-content" id="messagesTab">
           <div class="ticketping-messages-header">
+            <button class="ticketping-back-btn" id="tpBackBtn" aria-label="Go back" style="visibility: hidden;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path></svg>
+            </button>
             <div class="ticketping-tab-heading">
               <span>Messages</span>
             </div>
@@ -69,9 +71,17 @@ export class ChatWindow {
               </svg>
             </button>
           </div>
-          <div class="messages-content">
-            <div class="conversation-list" id="conversationList">
-              <!-- Conversations will be populated here -->
+          <div class="ticketping-messages-content">
+            <div class="ticketping-conversation-container">
+              <div class="ticketping-conversation-list" id="conversationList">
+                <!-- Conversations will be populated here -->
+              </div>
+              <div class="ticketping-send-a-message-container" id="sendMessageBtnContainer">
+                <button class="ticketping-send-message-btn">
+                  <span class="ticketping-send-message-btn-text">Send us a message</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M231.4,44.34s0,.1,0,.15l-58.2,191.94a15.88,15.88,0,0,1-14,11.51q-.69.06-1.38.06a15.86,15.86,0,0,1-14.42-9.15L107,164.15a4,4,0,0,1,.77-4.58l57.92-57.92a8,8,0,0,0-11.31-11.31L96.43,148.26a4,4,0,0,1-4.58.77L17.08,112.64a16,16,0,0,1,2.49-29.8l191.94-58.2.15,0A16,16,0,0,1,231.4,44.34Z"></path></svg>
+                </button>
+              </div>
             </div>
 
             <div class="active-conversation" id="activeConversation" style="display: none;">
@@ -111,19 +121,11 @@ export class ChatWindow {
                 </div>
               </div>
             </div>
-
-            <div class="empty-state" id="emptyState">
-              <svg viewBox="0 0 24 24">
-                <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-              </svg>
-              <h4>No conversations yet</h4>
-              <p>Start a conversation to get help from our support team.</p>
-            </div>
           </div>
         </div>
       </div>
 
-      <div class="ticketping-chat-tabs">
+      <div class="ticketping-chat-tabs" id="ticketpingChatTabs">
         <button class="ticketping-tab active" data-tab="home">
           <div class="tab-icon">
             <svg class="icon-inactive" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"></path></svg>
@@ -153,6 +155,9 @@ export class ChatWindow {
     this.element.querySelector('.ticketping-close-btn-2').addEventListener('click', () => {
       this.options.onClose();
     });
+    this.element.querySelector('#tpBackBtn').addEventListener('click', () => {
+      this.showConversationList();
+    });
 
     // Tab switching
     this.element.querySelectorAll('.ticketping-tab').forEach(tab => {
@@ -163,6 +168,12 @@ export class ChatWindow {
 
     // Start conversation button
     this.element.querySelector('.ticketping-start-conversation-btn').addEventListener('click', () => {
+      this.switchTab('messages');
+      this.options.onConversationSelect('new');
+    });
+
+    // Start conversation button
+    this.element.querySelector('.ticketping-send-message-btn').addEventListener('click', () => {
       this.switchTab('messages');
       this.options.onConversationSelect('new');
     });
@@ -235,7 +246,7 @@ export class ChatWindow {
 
     this.conversations.forEach(conversation => {
       const item = createDOMElement('div', {
-        className: 'conversation-item',
+        className: 'ticketping-conversation-item',
         'data-conversation': conversation.id
       });
 
@@ -243,9 +254,8 @@ export class ChatWindow {
       const snippet = lastMessage ? lastMessage.text.substring(0, 50) + '...' : 'No messages';
 
       item.innerHTML = `
-        <div class="conversation-preview">${conversation.title || 'Support Conversation'}</div>
+        <div class="conversation-preview">${conversation.title || snippet || 'Support Chat'}</div>
         <div class="conversation-time">${this.formatTime(conversation.updatedAt || conversation.createdAt)}</div>
-        <div class="conversation-snippet">${snippet}</div>
       `;
 
       item.addEventListener('click', () => {
@@ -256,23 +266,21 @@ export class ChatWindow {
     });
   }
 
-  showConversation(conversationId) {
+  showConversationItem(conversationId) {
     this.currentConversation = conversationId;
     this.element.querySelector('#conversationList').style.display = 'none';
     this.element.querySelector('#activeConversation').style.display = 'flex';
-    this.element.querySelector('#emptyState').style.display = 'none';
+    this.element.querySelector('#tpBackBtn').style.visibility = 'visible';
+    this.element.querySelector('#sendMessageBtnContainer').style.display = 'none';
+    this.element.querySelector('#ticketpingChatTabs').style.display = 'none';
   }
 
   showConversationList() {
     this.element.querySelector('#conversationList').style.display = 'block';
     this.element.querySelector('#activeConversation').style.display = 'none';
-    this.element.querySelector('#emptyState').style.display = 'none';
-  }
-
-  showEmptyState() {
-    this.element.querySelector('#conversationList').style.display = 'none';
-    this.element.querySelector('#activeConversation').style.display = 'none';
-    this.element.querySelector('#emptyState').style.display = 'flex';
+    this.element.querySelector('#tpBackBtn').style.visibility = 'hidden';
+    this.element.querySelector('#sendMessageBtnContainer').style.display = 'flex';
+    this.element.querySelector('#ticketpingChatTabs').style.display = 'flex';
   }
 
   addMessage(message) {

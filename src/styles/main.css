@@ -206,7 +206,6 @@
   font-size: var(--tp-font-size-lg);
   font-weight: var(--tp-font-weight-semibold);
   color: var(--tp-text-primary);
-  margin-left: 12px;
 }
 
 .ticketping-workspace-logo img {
@@ -266,10 +265,35 @@
 }
 
 .ticketping-close-btn-2:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--tp-background-tertiary);
 }
 
 .ticketping-close-btn-2 svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.ticketping-back-btn {
+  background: none;
+  border: none;
+  color: var(--tp-text-secondary);
+  cursor: pointer;
+  padding: var(--tp-spacing-xs);
+  border-radius: var(--tp-border-radius-small);
+  transition: background var(--tp-animation-speed-fast) ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.ticketping-back-btn:hover {
+  background: var(--tp-background-tertiary);
+}
+
+.ticketping-back-btn svg {
   width: 16px;
   height: 16px;
   fill: currentColor;
@@ -503,35 +527,79 @@
 } */
 
 /* Messages tab */
-.messages-content {
+.ticketping-messages-content {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
+.ticketping-send-a-message-container {
+  display: flex;
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ticketping-send-message-btn {
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 10px 16px;
+  position: relative;
+  border-radius: 10px;
+  display: flex;
+  -webkit-box-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  pointer-events: auto;
+  font-size: 14px;
+  line-height: 20px;
+  color: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid rgb(245, 245, 245);
+  transition: color 0.2s, background-color 0.2s, box-shadow 0.2s ease-in-out;
+  background: var(--tp-background);
+  color: var(--tp-text-secondary);
+  box-shadow: rgba(9, 14, 21, 0.06) 0px 0px 25px 0px, rgba(9, 14, 21, 0.06) 0px 0px 25px 0px;
+}
+
+.ticketping-send-message-btn:hover {
+  transform: translateY(-1px);
+  color: var(--tp-text-primary);
+}
+
+.ticketping-send-message-btn:active {
+  transform: translateY(0);
+}
+
 /* Conversation list */
-.conversation-list {
+.ticketping-conversation-list {
   overflow-y: auto;
   max-height: 100%;
 }
 
-.conversation-item {
-  padding: var(--tp-spacing-md) var(--tp-spacing-lg);
+.ticketping-conversation-item {
+  padding: var(--tp-spacing-lg) var(--tp-spacing-xl);
   border-bottom: 1px solid var(--tp-border-light);
   cursor: pointer;
   transition: background var(--tp-animation-speed-fast) ease;
   position: relative;
 }
 
-.conversation-item:hover {
+.ticketping-conversation-item:hover {
   background: var(--tp-background-secondary);
 }
 
-.conversation-item:last-child {
+.ticketping-conversation-item:last-child {
   border-bottom: none;
 }
 
-.conversation-item.active {
+.ticketping-conversation-item.active {
   background: var(--tp-background-secondary);
   border-left: 3px solid var(--tp-primary-color);
 }
@@ -541,20 +609,14 @@
   color: var(--tp-text-primary);
   margin-bottom: var(--tp-spacing-xs);
   font-weight: var(--tp-font-weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .conversation-time {
   font-size: var(--tp-font-size-sm);
   color: var(--tp-text-muted);
-}
-
-.conversation-snippet {
-  font-size: var(--tp-font-size-sm);
-  color: var(--tp-text-secondary);
-  margin-top: var(--tp-spacing-xs);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .conversation-unread {
@@ -894,37 +956,6 @@
 
 .send-btn:disabled svg {
   fill: var(--tp-text-muted);
-}
-
-/* Empty state */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: var(--tp-spacing-xxl);
-  text-align: center;
-}
-
-.empty-state svg {
-  width: 48px;
-  height: 48px;
-  fill: var(--tp-background-tertiary);
-  margin-bottom: var(--tp-spacing-lg);
-}
-
-.empty-state h4 {
-  font-size: var(--tp-font-size-lg);
-  color: var(--tp-text-primary);
-  margin-bottom: var(--tp-spacing-sm);
-  font-weight: var(--tp-font-weight-medium);
-}
-
-.empty-state p {
-  font-size: var(--tp-font-size-base);
-  color: var(--tp-text-secondary);
-  line-height: 1.5;
 }
 
 /* Error states */

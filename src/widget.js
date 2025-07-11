@@ -170,7 +170,7 @@ class TicketpingChat {
       status: 'active'
     });
 
-    this.chatWindow.showConversation(conversationId);
+    this.chatWindow.showConversationItem(conversationId);
     this.track('conversation_started', { conversationId });
 
     return conversationId;
@@ -261,6 +261,12 @@ class TicketpingChat {
 
   async loadConversation(conversationId) {
     try {
+      // Handle new conversation case
+      if (conversationId === 'new') {
+        this.startConversation();
+        return;
+      }
+
       // Load from API if not in memory
       if (!this.conversations.has(conversationId)) {
         const conversation = await this.api.getConversation(conversationId);
@@ -270,7 +276,7 @@ class TicketpingChat {
       this.currentConversation = conversationId;
       const conversation = this.conversations.get(conversationId);
 
-      this.chatWindow.showConversation(conversationId);
+      this.chatWindow.showConversationItem(conversationId);
       this.chatWindow.setMessages(conversation.messages);
 
       this.track('conversation_loaded', { conversationId });
