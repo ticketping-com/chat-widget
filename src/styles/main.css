@@ -281,12 +281,21 @@
   cursor: pointer;
   padding: var(--tp-spacing-xs);
   border-radius: var(--tp-border-radius-small);
-  transition: background var(--tp-animation-speed-fast) ease;
+  transition: all var(--tp-animation-speed) var(--tp-animation-easing);
   display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
+  opacity: 0;
+  transform: translateX(-20px);
+  pointer-events: none;
+}
+
+.ticketping-back-btn.show {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
 }
 
 .ticketping-back-btn:hover {
@@ -557,6 +566,13 @@
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ticketping-send-a-message-container.show {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .ticketping-send-message-btn {
@@ -580,7 +596,7 @@
   font-weight: 600;
   white-space: nowrap;
   border: 1px solid rgb(245, 245, 245);
-  transition: color 0.2s, background-color 0.2s, box-shadow 0.2s ease-in-out;
+  transition: color 0.2s, background-color 0.2s, box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
   background: var(--tp-background);
   color: var(--tp-text-secondary);
   box-shadow: rgba(9, 14, 21, 0.06) 0px 0px 25px 0px, rgba(9, 14, 21, 0.06) 0px 0px 25px 0px;
@@ -595,10 +611,37 @@
   transform: translateY(0);
 }
 
+/* Conversation container */
+.ticketping-conversation-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex: 1;
+}
+
 /* Conversation list */
 .ticketping-conversation-list {
   overflow-y: auto;
   max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity var(--tp-animation-speed) var(--tp-animation-easing), transform var(--tp-animation-speed) var(--tp-animation-easing);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.ticketping-conversation-list.show {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  visibility: visible;
 }
 
 .ticketping-conversation-item {
@@ -611,10 +654,6 @@
 
 .ticketping-conversation-item:hover {
   background: var(--tp-background-secondary);
-}
-
-.ticketping-conversation-item:last-child {
-  border-bottom: none;
 }
 
 .ticketping-conversation-item.active {
@@ -652,6 +691,32 @@
   justify-content: center;
   font-size: var(--tp-font-size-xs);
   font-weight: var(--tp-font-weight-semibold);
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--tp-spacing-xxl);
+}
+
+.empty-state-content {
+  text-align: center;
+}
+
+.empty-state-content p {
+  color: var(--tp-text-secondary);
+  font-size: var(--tp-font-size-base);
+  font-weight: var(--tp-font-weight-medium);
+  margin-bottom: var(--tp-spacing-sm);
+}
+
+.empty-state-subtext {
+  color: var(--tp-text-muted);
+  font-size: var(--tp-font-size-sm);
+  font-weight: var(--tp-font-weight-normal);
 }
 
 /* Active conversation */
@@ -879,9 +944,14 @@
 
 /* Message input */
 .message-input-container {
-  padding: var(--tp-spacing-lg);
+  padding: var(--tp-spacing-md) var(--tp-spacing-lg);
   border-top: 1px solid var(--tp-border);
   background: var(--tp-background);
+  outline: none;
+}
+
+.message-input-container:focus-within {
+  outline: none;
 }
 
 .message-input-wrapper {
@@ -896,7 +966,8 @@
 }
 
 .message-input-wrapper:focus-within {
-  border-color: var(--tp-primary-color);
+  border-color: var(--tp-border-light);
+  background: var(--tp-background);
 }
 
 .message-input {

@@ -64,7 +64,7 @@ export class ChatWindow {
 
         <div class="ticketping-tab-content" id="messagesTab">
           <div class="ticketping-messages-header">
-            <button class="ticketping-back-btn" id="tpBackBtn" aria-label="Go back" style="visibility: hidden;">
+            <button class="ticketping-back-btn" id="tpBackBtn" aria-label="Go back">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path></svg>
             </button>
             <div class="ticketping-tab-heading">
@@ -113,14 +113,9 @@ export class ChatWindow {
                   <div class="input-actions">
                     <input type="file" class="file-input" accept="image/*,.pdf,.doc,.docx">
                     <button class="file-btn">
-                      <svg viewBox="0 0 24 24">
-                        <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/>
-                      </svg>
-                    </button>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M209.66,122.34a8,8,0,0,1,0,11.32l-82.05,82a56,56,0,0,1-79.2-79.21L147.67,35.73a40,40,0,1,1,56.61,56.55L105,193A24,24,0,1,1,71,159L154.3,74.38A8,8,0,1,1,165.7,85.6L82.39,170.31a8,8,0,1,0,11.27,11.36L192.93,81A24,24,0,1,0,159,47L59.76,147.68a40,40,0,1,0,56.53,56.62l82.06-82A8,8,0,0,1,209.66,122.34Z"></path></svg>
                     <button class="send-btn" disabled>
-                      <svg viewBox="0 0 24 24">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                      </svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M208.49,120.49a12,12,0,0,1-17,0L140,69V216a12,12,0,0,1-24,0V69L64.49,120.49a12,12,0,0,1-17-17l72-72a12,12,0,0,1,17,0l72,72A12,12,0,0,1,208.49,120.49Z"></path></svg>
                     </button>
                   </div>
                 </div>
@@ -231,6 +226,13 @@ export class ChatWindow {
       content.classList.toggle('active', content.id === `${tabName}Tab`);
     });
 
+    if (tabName === 'messages') {
+      this.element.querySelector('#conversationList').classList.add('show');
+      this.element.querySelector('#sendMessageBtnContainer').classList.add('show');
+    } else {
+      this.element.querySelector('#conversationList').classList.remove('show');
+      this.element.querySelector('#sendMessageBtnContainer').classList.remove('show');
+    }
     this.options.onTabSwitch(tabName);
   }
 
@@ -271,20 +273,32 @@ export class ChatWindow {
     });
   }
 
+  showEmptyState() {
+    const listElement = this.element.querySelector('#conversationList');
+    listElement.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-content">
+          <p>No conversations yet</p>
+          <p class="empty-state-subtext">Send us a message to get help</p>
+        </div>
+      </div>
+    `;
+  }
+
   showConversationItem(conversationId) {
     this.currentConversation = conversationId;
-    this.element.querySelector('#conversationList').style.display = 'none';
+    this.element.querySelector('#conversationList').classList.remove('show');
     this.element.querySelector('#activeConversation').style.display = 'flex';
-    this.element.querySelector('#tpBackBtn').style.visibility = 'visible';
-    this.element.querySelector('#sendMessageBtnContainer').style.display = 'none';
+    this.element.querySelector('#tpBackBtn').classList.add('show');
+    this.element.querySelector('#sendMessageBtnContainer').classList.remove('show');
     this.element.querySelector('#ticketpingChatTabs').style.display = 'none';
   }
 
   showConversationList() {
-    this.element.querySelector('#conversationList').style.display = 'block';
+    this.element.querySelector('#conversationList').classList.add('show');
     this.element.querySelector('#activeConversation').style.display = 'none';
-    this.element.querySelector('#tpBackBtn').style.visibility = 'hidden';
-    this.element.querySelector('#sendMessageBtnContainer').style.display = 'flex';
+    this.element.querySelector('#tpBackBtn').classList.remove('show');
+    this.element.querySelector('#sendMessageBtnContainer').classList.add('show');
     this.element.querySelector('#ticketpingChatTabs').style.display = 'flex';
   }
 
