@@ -944,7 +944,6 @@
 
 /* Message input */
 .message-input-container {
-  padding: var(--tp-spacing-md) var(--tp-spacing-lg);
   border-top: 1px solid var(--tp-border);
   background: var(--tp-background);
   outline: none;
@@ -956,33 +955,36 @@
 
 .message-input-wrapper {
   display: flex;
-  align-items: flex-end;
-  background: var(--tp-background-secondary);
-  border-radius: var(--tp-border-radius-large);
-  padding: var(--tp-spacing-sm) var(--tp-spacing-md);
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 16px;
   transition: border-color var(--tp-animation-speed-fast) ease;
-  border: 2px solid transparent;
   min-height: 44px;
 }
 
-.message-input-wrapper:focus-within {
-  border-color: var(--tp-border-light);
-  background: var(--tp-background);
-}
 
 .message-input {
-  flex: 1;
   border: none;
   background: none;
   outline: none;
   resize: none;
   font-size: var(--tp-font-size-base);
   padding: var(--tp-spacing-sm) 0;
-  max-height: 100px;
+  max-height: 160px;
   min-height: 20px;
   font-family: inherit;
   color: var(--tp-text-primary);
-  line-height: 1.4;
+
+  box-sizing: border-box;
+  resize: none;
+  font-weight: normal;
+  inset: 0px;
+  line-height: 20px;
+  outline: none;
+  overflow: auto;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  width: 100%;
 }
 
 .message-input::placeholder {
@@ -992,31 +994,53 @@
 .input-actions {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--tp-spacing-sm);
-  margin-left: var(--tp-spacing-sm);
+  width: 100%;
+  padding: 8px 0;
 }
 
 .file-input {
   display: none;
 }
 
-.file-btn,
+.file-input-container {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity var(--tp-animation-speed) var(--tp-animation-easing),
+              transform var(--tp-animation-speed) var(--tp-animation-easing);
+}
+
+.file-input-container.hidden {
+  opacity: 0;
+  transform: translateX(8px);
+  pointer-events: none;
+}
+
+.file-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--tp-text-secondary);
+  transition: color var(--tp-animation-speed-fast) ease;
+}
+
+.file-btn:hover {
+  color: var(--tp-text-primary);
+}
+
 .send-btn {
   background: none;
   border: none;
   cursor: pointer;
-  padding: var(--tp-spacing-sm);
+  padding: 5px;
   border-radius: 50%;
   transition: background var(--tp-animation-speed-fast) ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-}
-
-.file-btn:hover {
-  background: var(--tp-background-tertiary);
+  width: 24px;
+  height: 24px;
 }
 
 .send-btn {
@@ -1032,7 +1056,6 @@
   cursor: not-allowed;
 }
 
-.file-btn svg,
 .send-btn svg {
   width: 16px;
   height: 16px;

@@ -111,9 +111,12 @@ export class ChatWindow {
                     rows="1"
                   ></textarea>
                   <div class="input-actions">
-                    <input type="file" class="file-input" accept="image/*,.pdf,.doc,.docx">
-                    <button class="file-btn">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M209.66,122.34a8,8,0,0,1,0,11.32l-82.05,82a56,56,0,0,1-79.2-79.21L147.67,35.73a40,40,0,1,1,56.61,56.55L105,193A24,24,0,1,1,71,159L154.3,74.38A8,8,0,1,1,165.7,85.6L82.39,170.31a8,8,0,1,0,11.27,11.36L192.93,81A24,24,0,1,0,159,47L59.76,147.68a40,40,0,1,0,56.53,56.62l82.06-82A8,8,0,0,1,209.66,122.34Z"></path></svg>
+                    <div class="file-input-container">
+                      <input type="file" class="file-input" accept="image/*,.pdf,.doc,.docx">
+                      <button class="file-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M209.66,122.34a8,8,0,0,1,0,11.32l-82.05,82a56,56,0,0,1-79.2-79.21L147.67,35.73a40,40,0,1,1,56.61,56.55L105,193A24,24,0,1,1,71,159L154.3,74.38A8,8,0,1,1,165.7,85.6L82.39,170.31a8,8,0,1,0,11.27,11.36L192.93,81A24,24,0,1,0,159,47L59.76,147.68a40,40,0,1,0,56.53,56.62l82.06-82A8,8,0,0,1,209.66,122.34Z"></path></svg>
+                      </button>
+                    </div>
                     <button class="send-btn" disabled>
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M208.49,120.49a12,12,0,0,1-17,0L140,69V216a12,12,0,0,1-24,0V69L64.49,120.49a12,12,0,0,1-17-17l72-72a12,12,0,0,1,17,0l72,72A12,12,0,0,1,208.49,120.49Z"></path></svg>
                     </button>
@@ -335,6 +338,13 @@ export class ChatWindow {
   handleInputChange(input, sendBtn) {
     const hasText = input.value.trim().length > 0;
     sendBtn.disabled = !hasText;
+
+    // Animate file input container visibility when user starts typing
+    const fileInputContainer = this.element.querySelector('.file-input-container');
+    if (fileInputContainer) {
+      fileInputContainer.classList.toggle('hidden', hasText);
+    }
+
     this.autoResizeTextarea(input);
   }
 
