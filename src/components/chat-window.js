@@ -106,6 +106,7 @@ export class ChatWindow {
               <div class="message-input-container">
                 <div class="message-input-wrapper">
                   <textarea
+                    id="messageInput"
                     class="message-input"
                     placeholder="Type your message..."
                     rows="1"
@@ -173,16 +174,24 @@ export class ChatWindow {
     this.element.querySelector('.ticketping-start-conversation-btn').addEventListener('click', () => {
       this.switchTab('messages');
       this.options.onConversationSelect('new');
+      // Delay focus to allow tab transition to complete
+      setTimeout(() => {
+        this.element.querySelector('#messageInput').focus();
+      }, 50);
     });
 
     // Start conversation button
     this.element.querySelector('.ticketping-send-message-btn').addEventListener('click', () => {
       this.switchTab('messages');
       this.options.onConversationSelect('new');
+      // Delay focus to allow tab transition to complete
+      setTimeout(() => {
+        this.element.querySelector('#messageInput').focus();
+      }, 50);
     });
 
     // Message input handling
-    const messageInput = this.element.querySelector('.message-input');
+    const messageInput = this.element.querySelector('#messageInput');
     const sendBtn = this.element.querySelector('.send-btn');
 
     messageInput.addEventListener('input', () => {
@@ -295,6 +304,10 @@ export class ChatWindow {
     this.element.querySelector('#tpBackBtn').classList.add('show');
     this.element.querySelector('#sendMessageBtnContainer').classList.remove('show');
     this.element.querySelector('#ticketpingChatTabs').style.display = 'none';
+    // Delay focus to allow DOM updates to complete
+    setTimeout(() => {
+      this.element.querySelector('#messageInput').focus();
+    }, 50);
   }
 
   showConversationList() {
