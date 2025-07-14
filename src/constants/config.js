@@ -176,10 +176,10 @@ export const CSS_CLASSES = {
   CLOSED: 'closed',
   PULSE: 'pulse',
   TYPING: 'typing',
-  MESSAGE: 'message',
-  USER_MESSAGE: 'message--user',
-  AGENT_MESSAGE: 'message--agent',
-  SYSTEM_MESSAGE: 'message--system'
+  MESSAGE: 'ticketping-message',
+  USER_MESSAGE: 'ticketping-message--user',
+  AGENT_MESSAGE: 'ticketping-message--agent',
+  SYSTEM_MESSAGE: 'ticketping-message--system'
 };
 
 export const BREAKPOINTS = {

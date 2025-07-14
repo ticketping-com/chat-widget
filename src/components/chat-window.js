@@ -90,7 +90,7 @@ export class ChatWindow {
             </div>
 
             <div class="active-conversation" id="activeConversation" style="display: none;">
-              <div class="messages-list" id="messagesList">
+              <div class="ticketping-messages-list" id="messagesList">
                 <!-- Messages will be populated here -->
               </div>
 
@@ -103,22 +103,22 @@ export class ChatWindow {
                 </div>
               </div>
 
-              <div class="message-input-container">
-                <div class="message-input-wrapper">
+              <div class="ticketping-message-input-container">
+                <div class="ticketping-message-input-wrapper">
                   <textarea
                     id="messageInput"
-                    class="message-input"
+                    class="ticketping-message-input"
                     placeholder="Type your message..."
                     rows="1"
                   ></textarea>
-                  <div class="input-actions">
-                    <div class="file-input-container">
-                      <input type="file" class="file-input" accept="image/*,.pdf,.doc,.docx">
-                      <button class="file-btn">
+                  <div class="ticketping-input-actions">
+                    <div class="ticketping-file-input-container">
+                      <input type="file" class="ticketping-file-input" accept="image/*,.pdf,.doc,.docx">
+                      <button class="ticketping-file-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M209.66,122.34a8,8,0,0,1,0,11.32l-82.05,82a56,56,0,0,1-79.2-79.21L147.67,35.73a40,40,0,1,1,56.61,56.55L105,193A24,24,0,1,1,71,159L154.3,74.38A8,8,0,1,1,165.7,85.6L82.39,170.31a8,8,0,1,0,11.27,11.36L192.93,81A24,24,0,1,0,159,47L59.76,147.68a40,40,0,1,0,56.53,56.62l82.06-82A8,8,0,0,1,209.66,122.34Z"></path></svg>
                       </button>
                     </div>
-                    <button class="send-btn" disabled>
+                    <button class="ticketping-send-btn" disabled>
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M208.49,120.49a12,12,0,0,1-17,0L140,69V216a12,12,0,0,1-24,0V69L64.49,120.49a12,12,0,0,1-17-17l72-72a12,12,0,0,1,17,0l72,72A12,12,0,0,1,208.49,120.49Z"></path></svg>
                     </button>
                   </div>
@@ -192,7 +192,7 @@ export class ChatWindow {
 
     // Message input handling
     const messageInput = this.element.querySelector('#messageInput');
-    const sendBtn = this.element.querySelector('.send-btn');
+    const sendBtn = this.element.querySelector('.ticketping-send-btn');
 
     messageInput.addEventListener('input', () => {
       this.handleInputChange(messageInput, sendBtn);
@@ -210,8 +210,8 @@ export class ChatWindow {
     });
 
     // File upload
-    const fileBtn = this.element.querySelector('.file-btn');
-    const fileInput = this.element.querySelector('.file-input');
+    const fileBtn = this.element.querySelector('.ticketping-file-btn');
+    const fileInput = this.element.querySelector('.ticketping-file-input');
 
     fileBtn.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', () => this.handleFileUpload(fileInput));
@@ -273,8 +273,8 @@ export class ChatWindow {
       const snippet = lastMessage ? lastMessage.text.substring(0, 50) + '...' : 'No messages';
 
       item.innerHTML = `
-        <div class="conversation-preview">${conversation.title || snippet || 'Support Chat'}</div>
-        <div class="conversation-time">${this.formatTime(conversation.updatedAt || conversation.createdAt)}</div>
+        <div class="ticketping-conversation-preview">${conversation.title || snippet || 'Support Chat'}</div>
+        <div class="ticketping-conversation-time">${this.formatTime(conversation.updatedAt || conversation.createdAt)}</div>
       `;
 
       item.addEventListener('click', () => {
@@ -337,12 +337,12 @@ export class ChatWindow {
 
   createMessageElement(message) {
     const element = createDOMElement('div', {
-      className: `message ${message.type}`
+      className: `ticketping-message ${message.type}`
     });
 
     element.innerHTML = `
-      <div class="message-bubble">${this.escapeHtml(message.text)}</div>
-      <div class="message-time">${message.time}</div>
+      <div class="ticketping-message-bubble">${this.escapeHtml(message.text)}</div>
+      <div class="ticketping-message-time">${message.time}</div>
     `;
 
     return element;
@@ -353,7 +353,7 @@ export class ChatWindow {
     sendBtn.disabled = !hasText;
 
     // Animate file input container visibility when user starts typing
-    const fileInputContainer = this.element.querySelector('.file-input-container');
+    const fileInputContainer = this.element.querySelector('.ticketping-file-input-container');
     if (fileInputContainer) {
       fileInputContainer.classList.toggle('hidden', hasText);
     }
