@@ -29,6 +29,7 @@ class TicketpingChat {
     // State
     this.conversations = new Map();
     this.currentConversation = null;
+    this.currentChatSession = null;
 
     this.init();
   }
@@ -51,6 +52,7 @@ class TicketpingChat {
 
       // Initialize components
       this.chatBubble = new ChatBubble(this.widgetContainer, {
+        showPulseAnimation: this.config.showPulseAnimation,
         onClick: () => this.toggle(),
         onAnimationComplete: () => this.removePulse()
       });
@@ -82,6 +84,21 @@ class TicketpingChat {
     } catch (error) {
       console.error('Failed to initialize TicketpingChat:', error);
       this.track('widget_init_error', { error: error.message });
+    }
+  }
+
+  async initWsConversation() {
+    try {
+      const wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/`;
+      this.ws = new WebSocketService(wsUrl, null, {
+        onMessage: (message) => this.handleWebSocketMessage(message),
+        onTyping: (data) => this.handleTypingIndicator(data),
+        onStatusChange: (status) => this.handleAgentStatus(status),
+        onError: (error) => this.handleWebSocketError(error)
+      });
+    } catch (error) {
+      console.warn('WebSocket initialization failed:', error);
+      this.track('websocket_init_error', { error: error.message });
     }
   }
 
@@ -130,6 +147,9 @@ class TicketpingChat {
     if (!this.isInitialized) {
       return;
     }
+    if (this.ws) {
+      this.ws.disconnect();
+    }
     this.isOpen = false;
     this.chatBubble.setOpen(false);
     this.chatWindow.hide();
@@ -170,6 +190,7 @@ class TicketpingChat {
       status: 'active'
     });
 
+    this.initWsConversation();
     this.chatWindow.showConversationItem(conversationId);
     this.track('conversation_started', { conversationId });
 
@@ -177,34 +198,37 @@ class TicketpingChat {
   }
 
   async sendMessage(messageData) {
-    if (!this.currentConversation) {
-      this.currentConversation = this.startConversation();
+    console.log('sendMessage', messageData);
+    if (!this.currentChatSession) {
+      throw new Error('No conversation started!');
     }
 
     const message = {
-      id: this.generateMessageId(),
-      conversationId: this.currentConversation,
-      type: 'user',
-      text: messageData.text,
-      timestamp: new Date(),
+      sessionId: this.currentChatSession,
+      type: 'user_message',
+      sender: 'USER',
+      message: messageData.text,
+      created: new Date().toISOString(),
       ...messageData
     };
 
+    console.log('message', message);
+
     // Add to local state
-    this.addMessageToConversation(this.currentConversation, message);
+    this.addMessageToConversation(this.currentChatSession, message);
 
     // Update UI
     this.chatWindow.addMessage(message);
 
     // Send via WebSocket or API
-    if (this.ws && this.ws.isConnected()) {
+    if (this.ws && this.ws.isWsConnected()) {
       this.ws.sendMessage(message);
     } else {
       await this.api.sendMessage(message);
     }
 
     this.track('message_sent', {
-      conversationId: this.currentConversation,
+      chatSessionId: this.currentChatSession,
       messageType: message.type,
       hasAttachment: !!message.file
     });
@@ -240,16 +264,19 @@ class TicketpingChat {
 
   handleWebSocketMessage(data) {
     switch (data.type) {
-    case 'message':
-      this.addMessageToConversation(data.conversationId, data);
-      if (data.conversationId === this.currentConversation) {
+    case 'server_message':
+      if (!this.currentChatSession) {
+        this.currentChatSession = data.sessionId;
+      }
+      this.addMessageToConversation(this.currentChatSession, data);
+      if (data.sessionId === this.currentChatSession) {
         this.chatWindow.addMessage(data);
       }
       break;
-    case 'conversation_updated':
+    case 'server_conversation_updated':
       this.updateConversation(data.conversationId, data.updates);
       break;
-    case 'agent_joined':
+    case 'server_agent_joined':
       this.handleAgentJoined(data);
       break;
     }
@@ -326,10 +353,6 @@ class TicketpingChat {
 
   generateConversationId() {
     return `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  generateMessageId() {
-    return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   removePulse() {

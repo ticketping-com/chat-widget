@@ -337,12 +337,12 @@ export class ChatWindow {
 
   createMessageElement(message) {
     const element = createDOMElement('div', {
-      className: `ticketping-message ${message.type}`
+      className: `ticketping-message ${message.sender.toLowerCase()}`
     });
 
     element.innerHTML = `
-      <div class="ticketping-message-bubble">${this.escapeHtml(message.text)}</div>
-      <div class="ticketping-message-time">${message.time}</div>
+      <div class="ticketping-message-bubble">${this.escapeHtml(message.message)}</div>
+      <div class="ticketping-message-time">${this.formatTime(message.created)}</div>
     `;
 
     return element;
@@ -353,10 +353,7 @@ export class ChatWindow {
     sendBtn.disabled = !hasText;
 
     // Animate file input container visibility when user starts typing
-    const fileInputContainer = this.element.querySelector('.ticketping-file-input-container');
-    if (fileInputContainer) {
-      fileInputContainer.classList.toggle('hidden', hasText);
-    }
+    this.toggleFileInputButton(!hasText);
 
     this.autoResizeTextarea(input);
   }
@@ -370,7 +367,15 @@ export class ChatWindow {
     this.options.onSendMessage({ text });
     input.value = '';
     sendBtn.disabled = true;
+    this.toggleFileInputButton(true);
     this.autoResizeTextarea(input);
+  }
+
+  toggleFileInputButton(show) {
+    const fileInputContainer = this.element.querySelector('.ticketping-file-input-container');
+    if (fileInputContainer) {
+      fileInputContainer.classList.toggle('hidden', !show);
+    }
   }
 
   handleFileUpload(fileInput) {
@@ -402,7 +407,7 @@ export class ChatWindow {
   }
 
   formatTime(date) {
-    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date(date).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   }
 
   escapeHtml(text) {

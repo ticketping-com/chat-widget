@@ -63,7 +63,7 @@ export class ApiService {
 
     return {
       chatToken: response.chatToken,
-      wsUrl: response.wsUrl || this.config.wsUrl
+      wsBase: response.wsBase || this.config.wsBase
     };
   }
 

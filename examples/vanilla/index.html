@@ -202,8 +202,11 @@
         // Configuration for development
         window.ticketpingConfig = {
             appId: 'dev-app-id',
-            apiBase: 'http://localhost:8000', // Your dev API
+            teamSlug: 'capsulecorp',
+            apiBase: 'http://localhost:7800',
+            wsBase: 'ws://localhost:7800',
             debug: true,
+            showPulseAnimation: false,
             analytics: false, // Disable for dev
             onReady: () => logEvent('Widget ready'),
             onOpen: () => logEvent('Widget opened'),

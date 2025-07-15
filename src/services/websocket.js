@@ -2,9 +2,10 @@
 import { WEBSOCKET_EVENTS } from '../constants/config.js';
 
 export class WebSocketService {
-  constructor(wsUrl, token, options = {}) {
+  constructor(wsUrl, token = null, options = {}) {
     this.wsUrl = wsUrl;
     this.token = token;
+    this.isAnonymous = !token;
     this.options = {
       onMessage: () => {},
       onTyping: () => {},
@@ -84,59 +85,77 @@ export class WebSocketService {
   }
 
   authenticate() {
-    this.send({
-      type: WEBSOCKET_EVENTS.AUTH,
-      token: this.token
-    });
+    if (this.isAnonymous) {
+      // For anonymous users, send auth request without token
+      this.send({
+        type: WEBSOCKET_EVENTS.AUTH,
+        anonymous: true
+      });
+    } else {
+      // For authenticated users, send token
+      this.send({
+        type: WEBSOCKET_EVENTS.AUTH,
+        token: this.token
+      });
+    }
   }
 
   handleMessage(data) {
     switch (data.type) {
-      case WEBSOCKET_EVENTS.MESSAGE_RECEIVED:
-        this.options.onMessage(data);
-        break;
+    case WEBSOCKET_EVENTS.SERVER_MESSAGE:
+      this.options.onMessage(data);
+      break;
 
-      case WEBSOCKET_EVENTS.TYPING_INDICATOR:
-        this.options.onTyping(data);
-        break;
+    case WEBSOCKET_EVENTS.SERVER_TYPING:
+      this.options.onTyping(data);
+      break;
 
-      case WEBSOCKET_EVENTS.AGENT_STATUS:
-        this.options.onStatusChange(data);
-        break;
+    case WEBSOCKET_EVENTS.SERVER_AGENT_STATUS:
+      this.options.onStatusChange(data);
+      break;
 
-      case WEBSOCKET_EVENTS.AGENT_JOINED:
-        this.options.onStatusChange({ type: 'agent_joined', ...data });
-        break;
+    case WEBSOCKET_EVENTS.SERVER_AGENT_JOINED:
+      this.options.onStatusChange({ type: 'agent_joined', ...data });
+      break;
 
-      case WEBSOCKET_EVENTS.AGENT_LEFT:
-        this.options.onStatusChange({ type: 'agent_left', ...data });
-        break;
+    case WEBSOCKET_EVENTS.SERVER_AGENT_LEFT:
+      this.options.onStatusChange({ type: 'agent_left', ...data });
+      break;
 
-      case WEBSOCKET_EVENTS.CONVERSATION_UPDATED:
-        this.options.onMessage(data);
-        break;
+    case WEBSOCKET_EVENTS.SERVER_CONVERSATION_UPDATED:
+      this.options.onMessage(data);
+      break;
 
-      case WEBSOCKET_EVENTS.ERROR:
-        console.error('WebSocket server error:', data.message);
-        this.options.onError(new Error(data.message));
-        break;
+    case WEBSOCKET_EVENTS.SERVER_AUTH_SUCCESS:
+      console.log('WebSocket authentication successful');
+      break;
 
-      case 'auth_success':
-        console.log('WebSocket authentication successful');
-        break;
+    case WEBSOCKET_EVENTS.SERVER_AUTH_FAILED:
+      console.error('WebSocket authentication failed');
+      this.options.onError(new Error('Authentication failed'));
+      this.disconnect();
+      break;
 
-      case 'auth_failed':
-        console.error('WebSocket authentication failed');
-        this.options.onError(new Error('Authentication failed'));
-        this.disconnect();
-        break;
+    case WEBSOCKET_EVENTS.SERVER_ANONYMOUS_AUTH_SUCCESS:
+      console.log('Anonymous WebSocket authentication successful');
+      break;
 
-      case 'pong':
-        // Heartbeat response
-        break;
+    case WEBSOCKET_EVENTS.SERVER_ANONYMOUS_AUTH_FAILED:
+      console.error('Anonymous WebSocket authentication failed');
+      this.options.onError(new Error('Anonymous authentication failed'));
+      this.disconnect();
+      break;
 
-      default:
-        console.warn('Unknown WebSocket message type:', data.type);
+    case WEBSOCKET_EVENTS.PONG:
+      break;
+
+    case WEBSOCKET_EVENTS.ERROR:
+      console.error('WebSocket error:', data.message);
+      this.options.onError(new Error(data.message));
+      break;
+
+    default:
+      console.warn('Unknown WebSocket message type:', data.type);
     }
   }
 
@@ -159,11 +178,7 @@ export class WebSocketService {
 
   sendMessage(message) {
     return this.send({
-      type: WEBSOCKET_EVENTS.MESSAGE,
-      conversationId: message.conversationId,
-      text: message.text,
-      timestamp: message.timestamp,
-      messageId: message.id,
+      ...message,
       ...(message.file && { file: message.file })
     });
   }
@@ -273,49 +288,55 @@ export class WebSocketService {
 
   // Utility methods
   getConnectionState() {
-    if (!this.ws) return 'DISCONNECTED';
+    if (!this.ws) {
+      return 'DISCONNECTED';
+    }
 
     switch (this.ws.readyState) {
-      case WebSocket.CONNECTING:
-        return 'CONNECTING';
-      case WebSocket.OPEN:
-        return 'CONNECTED';
-      case WebSocket.CLOSING:
-        return 'CLOSING';
-      case WebSocket.CLOSED:
-        return 'DISCONNECTED';
-      default:
-        return 'UNKNOWN';
+    case WebSocket.CONNECTING:
+      return 'CONNECTING';
+    case WebSocket.OPEN:
+      return 'CONNECTED';
+    case WebSocket.CLOSING:
+      return 'CLOSING';
+    case WebSocket.CLOSED:
+      return 'DISCONNECTED';
+    default:
+      return 'UNKNOWN';
     }
   }
 
-  isConnected() {
+  isAnonymousUser() {
+    return this.isAnonymous;
+  }
+
+  isWsConnected() {
     return this.isConnected && this.ws && this.ws.readyState === WebSocket.OPEN;
   }
 
   // Event subscription for external components
   on(eventType, callback) {
     switch (eventType) {
-      case 'message':
-        this.options.onMessage = callback;
-        break;
-      case 'typing':
-        this.options.onTyping = callback;
-        break;
-      case 'status':
-        this.options.onStatusChange = callback;
-        break;
-      case 'error':
-        this.options.onError = callback;
-        break;
-      case 'connect':
-        this.options.onConnect = callback;
-        break;
-      case 'disconnect':
-        this.options.onDisconnect = callback;
-        break;
-      default:
-        console.warn('Unknown event type:', eventType);
+    case 'message':
+      this.options.onMessage = callback;
+      break;
+    case 'typing':
+      this.options.onTyping = callback;
+      break;
+    case 'status':
+      this.options.onStatusChange = callback;
+      break;
+    case 'error':
+      this.options.onError = callback;
+      break;
+    case 'connect':
+      this.options.onConnect = callback;
+      break;
+    case 'disconnect':
+      this.options.onDisconnect = callback;
+      break;
+    default:
+      console.warn('Unknown event type:', eventType);
     }
   }
 

@@ -2,10 +2,11 @@
 export const DEFAULT_CONFIG = {
   // Required
   appId: null,
+  teamSlug: null,
 
   // API Configuration
   apiBase: 'https://api.ticketping.com',
-  wsUrl: 'wss://ws.ticketping.com',
+  wsBase: 'wss://ws.ticketping.com',
 
   // Authentication
   userJWT: null,
@@ -145,19 +146,24 @@ export const API_ENDPOINTS = {
 export const WEBSOCKET_EVENTS = {
   // Client -> Server
   AUTH: 'auth',
-  MESSAGE: 'message',
+  MESSAGE: 'user_message',
   TYPING_START: 'typing_start',
   TYPING_STOP: 'typing_stop',
   JOIN_CONVERSATION: 'join_conversation',
   LEAVE_CONVERSATION: 'leave_conversation',
 
   // Server -> Client
-  MESSAGE_RECEIVED: 'message_received',
-  TYPING_INDICATOR: 'typing_indicator',
-  AGENT_STATUS: 'agent_status',
-  AGENT_JOINED: 'agent_joined',
-  AGENT_LEFT: 'agent_left',
-  CONVERSATION_UPDATED: 'conversation_updated',
+  SERVER_MESSAGE: 'server_message',
+  TYPING_INDICATOR: 'server_typing',
+  SERVER_AGENT_STATUS: 'server_agent_status',
+  SERVER_AGENT_JOINED: 'server_agent_joined',
+  SERVER_AGENT_LEFT: 'server_agent_left',
+  SERVER_CONVERSATION_UPDATED: 'server_conversation_updated',
+  SERVER_AUTH_SUCCESS: 'server_auth_success',
+  SERVER_AUTH_FAILED: 'server_auth_failed',
+  SERVER_ANONYMOUS_AUTH_SUCCESS: 'server_anonymous_auth_success',
+  SERVER_ANONYMOUS_AUTH_FAILED: 'server_anonymous_auth_failed',
+  PONG: 'pong',
   ERROR: 'error'
 };
 

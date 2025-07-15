@@ -8,7 +8,7 @@ export class ChatBubble {
     this.options = {
       onClick: () => {},
       onAnimationComplete: () => {},
-      showPulse: true,
+      showPulseAnimation: true,
       showNotificationBadge: false,
       notificationCount: 0,
       ...options
@@ -24,7 +24,7 @@ export class ChatBubble {
 
   render() {
     this.element = createDOMElement('button', {
-      className: `${CSS_CLASSES.BUBBLE} ${this.options.showPulse ? CSS_CLASSES.PULSE : ''}`,
+      className: `${CSS_CLASSES.BUBBLE} ${this.options.showPulseAnimation ? CSS_CLASSES.PULSE : ''}`,
       'aria-label': 'Open chat',
       'aria-expanded': 'false'
     });
@@ -90,7 +90,7 @@ export class ChatBubble {
     });
 
     // Remove pulse animation after timeout
-    if (this.options.showPulse) {
+    if (this.options.showPulseAnimation) {
       setTimeout(() => {
         this.removePulse();
         this.options.onAnimationComplete();
