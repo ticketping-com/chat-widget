@@ -88,7 +88,7 @@ export class StorageService {
   // Conversation management
   saveConversation(conversation) {
     const conversations = this.getConversations();
-    const existingIndex = conversations.findIndex(c => c.id === conversation.id);
+    const existingIndex = conversations.findIndex(c => c.sessionId === conversation.sessionId);
 
     if (existingIndex >= 0) {
       conversations[existingIndex] = conversation;
@@ -112,12 +112,12 @@ export class StorageService {
 
   getConversation(conversationId) {
     const conversations = this.getConversations();
-    return conversations.find(c => c.id === conversationId);
+    return conversations.find(c => c.sessionId === conversationId);
   }
 
   deleteConversation(conversationId) {
     const conversations = this.getConversations();
-    const filtered = conversations.filter(c => c.id !== conversationId);
+    const filtered = conversations.filter(c => c.sessionId !== conversationId);
     this.setItem(STORAGE_KEYS.CONVERSATIONS, filtered);
   }
 

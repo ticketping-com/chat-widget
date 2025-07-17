@@ -264,7 +264,14 @@ export class ChatWindow {
 
     listElement.innerHTML = '';
 
-    this.conversations.forEach(conversation => {
+    // Sort conversations by latest first (modified or created timestamp)
+    const sortedConversations = [...this.conversations].sort((a, b) => {
+      const dateA = new Date(a.modified || a.created);
+      const dateB = new Date(b.modified || b.created);
+      return dateB - dateA; // Descending order (newest first)
+    });
+
+    sortedConversations.forEach(conversation => {
       const item = createDOMElement('div', {
         className: 'ticketping-conversation-item',
         'data-conversation': conversation.sessionId
@@ -275,7 +282,7 @@ export class ChatWindow {
 
       item.innerHTML = `
         <div class="ticketping-conversation-preview">${conversation.title || snippet || 'Support Chat'}</div>
-        <div class="ticketping-conversation-time">${this.formatTime(conversation.modified || conversation.created)}</div>
+        <div class="ticketping-conversation-time">${this.formatDateTime(conversation.modified || conversation.created)}</div>
       `;
 
       item.addEventListener('click', () => {
@@ -414,6 +421,10 @@ export class ChatWindow {
 
   formatTime(date) {
     return new Date(date).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  }
+
+  formatDateTime(date) {
+    return new Date(date).toLocaleString([], { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   }
 
   escapeHtml(text) {

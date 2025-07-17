@@ -198,6 +198,7 @@
   align-items: center;
   justify-content: space-between;
   min-height: 60px;
+  max-height: 60px;
   background: var(--tp-background);
   border-bottom: 1px solid var(--tp-border-light);
 }
