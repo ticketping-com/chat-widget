@@ -28,7 +28,7 @@ class TicketpingChat {
 
     // State
     this.conversations = new Map();
-    this.currentConversation = null;
+    this.isChatSessionActive = false;
     this.currentChatSession = null;
 
     this.init();
@@ -62,7 +62,8 @@ class TicketpingChat {
         onTabSwitch: (tab) => this.handleTabSwitch(tab),
         onSendMessage: (message) => this.sendMessage(message),
         onFileUpload: (file) => this.handleFileUpload(file),
-        onConversationSelect: (id) => this.loadConversation(id)
+        onConversationSelect: (sessionId) => this.loadConversation(sessionId),
+        onBackButtonClick: () => this.backToList(),
       });
 
       // Load stored conversations
@@ -87,11 +88,26 @@ class TicketpingChat {
     }
   }
 
-  async initWsConversation() {
+  backToList() {
+    this.isChatSessionActive = false;
+    this.currentChatSession = null;
+    if (this.ws) {
+      this.ws.disconnect();
+    }
+    // this.loadStoredConversations();
+    this.track('back_to_list');
+  }
+
+  async initWsConversation(sessionId) {
     try {
-      const wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/`;
+      let wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/`;
+      if (sessionId) {
+        wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/${sessionId}/`;
+      }
       this.ws = new WebSocketService(wsUrl, null, {
+        onSessionState: (data) => this.handleSessionState(data),
         onMessage: (message) => this.handleWebSocketMessage(message),
+        onMessageHistory: (data) => this.handleMessageHistory(data),
         onTyping: (data) => this.handleTypingIndicator(data),
         onStatusChange: (status) => this.handleAgentStatus(status),
         onError: (error) => this.handleWebSocketError(error)
@@ -181,20 +197,8 @@ class TicketpingChat {
   }
 
   startConversation() {
-    const conversationId = this.generateConversationId();
-    this.currentConversation = conversationId;
-    this.conversations.set(conversationId, {
-      id: conversationId,
-      messages: [],
-      createdAt: new Date(),
-      status: 'active'
-    });
-
     this.initWsConversation();
-    this.chatWindow.showConversationItem(conversationId);
-    this.track('conversation_started', { conversationId });
-
-    return conversationId;
+    this.isChatSessionActive = true;
   }
 
   async sendMessage(messageData) {
@@ -207,7 +211,7 @@ class TicketpingChat {
       sessionId: this.currentChatSession,
       type: 'user_message',
       sender: 'USER',
-      message: messageData.text,
+      messageText: messageData.text,
       created: new Date().toISOString(),
       ...messageData
     };
@@ -262,51 +266,58 @@ class TicketpingChat {
     }
   }
 
+  handleSessionState(data) {
+    console.log('handleSessionState', data);
+    this.currentChatSession = data.sessionId;
+    this.conversations.set(data.sessionId, {
+      sessionId: data.sessionId,
+      messages: [],
+      created: data.created,
+    });
+    this.chatWindow.showConversationItem(this.currentChatSession);
+  }
+
   handleWebSocketMessage(data) {
-    switch (data.type) {
-    case 'server_message':
-      if (!this.currentChatSession) {
-        this.currentChatSession = data.sessionId;
-      }
-      this.addMessageToConversation(this.currentChatSession, data);
-      if (data.sessionId === this.currentChatSession) {
-        this.chatWindow.addMessage(data);
-      }
-      break;
-    case 'server_conversation_updated':
-      this.updateConversation(data.conversationId, data.updates);
-      break;
-    case 'server_agent_joined':
-      this.handleAgentJoined(data);
-      break;
+    this.addMessageToConversation(data.sessionId, data);
+    if (data.sessionId === this.currentChatSession) {
+      this.chatWindow.addMessage(data);
     }
+
+    // case 'server_conversation_updated':
+    //   this.updateConversation(data.conversationId, data.updates);
+    //   break;
+    // case 'server_agent_joined':
+    //   this.handleAgentJoined(data);
+    //   break;
+  }
+
+  handleMessageHistory(data) {
+    console.log('handleMessageHistory', data);
+    console.log('this.conversations', this.conversations);
+    this.conversations.set(data.sessionId, {
+      sessionId: data.sessionId,
+      messages: data.messages,
+      created: data.created,
+    });
+    this.chatWindow.setMessages(data.messages);
   }
 
   handleTabSwitch(tab) {
     this.track('tab_switched', { tab });
   }
 
-  async loadConversation(conversationId) {
+  async loadConversation(chatSessionId) {
     try {
       // Handle new conversation case
-      if (conversationId === 'new') {
+      if (!chatSessionId || chatSessionId === 'new') {
         this.startConversation();
         return;
       }
 
-      // Load from API if not in memory
-      if (!this.conversations.has(conversationId)) {
-        const conversation = await this.api.getConversation(conversationId);
-        this.conversations.set(conversationId, conversation);
-      }
+      this.initWsConversation(chatSessionId);
+      this.isChatSessionActive = true;
 
-      this.currentConversation = conversationId;
-      const conversation = this.conversations.get(conversationId);
-
-      this.chatWindow.showConversationItem(conversationId);
-      this.chatWindow.setMessages(conversation.messages);
-
-      this.track('conversation_loaded', { conversationId });
+      this.track('conversation_loaded', { chatSessionId });
     } catch (error) {
       console.error('Failed to load conversation:', error);
       this.chatWindow.showError('Failed to load conversation');
@@ -316,13 +327,13 @@ class TicketpingChat {
   async loadStoredConversations() {
     try {
       const stored = this.storage.getConversations();
-      stored.forEach(conv => this.conversations.set(conv.id, conv));
+      stored.forEach(conv => this.conversations.set(conv.sessionId, conv));
 
       // Sync with server if authenticated
       if (this.config.userJWT) {
         const serverConversations = await this.api.getConversations();
         serverConversations.forEach(conv => {
-          this.conversations.set(conv.id, conv);
+          this.conversations.set(conv.sessionId, conv);
           this.storage.saveConversation(conv);
         });
       }
@@ -334,25 +345,22 @@ class TicketpingChat {
   }
 
   // Utility methods
-  addMessageToConversation(conversationId, message) {
-    const conversation = this.conversations.get(conversationId);
+  addMessageToConversation(chatSessionId, message) {
+    const conversation = this.conversations.get(chatSessionId);
+    console.log('addMessageToConversation', conversation, chatSessionId, message);
     if (conversation) {
       conversation.messages.push(message);
-      conversation.updatedAt = new Date();
+      conversation.modified = new Date();
       this.storage.saveConversation(conversation);
     }
   }
 
-  updateConversation(conversationId, updates) {
-    const conversation = this.conversations.get(conversationId);
+  updateConversation(chatSessionId, updates) {
+    const conversation = this.conversations.get(chatSessionId);
     if (conversation) {
       Object.assign(conversation, updates);
       this.storage.saveConversation(conversation);
     }
-  }
-
-  generateConversationId() {
-    return `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   removePulse() {
@@ -391,7 +399,7 @@ class TicketpingChat {
   }
 
   handleTypingIndicator(data) {
-    if (data.conversationId === this.currentConversation) {
+    if (data.sessionId === this.currentChatSession) {
       this.chatWindow.showTypingIndicator(data.typing);
     }
   }
@@ -407,6 +415,10 @@ class TicketpingChat {
     }
 
     this.isInitialized = false;
+    this.isChatSessionActive = false;
+    this.currentChatSession = null;
+    this.currentUser = null;
+
     this.track('widget_destroyed');
   }
 }

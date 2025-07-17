@@ -713,6 +713,7 @@
 
 .ticketping-message.user {
   margin-left: auto;
+  width: fit-content;
 }
 
 .ticketping-message.agent {
@@ -739,8 +740,8 @@
 }
 
 .ticketping-message.user .ticketping-message-bubble {
-  background: var(--tp-primary-color);
-  color: white;
+  background: var(--tp-background-secondary);
+  color: var(--tp-text-primary);
   border-bottom-right-radius: var(--tp-spacing-xs);
 }
 

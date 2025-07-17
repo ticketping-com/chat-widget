@@ -10,13 +10,13 @@ export class ChatWindow {
       onSendMessage: () => {},
       onFileUpload: () => {},
       onConversationSelect: () => {},
+      onBackButtonClick: () => {},
       ...options
     };
 
     this.element = null;
     this.activeTab = 'home';
     this.conversations = [];
-    this.currentConversation = null;
 
     this.render();
     this.attachEventListeners();
@@ -161,6 +161,7 @@ export class ChatWindow {
     });
     this.element.querySelector('#tpBackBtn').addEventListener('click', () => {
       this.showConversationList();
+      this.options.onBackButtonClick();
     });
 
     // Tab switching
@@ -266,19 +267,19 @@ export class ChatWindow {
     this.conversations.forEach(conversation => {
       const item = createDOMElement('div', {
         className: 'ticketping-conversation-item',
-        'data-conversation': conversation.id
+        'data-conversation': conversation.sessionId
       });
 
       const lastMessage = conversation.messages[conversation.messages.length - 1];
-      const snippet = lastMessage ? lastMessage.text.substring(0, 50) + '...' : 'No messages';
+      const snippet = lastMessage ? lastMessage.messageText.substring(0, 50) + '...' : 'No messages';
 
       item.innerHTML = `
         <div class="ticketping-conversation-preview">${conversation.title || snippet || 'Support Chat'}</div>
-        <div class="ticketping-conversation-time">${this.formatTime(conversation.updatedAt || conversation.createdAt)}</div>
+        <div class="ticketping-conversation-time">${this.formatTime(conversation.modified || conversation.created)}</div>
       `;
 
       item.addEventListener('click', () => {
-        this.options.onConversationSelect(conversation.id);
+        this.options.onConversationSelect(conversation.sessionId);
       });
 
       listElement.appendChild(item);
@@ -297,8 +298,7 @@ export class ChatWindow {
     `;
   }
 
-  showConversationItem(conversationId) {
-    this.currentConversation = conversationId;
+  showConversationItem() {
     this.element.querySelector('#conversationList').classList.remove('show');
     this.element.querySelector('#activeConversation').style.display = 'flex';
     this.element.querySelector('#tpBackBtn').classList.add('show');
@@ -316,6 +316,7 @@ export class ChatWindow {
     this.element.querySelector('#tpBackBtn').classList.remove('show');
     this.element.querySelector('#sendMessageBtnContainer').classList.add('show');
     this.element.querySelector('#ticketpingChatTabs').style.display = 'flex';
+    this.clearMessages();
   }
 
   addMessage(message) {
@@ -335,13 +336,18 @@ export class ChatWindow {
     this.scrollToBottom();
   }
 
+  clearMessages() {
+    const messagesList = this.element.querySelector('#messagesList');
+    messagesList.innerHTML = '';
+  }
+
   createMessageElement(message) {
     const element = createDOMElement('div', {
       className: `ticketping-message ${message.sender.toLowerCase()}`
     });
 
     element.innerHTML = `
-      <div class="ticketping-message-bubble">${this.escapeHtml(message.message)}</div>
+      <div class="ticketping-message-bubble">${message.messageHtml ? message.messageHtml : this.escapeHtml(message.messageText)}</div>
       <div class="ticketping-message-time">${this.formatTime(message.created)}</div>
     `;
 

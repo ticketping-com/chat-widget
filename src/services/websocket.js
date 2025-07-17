@@ -7,7 +7,9 @@ export class WebSocketService {
     this.token = token;
     this.isAnonymous = !token;
     this.options = {
+      onSessionState: () => {},
       onMessage: () => {},
+      onMessageHistory: () => {},
       onTyping: () => {},
       onStatusChange: () => {},
       onError: () => {},
@@ -102,8 +104,16 @@ export class WebSocketService {
 
   handleMessage(data) {
     switch (data.type) {
+    case WEBSOCKET_EVENTS.SERVER_STATE:
+      this.options.onSessionState(data);
+      break;
+
     case WEBSOCKET_EVENTS.SERVER_MESSAGE:
       this.options.onMessage(data);
+      break;
+
+    case WEBSOCKET_EVENTS.SERVER_MESSAGE_HISTORY:
+      this.options.onMessageHistory(data);
       break;
 
     case WEBSOCKET_EVENTS.SERVER_TYPING:

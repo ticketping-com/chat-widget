@@ -153,6 +153,8 @@ export const WEBSOCKET_EVENTS = {
   LEAVE_CONVERSATION: 'leave_conversation',
 
   // Server -> Client
+  SERVER_STATE: 'server_session_state',
+  SERVER_MESSAGE_HISTORY: 'server_message_history',
   SERVER_MESSAGE: 'server_message',
   TYPING_INDICATOR: 'server_typing',
   SERVER_AGENT_STATUS: 'server_agent_status',

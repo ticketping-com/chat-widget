@@ -99,7 +99,7 @@ export class StorageService {
     // Keep only the most recent conversations
     const maxConversations = 50;
     if (conversations.length > maxConversations) {
-      conversations.sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+      conversations.sort((a, b) => new Date(b.modified || b.created) - new Date(a.modified || a.created));
       conversations.splice(maxConversations);
     }
 
@@ -168,7 +168,7 @@ export class StorageService {
     cutoffDate.setDate(cutoffDate.getDate() - maxAge);
 
     const filteredConversations = conversations.filter(conversation => {
-      const conversationDate = new Date(conversation.updatedAt || conversation.createdAt);
+      const conversationDate = new Date(conversation.modified || conversation.created);
       return conversationDate > cutoffDate;
     });
 
