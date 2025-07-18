@@ -94,7 +94,8 @@ class TicketpingChat {
     if (this.ws) {
       this.ws.disconnect();
     }
-    // this.loadStoredConversations();
+    // Update the conversation list with the latest conversations
+    this.chatWindow.setConversations(Array.from(this.conversations.values()));
     this.track('back_to_list');
   }
 
