@@ -136,8 +136,8 @@ export const DEFAULT_CONFIG = {
 };
 
 export const API_ENDPOINTS = {
-  auth: '/auth/chat-token',
-  conversations: '/conversations',
+  auth: '/api/v1/jwt/auth/',
+  conversations: '/api/v1/chat-sessions/',
   messages: '/messages',
   upload: '/upload',
   analytics: '/analytics'

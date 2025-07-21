@@ -277,8 +277,8 @@ export class ChatWindow {
         'data-conversation': conversation.sessionId
       });
 
-      const lastMessage = conversation.messages[conversation.messages.length - 1];
-      const snippet = lastMessage ? lastMessage.messageText.substring(0, 50) + '...' : 'No messages';
+      const lastMessage = conversation['messages']?.[conversation['messages'].length - 1];
+      const snippet = lastMessage ? lastMessage.messageText.substring(0, 50) + '...' : '';
 
       item.innerHTML = `
         <div class="ticketping-conversation-preview">${conversation.title || snippet || 'Support Chat'}</div>

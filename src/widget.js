@@ -69,11 +69,6 @@ class TicketpingChat {
       // Load stored conversations
       await this.loadStoredConversations();
 
-      // Initialize WebSocket if user is authenticated
-      if (this.config.userJWT) {
-        await this.initializeWebSocket();
-      }
-
       this.isInitialized = true;
 
       // Track initialization
@@ -101,6 +96,19 @@ class TicketpingChat {
 
   async initWsConversation(sessionId) {
     try {
+      if (this.config.userJWT) {
+        await this.initAuthWsConversation(sessionId);
+      } else {
+        await this.initAnonWsConversation(sessionId);
+      }
+    } catch (error) {
+      console.warn('WebSocket initialization failed:', error);
+      this.track('websocket_init_error', { error: error.message });
+    }
+  }
+
+  async initAnonWsConversation(sessionId) {
+    try {
       let wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/`;
       if (sessionId) {
         wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/${sessionId}/`;
@@ -119,6 +127,27 @@ class TicketpingChat {
     }
   }
 
+  async initAuthWsConversation(sessionId) {
+    try {
+      const { chatJWT } = await this.api.getChatToken();
+      let wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/?jwt=${chatJWT}`;
+      if (sessionId) {
+        wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/${sessionId}/?jwt=${chatJWT}`;
+      }
+      this.ws = new WebSocketService(wsUrl, chatJWT, {
+        onSessionState: (data) => this.handleSessionState(data),
+        onMessage: (message) => this.handleWebSocketMessage(message),
+        onMessageHistory: (data) => this.handleMessageHistory(data),
+        onTyping: (data) => this.handleTypingIndicator(data),
+        onStatusChange: (status) => this.handleAgentStatus(status),
+        onError: (error) => this.handleWebSocketError(error)
+      });
+    } catch (error) {
+      console.warn('WebSocket auth initialization failed:', error);
+      this.track('websocket_auth_init_error', { error: error.message });
+    }
+  }
+
   createWidgetContainer() {
     // Remove existing widget if any
     const existing = document.querySelector('.ticketping-widget');
@@ -134,20 +163,6 @@ class TicketpingChat {
     document.body.appendChild(this.widgetContainer);
   }
 
-  async initializeWebSocket() {
-    try {
-      const { chatToken, wsUrl } = await this.api.getChatToken();
-      this.ws = new WebSocketService(wsUrl, chatToken, {
-        onMessage: (message) => this.handleWebSocketMessage(message),
-        onTyping: (data) => this.handleTypingIndicator(data),
-        onStatusChange: (status) => this.handleAgentStatus(status),
-        onError: (error) => this.handleWebSocketError(error)
-      });
-    } catch (error) {
-      console.warn('WebSocket initialization failed:', error);
-      this.track('websocket_init_error', { error: error.message });
-    }
-  }
 
   // Public API methods
   open() {
@@ -181,14 +196,19 @@ class TicketpingChat {
     }
   }
 
-  identify(userData) {
+  async identify(userData) {
     this.currentUser = userData;
     this.storage.setUser(userData);
 
-    // Re-initialize WebSocket with user context
-    if (userData.jwt) {
-      this.config.userJWT = userData.jwt;
-      this.initializeWebSocket();
+    if (userData.userJWT && userData.userJWT !== 'your-actual-jwt-token-here') {
+      this.config.userJWT = userData.userJWT;
+
+      try {
+        await this.api.identifyUser();
+      } catch (error) {
+        console.warn('Failed to identify user on backend:', error);
+      }
+      // this.initWsConversation();
     }
 
     this.track('user_identified', {
@@ -333,7 +353,7 @@ class TicketpingChat {
       // Sync with server if authenticated
       if (this.config.userJWT) {
         const serverConversations = await this.api.getConversations();
-        serverConversations.forEach(conv => {
+        serverConversations['results'].forEach(conv => {
           this.conversations.set(conv.sessionId, conv);
           this.storage.saveConversation(conv);
         });
@@ -440,7 +460,7 @@ window.TicketpingChat = {
 
   identify(userData) {
     if (this.instance) {
-      this.instance.identify(userData);
+      return this.instance.identify(userData);
     }
   },
 

@@ -719,10 +719,12 @@
 
 .ticketping-message.agent {
   margin-right: auto;
+  width: fit-content;
 }
 
 .ticketping-message.system {
   margin-right: auto;
+  width: fit-content;
 }
 
 .ticketping-message.date {

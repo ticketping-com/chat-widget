@@ -1,11 +1,40 @@
 // src/services/api.js
 import { API_ENDPOINTS } from '../constants/config.js';
 
+// Cookie key for storing chatJWT
+const TP_CHAT_JWT_COOKIE_KEY = 'ticketping_chat_jwt';
+
 export class ApiService {
   constructor(config) {
     this.config = config;
     this.baseUrl = config.apiBase;
-    this.token = config.userJWT;
+  }
+
+  // Cookie utility methods
+  setCookie(name, value, hours) {
+    const date = new Date();
+    date.setTime(date.getTime() + (hours * 60 * 60 * 1000));
+    const expires = `expires=${date.toUTCString()}`;
+    document.cookie = `${name}=${value};${expires};path=/;SameSite=Strict`;
+  }
+
+  getCookie(name) {
+    const nameEQ = name + '=';
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) === ' ') {
+        c = c.substring(1, c.length);
+      }
+      if (c.indexOf(nameEQ) === 0) {
+        return c.substring(nameEQ.length, c.length);
+      }
+    }
+    return null;
+  }
+
+  deleteCookie(name) {
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Strict`;
   }
 
   async request(endpoint, options = {}) {
@@ -15,14 +44,9 @@ export class ApiService {
       ...options.headers
     };
 
-    // Add authorization header if token is available
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
-    }
-
     // Add app ID header
     if (this.config.appId) {
-      headers['X-App-ID'] = this.config.appId;
+      headers['x-tpwidget-id'] = this.config.appId;
     }
 
     const requestOptions = {
@@ -47,34 +71,77 @@ export class ApiService {
       }
     } catch (error) {
       console.error(`API request failed: ${endpoint}`, error);
+
+      // If it's an auth error, clear the cached token so we fetch a new one next time
+      if (this.isAuthError(error)) {
+        this.clearChatToken();
+      }
+
       throw error;
     }
   }
 
   // Authentication
   async getChatToken() {
-    const response = await this.request(API_ENDPOINTS.auth, {
-      method: 'POST',
-      body: JSON.stringify({
-        appId: this.config.appId,
-        userJWT: this.token
-      })
+    // Check if we have a valid chatJWT in cookies first
+    const cachedJWT = this.getCookie(TP_CHAT_JWT_COOKIE_KEY);
+    if (cachedJWT) {
+      try {
+        // Basic JWT validation - check if it's not expired
+        const payload = JSON.parse(atob(cachedJWT.split('.')[1]));
+        const currentTime = Math.floor(Date.now() / 1000);
+
+        // If token is still valid (not expired), return it
+        if (payload.exp && payload.exp > currentTime) {
+          return {
+            chatJWT: cachedJWT,
+          };
+        }
+      } catch (error) {
+        console.log('error', error);
+        // Invalid JWT format, continue to fetch new token
+        console.warn('Invalid cached JWT format, fetching new token');
+        this.deleteCookie(TP_CHAT_JWT_COOKIE_KEY);
+      }
+    }
+
+    // Fetch new token from server
+    const params = new URLSearchParams({
+      jwt: this.config.userJWT,
+      team: this.config.teamSlug,
+    });
+    const response = await this.request(`${API_ENDPOINTS.auth}?${params}`, {
+      method: 'GET',
     });
 
+    // Store the new token in cookies for 6 hours
+    if (response.jwt) {
+      this.setCookie(TP_CHAT_JWT_COOKIE_KEY, response.jwt, 6);
+    }
+
     return {
-      chatToken: response.chatToken,
-      wsBase: response.wsBase || this.config.wsBase
+      chatJWT: response.jwt,
     };
+  }
+
+  // Clear cached chat token (useful when token becomes invalid)
+  clearChatToken() {
+    this.deleteCookie(TP_CHAT_JWT_COOKIE_KEY);
   }
 
   // Conversations
   async getConversations(limit = 50, offset = 0) {
+    const { chatJWT } = await this.getChatToken();
+    const headers = {
+      'Authorization': `Bearer ${chatJWT}`,
+      'Content-Type': 'application/json'
+    };
     const params = new URLSearchParams({
       limit: limit.toString(),
       offset: offset.toString()
     });
 
-    return await this.request(`${API_ENDPOINTS.conversations}?${params}`);
+    return await this.request(`${API_ENDPOINTS.conversations}?${params}`, { headers });
   }
 
   async getConversation(conversationId) {
@@ -144,7 +211,7 @@ export class ApiService {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
     if (this.config.appId) {
-      headers['X-App-ID'] = this.config.appId;
+      headers['x-tpwidget-id'] = this.config.appId;
     }
 
     try {
@@ -189,12 +256,12 @@ export class ApiService {
   }
 
   // User management
-  async identifyUser(userData) {
+  async identifyUser() {
     return await this.request('/users/identify', {
       method: 'POST',
       body: JSON.stringify({
         appId: this.config.appId,
-        ...userData
+        userJWT: this.config.userJWT
       })
     });
   }

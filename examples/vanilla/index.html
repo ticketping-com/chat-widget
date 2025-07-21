@@ -205,6 +205,7 @@
             teamSlug: 'capsulecorp',
             apiBase: 'http://localhost:7800',
             wsBase: 'ws://localhost:7800',
+            userJWT: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHRlcm5hbF9pZCI6IjciLCJlbWFpbCI6InJhdmkra3JpbGxpbkB0aWNrZXRwaW5nLmNvbSIsImV4cCI6MTc1MzEyOTAxNn0.DqQIZXWk6ACn2mQLZ4Ja4IYPyqgzAoW_St3n2stbIAA',
             debug: true,
             showPulseAnimation: false,
             analytics: false, // Disable for dev
@@ -296,7 +297,9 @@
                     id: Date.now().toString(),
                     name: document.getElementById('userName').value,
                     email: document.getElementById('userEmail').value,
-                    company: document.getElementById('userCompany').value
+                    company: document.getElementById('userCompany').value,
+                    // In a real app, you'd get this from your auth system
+                    userJWT: 'your-actual-jwt-token-here'
                 };
 
                 widget.identify(userData);
