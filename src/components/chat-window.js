@@ -281,7 +281,7 @@ export class ChatWindow {
       const snippet = lastMessage ? lastMessage.messageText.substring(0, 50) + '...' : '';
 
       item.innerHTML = `
-        <div class="ticketping-conversation-preview">${conversation.title || snippet || 'Support Chat'}</div>
+        <div class="ticketping-conversation-preview">${conversation.summary || snippet || 'Support Chat'}</div>
         <div class="ticketping-conversation-time">${this.formatDateTime(conversation.modified || conversation.created)}</div>
       `;
 

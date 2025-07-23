@@ -116,7 +116,7 @@ export class ApiService {
 
     // Store the new token in cookies for 6 hours
     if (response.jwt) {
-      this.setCookie(TP_CHAT_JWT_COOKIE_KEY, response.jwt, 6);
+      this.setCookie(TP_CHAT_JWT_COOKIE_KEY, response.jwt, 168);
     }
 
     return {
