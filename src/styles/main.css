@@ -3,17 +3,37 @@
 /* CSS Custom Properties for theming */
 :root {
   --tp-primary-color: #030712;
+  --tp-primary-button-bg: #030712;
+  --tp-primary-button-text: #ffffff;
   --tp-primary-hover: #1f2937;
   --tp-text-primary: #374151;
   --tp-text-secondary: #747d8f;
   --tp-text-muted: #c3c5ca;
+  --tp-text-white: #ffffff;
   --tp-background: #ffffff;
   --tp-background-secondary: #f9fafb;
   --tp-background-tertiary: #e5e7eb;
   --tp-border: #e9e9e9;
   --tp-border-light: #f3f3f3;
+  --tp-border-card: #f5f5f5;
+  --tp-notification-bg: #ff4757;
+  --tp-success-color: #4caf50;
+  --tp-offline-color: #9e9e9e;
+  --tp-error-bg: #ffebee;
+  --tp-error-text: #c62828;
+  --tp-error-border: #f44336;
+  --tp-pulse-color: #667eea;
+  --tp-pulse-color-70: rgba(102, 126, 234, 0.7);
+  --tp-pulse-color-0: rgba(102, 126, 234, 0);
+  --tp-shadow-light: rgba(15, 15, 15, 0.06);
+  --tp-shadow-medium: rgba(15, 15, 15, 0.16);
+  --tp-shadow-dark: rgba(9, 14, 21, 0.06);
+  --tp-overlay-light: rgba(255, 255, 255, 0.1);
   --tp-shadow: 0 4px 12px rgba(15, 15, 15, 0.1);
   --tp-shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.25);
+  --tp-shadow-card: 0px 4px 28px 0px rgba(15, 15, 15, 0.06), 0px 1px 4px 0px rgba(15, 15, 15, 0.06);
+  --tp-shadow-tab: 0px 0px 25px 0px rgba(15, 15, 15, 0.06);
+  --tp-shadow-send-btn: 0px 0px 25px 0px rgba(9, 14, 21, 0.06), 0px 0px 25px 0px rgba(9, 14, 21, 0.06);
   --tp-border-radius: 16px;
   --tp-border-radius-small: 8px;
   --tp-border-radius-large: 20px;
@@ -111,20 +131,20 @@
 
 @keyframes tp-pulse {
   0% {
-    box-shadow: var(--tp-shadow), 0 0 0 0 rgba(102, 126, 234, 0.7);
+    box-shadow: var(--tp-shadow), 0 0 0 0 var(--tp-pulse-color-70);
   }
   70% {
-    box-shadow: var(--tp-shadow), 0 0 0 20px rgba(102, 126, 234, 0);
+    box-shadow: var(--tp-shadow), 0 0 0 20px var(--tp-pulse-color-0);
   }
   100% {
-    box-shadow: var(--tp-shadow), 0 0 0 0 rgba(102, 126, 234, 0);
+    box-shadow: var(--tp-shadow), 0 0 0 0 var(--tp-pulse-color-0);
   }
 }
 
 .ticketping-chat-bubble svg {
   width: 28px;
   height: 28px;
-  fill: white;
+  fill: var(--tp-text-white);
   transition: transform var(--tp-animation-speed) ease;
 }
 
@@ -137,8 +157,8 @@
   position: absolute;
   top: -2px;
   right: -2px;
-  background: #ff4757;
-  color: white;
+  background: var(--tp-notification-bg);
+  color: var(--tp-text-white);
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -147,7 +167,7 @@
   justify-content: center;
   font-size: var(--tp-font-size-xs);
   font-weight: var(--tp-font-weight-semibold);
-  border: 2px solid white;
+  border: 2px solid var(--tp-text-white);
 }
 
 /* Chat window */
@@ -159,7 +179,7 @@
   height: 600px;
   background: var(--tp-background);
   border-radius: var(--tp-border-radius);
-  box-shadow: rgba(15, 15, 15, 0.16) 0px 5px 40px 0px;
+  box-shadow: var(--tp-shadow-medium) 0px 5px 40px 0px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -183,8 +203,7 @@
 
 /* Header */
 .ticketping-chat-header {
-  background: linear-gradient(135deg, var(--tp-primary-color) 0%, var(--tp-primary-hover) 100%);
-  color: white;
+  color: var(--tp-text-white);
   padding: 28px 36px;
   display: flex;
   align-items: center;
@@ -225,7 +244,7 @@
 .ticketping-close-btn {
   background: none;
   border: none;
-  color: white;
+  color: var(--tp-text-secondary);
   cursor: pointer;
   padding: var(--tp-spacing-xs);
   border-radius: var(--tp-border-radius-small);
@@ -236,12 +255,12 @@
   width: 32px;
   height: 32px;
   position: absolute;
-  top: 32px;
+  top: 24px;
   right: 20px;
 }
 
 .ticketping-close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--tp-background-tertiary);
 }
 
 .ticketping-close-btn svg {
@@ -322,12 +341,12 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #4caf50;
+  background: var(--tp-success-color);
   animation: tp-pulse-dot 2s infinite;
 }
 
 .agent-status-dot.offline {
-  background: #9e9e9e;
+  background: var(--tp-offline-color);
   animation: none;
 }
 
@@ -343,8 +362,8 @@
   -webkit-box-pack: justify;
   justify-content: space-between;
   border-top: 1px solid var(--tp-border-light);
-  box-shadow: rgba(15, 15, 15, 0.06) 0px 0px 25px 0px;
-  background-color: rgb(255, 255, 255);
+  box-shadow: var(--tp-shadow-tab);
+  background-color: var(--tp-background);
   height: 80px;
   padding: 0px;
 }
@@ -445,7 +464,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--tp-spacing-md);
-  padding: 20px 16px;
+  padding: 20px 28px;
 }
 
 .ticketping-plug {
@@ -473,12 +492,12 @@
   position: relative;
   box-sizing: border-box;
   overflow: hidden;
-  border: 1px solid rgb(245, 245, 245);
+  border: 1px solid var(--tp-border-card);
   padding: 0px;
-  background: rgb(255, 255, 255);
+  background: var(--tp-background);
   border-radius: 12px;
   transition: box-shadow 150ms;
-  box-shadow: rgba(15, 15, 15, 0.06) 0px 4px 28px 0px, rgba(15, 15, 15, 0.06) 0px 1px 4px 0px;
+  box-shadow: var(--tp-shadow-card);
   cursor: pointer;
   transition: all var(--tp-animation-speed) ease;
   margin-bottom: var(--tp-spacing-lg);
@@ -556,16 +575,15 @@
   color: inherit;
   font-weight: 600;
   white-space: nowrap;
-  border: 1px solid rgb(245, 245, 245);
+  border: 1px solid var(--tp-primary-button-bg);
   transition: color 0.2s, background-color 0.2s, box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
-  background: var(--tp-background);
-  color: var(--tp-text-secondary);
-  box-shadow: rgba(9, 14, 21, 0.06) 0px 0px 25px 0px, rgba(9, 14, 21, 0.06) 0px 0px 25px 0px;
+  background: var(--tp-primary-button-bg);
+  color: var(--tp-primary-button-text);
+  box-shadow: var(--tp-shadow-send-btn);
 }
 
 .ticketping-send-message-btn:hover {
   transform: translateY(-1px);
-  color: var(--tp-text-primary);
 }
 
 .ticketping-send-message-btn:active {
@@ -799,12 +817,12 @@
 }
 
 .ticketping-message-status.failed {
-  color: #ff4757;
+  color: var(--tp-notification-bg);
 }
 
 /* File attachments */
 .ticketping-message-attachment {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--tp-overlay-light);
   border-radius: var(--tp-border-radius-small);
   padding: var(--tp-spacing-sm);
   margin-top: var(--tp-spacing-sm);
@@ -1015,7 +1033,7 @@
 }
 
 .ticketping-send-btn svg {
-  fill: white;
+  fill: var(--tp-text-white);
 }
 
 .ticketping-send-btn:disabled svg {
@@ -1024,13 +1042,13 @@
 
 /* Error states */
 .error-message {
-  background: #ffebee;
-  color: #c62828;
+  background: var(--tp-error-bg);
+  color: var(--tp-error-text);
   padding: var(--tp-spacing-sm) var(--tp-spacing-md);
   border-radius: var(--tp-border-radius-small);
   font-size: var(--tp-font-size-sm);
   margin: var(--tp-spacing-sm) var(--tp-spacing-lg);
-  border-left: 3px solid #f44336;
+  border-left: 3px solid var(--tp-error-border);
 }
 
 .retry-btn {
@@ -1063,20 +1081,20 @@
   .ticketping-widget {
     bottom: var(--tp-spacing-lg);
     right: var(--tp-spacing-lg);
-    left: var(--tp-spacing-lg);
   }
 
   .ticketping-chat-window {
+    position: fixed;
     width: 100%;
-    height: calc(100vh - 120px);
-    bottom: 80px;
+    height: 100vh;
+    bottom: 0;
     right: 0;
     left: 0;
-    border-radius: var(--tp-border-radius) var(--tp-border-radius) 0 0;
+    border-radius: 0;
   }
 
   .ticketping-message {
-    max-width: 85%;
+    max-width: 100%;
   }
 
   .ticketping-home-content {
@@ -1099,6 +1117,7 @@
   :root {
     --tp-border: #000000;
     --tp-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --tp-shadow-medium: rgba(0, 0, 0, 0.3);
   }
 }
 

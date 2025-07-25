@@ -160,7 +160,67 @@ class TicketpingChat {
       'data-version': __VERSION__
     });
 
+    // Apply custom theme if provided
+    this.applyCustomTheme();
+
     document.body.appendChild(this.widgetContainer);
+  }
+
+  applyCustomTheme() {
+    if (!this.config.theme) {
+      return;
+    }
+
+    const theme = this.config.theme;
+    const root = document.documentElement;
+
+    // Apply theme colors as CSS custom properties
+    const themeMap = {
+      primaryColor: '--tp-primary-color',
+      primaryButtonBg: '--tp-primary-button-bg',
+      primaryButtonText: '--tp-primary-button-text',
+      primaryHover: '--tp-primary-hover',
+      textPrimary: '--tp-text-primary',
+      textSecondary: '--tp-text-secondary',
+      textMuted: '--tp-text-muted',
+      textWhite: '--tp-text-white',
+      background: '--tp-background',
+      backgroundSecondary: '--tp-background-secondary',
+      backgroundTertiary: '--tp-background-tertiary',
+      border: '--tp-border',
+      borderLight: '--tp-border-light',
+      borderCard: '--tp-border-card',
+      notificationBg: '--tp-notification-bg',
+      successColor: '--tp-success-color',
+      offlineColor: '--tp-offline-color',
+      errorBg: '--tp-error-bg',
+      errorText: '--tp-error-text',
+      errorBorder: '--tp-error-border',
+      pulseColor: '--tp-pulse-color',
+      shadowLight: '--tp-shadow-light',
+      shadowMedium: '--tp-shadow-medium',
+      shadowDark: '--tp-shadow-dark',
+      overlayLight: '--tp-overlay-light'
+    };
+
+    Object.entries(themeMap).forEach(([themeKey, cssVar]) => {
+      if (theme[themeKey]) {
+        root.style.setProperty(cssVar, theme[themeKey]);
+
+        // Handle pulse color opacity variants
+        if (themeKey === 'pulseColor') {
+          const color = theme[themeKey];
+          if (color.startsWith('#')) {
+            // Convert hex to RGB for opacity variants
+            const r = parseInt(color.slice(1, 3), 16);
+            const g = parseInt(color.slice(3, 5), 16);
+            const b = parseInt(color.slice(5, 7), 16);
+            root.style.setProperty('--tp-pulse-color-70', `rgba(${r}, ${g}, ${b}, 0.7)`);
+            root.style.setProperty('--tp-pulse-color-0', `rgba(${r}, ${g}, ${b}, 0)`);
+          }
+        }
+      }
+    });
   }
 
 
