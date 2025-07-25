@@ -29,6 +29,10 @@ export class StorageService {
     return deviceId;
   }
 
+  getDeviceId() {
+    return this.deviceId;
+  }
+
   setItem(key, value) {
     try {
       const serializedValue = JSON.stringify(value);
@@ -110,6 +114,10 @@ export class StorageService {
     return this.getItem(STORAGE_KEYS.CONVERSATIONS) || [];
   }
 
+  clearConversations() {
+    this.removeItem(STORAGE_KEYS.CONVERSATIONS);
+  }
+
   getConversation(conversationId) {
     const conversations = this.getConversations();
     return conversations.find(c => c.sessionId === conversationId);
@@ -144,6 +152,10 @@ export class StorageService {
       ...currentSettings,
       ...settings
     });
+  }
+
+  setSettings(settings) {
+    return this.saveSettings(settings);
   }
 
   getSettings() {

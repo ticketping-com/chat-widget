@@ -4,6 +4,24 @@ import { CSS_CLASSES } from '../constants/config.js';
 
 export class ChatBubble {
   constructor(container, options = {}) {
+    if (!container) {
+      console.error('ChatBubble: Container is required');
+      // Initialize as a broken state but don't throw
+      this.container = null;
+      this.element = null;
+      this.notificationBadge = null;
+      this.isOpen = false;
+      this.options = {
+        onClick: () => {},
+        onAnimationComplete: () => {},
+        showPulseAnimation: true,
+        showNotificationBadge: false,
+        notificationCount: 0,
+        ...options
+      };
+      return;
+    }
+
     this.container = container;
     this.options = {
       onClick: () => {},
@@ -23,10 +41,16 @@ export class ChatBubble {
   }
 
   render() {
+    if (!this.container) {
+      return; // Can't render without container
+    }
+
     this.element = createDOMElement('button', {
       className: `${CSS_CLASSES.BUBBLE} ${this.options.showPulseAnimation ? CSS_CLASSES.PULSE : ''}`,
       'aria-label': 'Open chat',
-      'aria-expanded': 'false'
+      'aria-expanded': 'false',
+      role: 'button',
+      tabindex: '0'
     });
 
     // Chat icon SVG
@@ -147,10 +171,14 @@ export class ChatBubble {
 
     this.options.notificationCount = count;
     this.notificationBadge.textContent = count > 99 ? '99+' : count.toString();
-    this.notificationBadge.style.display = 'flex';
 
-    // Add pulse animation to draw attention
-    this.notificationBadge.style.animation = 'tp-pulse 1s ease-in-out 3';
+    if (count > 0) {
+      this.notificationBadge.style.display = 'flex';
+      // Add pulse animation to draw attention
+      this.notificationBadge.style.animation = 'tp-pulse 1s ease-in-out 3';
+    } else {
+      this.notificationBadge.style.display = 'none';
+    }
   }
 
   hideNotificationBadge() {
@@ -224,5 +252,14 @@ export class ChatBubble {
     if (this.element && this.element.parentNode) {
       this.element.parentNode.removeChild(this.element);
     }
+  }
+
+  // Alias methods for test compatibility
+  showNotification(count = 1) {
+    return this.showNotificationBadge(count);
+  }
+
+  hideNotification() {
+    return this.hideNotificationBadge();
   }
 }

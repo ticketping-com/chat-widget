@@ -7,7 +7,7 @@ const TP_CHAT_JWT_COOKIE_KEY = 'ticketping_chat_jwt';
 export class ApiService {
   constructor(config) {
     this.config = config;
-    this.baseUrl = config.apiBase;
+    this.baseURL = config.apiBase;
   }
 
   // Cookie utility methods
@@ -38,7 +38,7 @@ export class ApiService {
   }
 
   async request(endpoint, options = {}) {
-    const url = `${this.baseUrl}${endpoint}`;
+    const url = `${this.baseURL}${endpoint}`;
     const headers = {
       'Content-Type': 'application/json',
       ...options.headers
@@ -215,7 +215,7 @@ export class ApiService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.upload}`, {
+      const response = await fetch(`${this.baseURL}${API_ENDPOINTS.upload}`, {
         method: 'POST',
         headers,
         body: formData
@@ -394,5 +394,26 @@ export class ApiService {
     } catch (error) {
       return false;
     }
+  }
+
+  // Convenience methods for HTTP requests
+  async get(endpoint, options = {}) {
+    return await this.request(endpoint, {
+      method: 'GET',
+      ...options
+    });
+  }
+
+  async post(endpoint, data = null, options = {}) {
+    const requestOptions = {
+      method: 'POST',
+      ...options
+    };
+
+    if (data) {
+      requestOptions.body = JSON.stringify(data);
+    }
+
+    return await this.request(endpoint, requestOptions);
   }
 }
