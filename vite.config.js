@@ -62,7 +62,10 @@ export default defineConfig(({ command, mode }) => {
  * Licensed under MIT
  */`,
           assetFileNames: (assetInfo) => {
-            if (assetInfo.name === 'style.css') return 'widget.css';
+            // Rename any CSS file to widget.css
+            if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+              return 'widget.css';
+            }
             return `assets/[name].[hash][extname]`;
           }
         }
