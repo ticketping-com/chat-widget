@@ -2,6 +2,8 @@
 
 This guide covers how to publish the Ticketping Chat Widget to npm and distribute it for production use.
 
+npm link: https://www.npmjs.com/package/@ticketping/chat-widget
+
 ## 📋 Pre-Publishing Checklist
 
 Before publishing, ensure all these items are completed:
@@ -256,6 +258,8 @@ npm deprecate @ticketping/chat-widget@1.0.1 "This version has critical bugs"
 ```
 
 ## 📊 Post-Publishing
+
+
 
 ### Monitor Package Usage
 - Check npm download stats

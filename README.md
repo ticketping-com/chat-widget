@@ -23,6 +23,8 @@ A modern, customizable customer support chat widget with real-time messaging cap
 npm install @ticketping/chat-widget
 ```
 
+Link: https://www.npmjs.com/package/@ticketping/chat-widget
+
 Or via CDN:
 
 ```html
