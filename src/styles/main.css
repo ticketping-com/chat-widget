@@ -955,7 +955,7 @@
   background: none;
   outline: none;
   resize: none;
-  font-size: var(--tp-font-size-base);
+  font-size: var(--tp-font-size-lg);
   padding: var(--tp-spacing-sm) 0;
   max-height: 160px;
   min-height: 20px;
