@@ -387,7 +387,7 @@ export class ChatWindow {
   toggleFileInputButton(show) {
     const fileInputContainer = this.element.querySelector('.ticketping-file-input-container');
     if (fileInputContainer) {
-      fileInputContainer.classList.toggle('hidden', !show);
+      fileInputContainer.classList.toggle('tp-hidden', !show);
     }
   }
 

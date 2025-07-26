@@ -981,7 +981,7 @@
               transform var(--tp-animation-speed) var(--tp-animation-easing);
 }
 
-.ticketping-file-input-container.hidden {
+.ticketping-file-input-container.tp-hidden {
   opacity: 0;
   transform: translateX(8px);
   pointer-events: none;
