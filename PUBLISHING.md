@@ -146,7 +146,7 @@ git add .
 git commit -m "Release v1.0.1"
 
 # Push changes including tags
-git push origin main --follow-tags
+git push origin master --follow-tags
 ```
 
 ### 10. Create GitHub Release
