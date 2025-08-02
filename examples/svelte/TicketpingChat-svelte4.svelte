@@ -16,7 +16,7 @@
   export let open = false;
 
   // User identification props
-  export let user = null;
+  export let userData = null;
 
   let widget = null;
   let widgetReady = false;
@@ -66,11 +66,6 @@
     }
   }
 
-  // Reactive statement to handle user identification
-  $: if (widget && widgetReady && user) {
-    widget.identify(user);
-  }
-
   onMount(async () => {
     // Dynamic import to avoid SSR issues
     if (typeof window !== 'undefined') {
@@ -84,9 +79,9 @@
         // Initialize the widget
         widget = window.TicketpingChat.init(config);
 
-        // If user is provided on mount, identify them
-        if (user) {
-          widget.identify(user);
+        // If userData is provided on mount, identify them
+        if (userData) {
+          widget.identify(userData);
         }
 
         // Open widget if prop is set
