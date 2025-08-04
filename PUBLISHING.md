@@ -121,7 +121,7 @@ npm publish --dry-run
 npm publish
 
 # Option 2: Use helper scripts (recommended)
-npm run publish:patch  # Bumps patch version and publishes
+npm run publish:patch  # Bumps patch version and publishes, it will also create a tag
 npm run publish:minor  # Bumps minor version and publishes
 npm run publish:major  # Bumps major version and publishes
 ```
@@ -138,15 +138,10 @@ npm init -y
 npm install @ticketping/chat-widget
 ```
 
-### 9. Create Git Tag and Push
+### 9. Push the newly created tag
 
 ```bash
-# Commit any final changes
-git add .
-git commit -m "Release v1.0.1"
-
-# Push changes including tags
-git push origin master --follow-tags
+git push origin v1.0.6  # Replace with your newly created tag
 ```
 
 ### 10. Create GitHub Release
