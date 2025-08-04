@@ -116,6 +116,7 @@ class TicketpingChat {
       this.ws = new WebSocketService(wsUrl, null, {
         onSessionState: (data) => this.handleSessionState(data),
         onMessage: (message) => this.handleWebSocketMessage(message),
+        onFileAttachment: (data) => this.handleWebSocketMessage(data),
         onMessageHistory: (data) => this.handleMessageHistory(data),
         onTyping: (data) => this.handleTypingIndicator(data),
         onStatusChange: (status) => this.handleAgentStatus(status),
@@ -137,6 +138,7 @@ class TicketpingChat {
       this.ws = new WebSocketService(wsUrl, chatJWT, {
         onSessionState: (data) => this.handleSessionState(data),
         onMessage: (message) => this.handleWebSocketMessage(message),
+        onFileAttachment: (data) => this.handleWebSocketMessage(data),
         onMessageHistory: (data) => this.handleMessageHistory(data),
         onTyping: (data) => this.handleTypingIndicator(data),
         onStatusChange: (status) => this.handleAgentStatus(status),
@@ -323,24 +325,22 @@ class TicketpingChat {
 
   async handleFileUpload(file) {
     try {
-      // Validate file
       if (file.size > this.config.maxFileSize) {
         throw new Error(`File size exceeds ${this.config.maxFileSize / 1024 / 1024}MB limit`);
       }
 
-      // Upload file
-      const fileUrl = await this.api.uploadFile(file);
+      await this.api.uploadFile(file, this.currentChatSession);
 
       // Send as message
-      await this.sendMessage({
-        text: `📎 ${file.name}`,
-        file: {
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          url: fileUrl
-        }
-      });
+      // await this.sendMessage({
+      //   text: `📎 ${file.name}`,
+      //   file: {
+      //     name: file.name,
+      //     size: file.size,
+      //     type: file.type,
+      //     url: fileUrl
+      //   }
+      // });
 
     } catch (error) {
       console.error('File upload failed:', error);
@@ -365,13 +365,6 @@ class TicketpingChat {
     if (data.sessionId === this.currentChatSession) {
       this.chatWindow.addMessage(data);
     }
-
-    // case 'server_conversation_updated':
-    //   this.updateConversation(data.conversationId, data.updates);
-    //   break;
-    // case 'server_agent_joined':
-    //   this.handleAgentJoined(data);
-    //   break;
   }
 
   handleMessageHistory(data) {

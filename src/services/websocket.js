@@ -9,6 +9,7 @@ export class WebSocketService {
     this.options = {
       onSessionState: () => {},
       onMessage: () => {},
+      onFileAttachment: () => {},
       onMessageHistory: () => {},
       onTyping: () => {},
       onStatusChange: () => {},
@@ -110,6 +111,10 @@ export class WebSocketService {
 
     case WEBSOCKET_EVENTS.SERVER_MESSAGE:
       this.options.onMessage(data);
+      break;
+
+    case WEBSOCKET_EVENTS.FILE_ATTACHMENT:
+      this.options.onFileAttachment(data);
       break;
 
     case WEBSOCKET_EVENTS.SERVER_MESSAGE_HISTORY:

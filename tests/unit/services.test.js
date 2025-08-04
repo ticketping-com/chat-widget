@@ -485,16 +485,21 @@ describe('ApiService', () => {
       const mockFile = new File(['test content'], 'test.txt', { type: 'text/plain' });
       const mockResponse = { url: 'https://example.com/file.txt' };
 
+      // Mock getChatToken to avoid authentication complexity in this test
+      vi.spyOn(apiService, 'getChatToken').mockResolvedValue({
+        chatJWT: 'mock-chat-jwt'
+      });
+
       fetch.mockResolvedValueOnce({
         ok: true,
         headers: new global.Headers({ 'content-type': 'application/json' }),
         json: () => Promise.resolve(mockResponse)
       });
 
-      const result = await apiService.uploadFile(mockFile);
+      const result = await apiService.uploadFile(mockFile, 'session-123');
 
       expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/upload'),
+        expect.stringContaining('/api/v1/chat-session/file-upload/'),
         expect.objectContaining({
           method: 'POST',
           body: expect.any(FormData)

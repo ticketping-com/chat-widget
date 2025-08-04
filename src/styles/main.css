@@ -842,27 +842,8 @@
 
 /* File attachments */
 .ticketping-message-attachment {
-  background: var(--tp-overlay-light);
-  border-radius: var(--tp-border-radius-small);
-  padding: var(--tp-spacing-sm);
-  margin-top: var(--tp-spacing-sm);
   display: flex;
-  align-items: center;
   gap: var(--tp-spacing-sm);
-}
-
-.ticketping-message.agent .ticketping-message-attachment {
-  background: var(--tp-background-tertiary);
-}
-
-.ticketping-attachment-icon {
-  width: 32px;
-  height: 32px;
-  background: var(--tp-background);
-  border-radius: var(--tp-border-radius-small);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .ticketping-attachment-info {
@@ -871,17 +852,15 @@
 }
 
 .ticketping-attachment-name {
-  font-size: var(--tp-font-size-sm);
-  font-weight: var(--tp-font-weight-medium);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.ticketping-attachment-size {
-  font-size: var(--tp-font-size-xs);
-  opacity: 0.7;
+.ticketping-attachment-name a:hover {
+  color: var(--tp-primary-color) !important;
 }
+
 
 /* Typing indicator */
 .typing-indicator {

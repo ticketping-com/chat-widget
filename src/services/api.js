@@ -215,21 +215,24 @@ export class ApiService {
   }
 
   // File upload
-  async uploadFile(file) {
+  async uploadFile(file, sessionId) {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('appId', this.config.appId);
 
     const headers = {};
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    if (this.config.userJWT) {
+      const { chatJWT } = await this.getChatToken();
+      if (chatJWT) {
+        headers['Authorization'] = `Bearer ${chatJWT}`;
+      }
     }
+
     if (this.config.appId) {
       headers['x-tpwidget-id'] = this.config.appId;
     }
 
     try {
-      const response = await fetch(`${this.baseURL}${API_ENDPOINTS.upload}`, {
+      const response = await fetch(`${this.baseURL}${API_ENDPOINTS.fileUpload}${this.config.teamSlug}/${sessionId}/`, {
         method: 'POST',
         headers,
         body: formData

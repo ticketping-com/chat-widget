@@ -140,7 +140,7 @@ export const API_ENDPOINTS = {
   newChatSession: '/api/v1/chat-session/create/',
   conversations: '/api/v1/chat-sessions/',
   messages: '/messages',
-  upload: '/upload',
+  fileUpload: '/api/v1/chat-session/file-upload/',
   analytics: '/analytics'
 };
 
@@ -152,6 +152,7 @@ export const WEBSOCKET_EVENTS = {
   TYPING_STOP: 'typing_stop',
   JOIN_CONVERSATION: 'join_conversation',
   LEAVE_CONVERSATION: 'leave_conversation',
+  FILE_ATTACHMENT: 'file_attachment',
 
   // Server -> Client
   SERVER_STATE: 'server_session_state',

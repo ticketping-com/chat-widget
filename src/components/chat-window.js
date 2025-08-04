@@ -353,10 +353,26 @@ export class ChatWindow {
       className: `ticketping-message ${message.sender.toLowerCase()}`
     });
 
-    element.innerHTML = `
-      <div class="ticketping-message-bubble">${message.messageHtml ? message.messageHtml : this.escapeHtml(message.messageText)}</div>
-      <div class="ticketping-message-time">${this.formatTime(message.created)}</div>
-    `;
+    // Check if message has file attachment
+    const hasAttachment = message.filename && message.filepath;
+
+    if (hasAttachment) {
+      const messageContent = message.messageHtml ? message.messageHtml : this.escapeHtml(message.messageText || '');
+      const attachmentHtml = this.createAttachmentHtml(message.filename, message.filepath);
+
+      element.innerHTML = `
+        <div class="ticketping-message-bubble">
+          ${messageContent}
+          ${attachmentHtml}
+        </div>
+        <div class="ticketping-message-time">${this.formatTime(message.created)}</div>
+      `;
+    } else {
+      element.innerHTML = `
+        <div class="ticketping-message-bubble">${message.messageHtml ? message.messageHtml : this.escapeHtml(message.messageText)}</div>
+        <div class="ticketping-message-time">${this.formatTime(message.created)}</div>
+      `;
+    }
 
     return element;
   }
@@ -431,6 +447,22 @@ export class ChatWindow {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  createAttachmentHtml(filename, filepath) {
+    const escapedFilename = this.escapeHtml(filename);
+
+    return `
+      <div class="ticketping-message-attachment">
+        <div class="ticketping-attachment-info">
+          <div class="ticketping-attachment-name">
+            <a href="${filepath}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
+              ${escapedFilename}
+            </a>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   updateAgentStatus(status) {
