@@ -114,8 +114,8 @@ describe('TicketpingChat Widget', () => {
       });
     });
 
-    it('should start conversation', () => {
-      widget.startConversation();
+    it('should start conversation', async () => {
+      await widget.startConversation();
       expect(widget.isChatSessionActive).toBe(true);
     });
 
