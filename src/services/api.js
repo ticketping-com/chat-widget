@@ -114,7 +114,6 @@ export class ApiService {
       method: 'GET',
     });
 
-    // Store the new token in cookies for 6 hours
     if (response.jwt) {
       this.setCookie(TP_CHAT_JWT_COOKIE_KEY, response.jwt, 168);
     }
@@ -127,6 +126,21 @@ export class ApiService {
   // Clear cached chat token (useful when token becomes invalid)
   clearChatToken() {
     this.deleteCookie(TP_CHAT_JWT_COOKIE_KEY);
+  }
+
+  async createChatSession() {
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    return await this.request(API_ENDPOINTS.newChatSession, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        appId: this.config.appId,
+        team: this.config.teamSlug,
+        jwt: this.config.userJWT,
+      })
+    });
   }
 
   // Conversations

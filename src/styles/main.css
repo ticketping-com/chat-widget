@@ -735,7 +735,7 @@
 
 .ticketping-message {
   margin-bottom: var(--tp-spacing-lg);
-  max-width: 80%;
+  max-width: 90%;
   animation: tp-slide-in var(--tp-animation-speed) ease;
 }
 

@@ -277,8 +277,10 @@ class TicketpingChat {
     });
   }
 
-  startConversation() {
-    this.initWsConversation();
+  async startConversation() {
+    const result = await this.api.createChatSession();
+    this.currentChatSession = result.sessionId;
+    this.initWsConversation(result.sessionId);
     this.isChatSessionActive = true;
   }
 

@@ -137,6 +137,7 @@ export const DEFAULT_CONFIG = {
 
 export const API_ENDPOINTS = {
   auth: '/api/v1/jwt/auth/',
+  newChatSession: '/api/v1/chat-session/create/',
   conversations: '/api/v1/chat-sessions/',
   messages: '/messages',
   upload: '/upload',
