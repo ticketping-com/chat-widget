@@ -112,11 +112,20 @@ describe('TicketpingChat Widget', () => {
         appId: 'test-app-id',
         teamSlug: 'test-team'
       });
+
+      // Mock API service methods
+      vi.spyOn(widget.api, 'createChatSession').mockResolvedValue({
+        sessionId: 'test-session-123'
+      });
+
+      // Mock WebSocket initialization to avoid timeout
+      vi.spyOn(widget, 'initWsConversation').mockResolvedValue();
     });
 
     it('should start conversation', async () => {
       await widget.startConversation();
       expect(widget.isChatSessionActive).toBe(true);
+      expect(widget.currentChatSession).toBe('test-session-123');
     });
 
     it('should add message to conversation', () => {
