@@ -90,6 +90,18 @@ export class ChatWindow {
             </div>
 
             <div class="active-conversation" id="activeConversation" style="display: none;">
+              <div class="ticketping-loading-state" id="loadingState" style="display: none;">
+                <div class="ticketping-loading-content">
+                  <div class="ticketping-loading-spinner">
+                    <div class="tp-loading-spinner-child"></div>
+                  </div>
+                  <div class="ticketping-loading-text">
+                    <p>Starting conversation...</p>
+                    <p class="ticketping-loading-subtext">Connecting you with support</p>
+                  </div>
+                </div>
+              </div>
+
               <div class="ticketping-messages-list" id="messagesList">
                 <!-- Messages will be populated here -->
               </div>
@@ -171,9 +183,8 @@ export class ChatWindow {
       });
     });
 
-    // Start conversation button
+    // Start conversation buttons (both in home and messages tabs)
     this.element.querySelector('.ticketping-start-conversation-btn').addEventListener('click', () => {
-      this.switchTab('messages');
       this.options.onConversationSelect('new');
       // Delay focus to allow tab transition to complete
       setTimeout(() => {
@@ -181,9 +192,7 @@ export class ChatWindow {
       }, 50);
     });
 
-    // Start conversation button
     this.element.querySelector('.ticketping-send-message-btn').addEventListener('click', () => {
-      this.switchTab('messages');
       this.options.onConversationSelect('new');
       // Delay focus to allow tab transition to complete
       setTimeout(() => {
@@ -311,6 +320,8 @@ export class ChatWindow {
     this.element.querySelector('#tpBackBtn').classList.add('show');
     this.element.querySelector('#sendMessageBtnContainer').classList.remove('show');
     this.element.querySelector('#ticketpingChatTabs').style.display = 'none';
+    // Hide loading state if visible
+    this.hideLoadingState();
     // Delay focus to allow DOM updates to complete
     setTimeout(() => {
       this.element.querySelector('#messageInput').focus();
@@ -324,6 +335,26 @@ export class ChatWindow {
     this.element.querySelector('#sendMessageBtnContainer').classList.add('show');
     this.element.querySelector('#ticketpingChatTabs').style.display = 'flex';
     this.clearMessages();
+    this.hideLoadingState();
+  }
+
+  showLoadingState() {
+    this.element.querySelector('#conversationList').classList.remove('show');
+    this.element.querySelector('#activeConversation').style.display = 'flex';
+    this.element.querySelector('#loadingState').style.display = 'flex';
+    this.element.querySelector('#messagesList').style.display = 'none';
+    this.element.querySelector('#typingIndicator').style.display = 'none';
+    this.element.querySelector('.ticketping-message-input-container').style.display = 'none';
+    this.element.querySelector('#tpBackBtn').classList.add('show');
+    this.element.querySelector('#sendMessageBtnContainer').classList.remove('show');
+    this.element.querySelector('#ticketpingChatTabs').style.display = 'none';
+  }
+
+  hideLoadingState() {
+    this.element.querySelector('#loadingState').style.display = 'none';
+    this.element.querySelector('#messagesList').style.display = 'block';
+    this.element.querySelector('#typingIndicator').style.display = 'none';
+    this.element.querySelector('.ticketping-message-input-container').style.display = 'block';
   }
 
   addMessage(message) {

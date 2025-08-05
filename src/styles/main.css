@@ -1061,7 +1061,7 @@
 }
 
 /* Loading states */
-.loading-spinner {
+.tp-loading-spinner-child {
   width: 20px;
   height: 20px;
   border: 2px solid var(--tp-background-tertiary);
@@ -1073,6 +1073,46 @@
 @keyframes tp-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Conversation loading state */
+.ticketping-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: var(--tp-spacing-xxl);
+  text-align: center;
+}
+
+.ticketping-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--tp-spacing-lg);
+  max-width: 280px;
+}
+
+.ticketping-loading-spinner .tp-loading-spinner-child {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+  margin-bottom: var(--tp-spacing-md);
+}
+
+.ticketping-loading-text p {
+  color: var(--tp-text-primary);
+  font-size: var(--tp-font-size-lg);
+  font-weight: var(--tp-font-weight-medium);
+  margin: 0;
+  margin-bottom: var(--tp-spacing-xs);
+}
+
+.ticketping-loading-subtext {
+  color: var(--tp-text-secondary) !important;
+  font-size: var(--tp-font-size-base) !important;
+  font-weight: var(--tp-font-weight-normal) !important;
 }
 
 /* Mobile responsiveness */

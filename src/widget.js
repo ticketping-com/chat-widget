@@ -94,6 +94,13 @@ class TicketpingChat {
     this.track('back_to_list');
   }
 
+  async startConversation() {
+    const result = await this.api.createChatSession();
+    this.currentChatSession = result.sessionId;
+    await this.initWsConversation(result.sessionId);
+    this.isChatSessionActive = true;
+  }
+
   async initWsConversation(sessionId) {
     try {
       if (this.config.userJWT) {
@@ -104,50 +111,83 @@ class TicketpingChat {
     } catch (error) {
       console.warn('WebSocket initialization failed:', error);
       this.track('websocket_init_error', { error: error.message });
+      throw error; // Re-throw to handle in calling function
     }
   }
 
   async initAnonWsConversation(sessionId) {
-    try {
-      let wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/`;
-      if (sessionId) {
-        wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/${sessionId}/`;
+    return new Promise((resolve, reject) => {
+      try {
+        let wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/`;
+        if (sessionId) {
+          wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/${sessionId}/`;
+        }
+        this.ws = new WebSocketService(wsUrl, null, {
+          onSessionState: (data) => {
+            this.handleSessionState(data);
+            resolve(); // Resolve when we get session state
+          },
+          onMessage: (message) => this.handleWebSocketMessage(message),
+          onFileAttachment: (data) => this.handleWebSocketMessage(data),
+          onMessageHistory: (data) => this.handleMessageHistory(data),
+          onTyping: (data) => this.handleTypingIndicator(data),
+          onStatusChange: (status) => this.handleAgentStatus(status),
+          onError: (error) => {
+            this.handleWebSocketError(error);
+            reject(error);
+          }
+        });
+
+        // Set a timeout in case the connection takes too long
+        setTimeout(() => {
+          if (this.ws && !this.ws.isWsConnected()) {
+            resolve(); // Resolve anyway after timeout to not block UI
+          }
+        }, 5000);
+      } catch (error) {
+        console.warn('WebSocket initialization failed:', error);
+        this.track('websocket_init_error', { error: error.message });
+        reject(error);
       }
-      this.ws = new WebSocketService(wsUrl, null, {
-        onSessionState: (data) => this.handleSessionState(data),
-        onMessage: (message) => this.handleWebSocketMessage(message),
-        onFileAttachment: (data) => this.handleWebSocketMessage(data),
-        onMessageHistory: (data) => this.handleMessageHistory(data),
-        onTyping: (data) => this.handleTypingIndicator(data),
-        onStatusChange: (status) => this.handleAgentStatus(status),
-        onError: (error) => this.handleWebSocketError(error)
-      });
-    } catch (error) {
-      console.warn('WebSocket initialization failed:', error);
-      this.track('websocket_init_error', { error: error.message });
-    }
+    });
   }
 
   async initAuthWsConversation(sessionId) {
-    try {
-      const { chatJWT } = await this.api.getChatToken();
-      let wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/?jwt=${chatJWT}`;
-      if (sessionId) {
-        wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/${sessionId}/?jwt=${chatJWT}`;
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { chatJWT } = await this.api.getChatToken();
+        let wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/?jwt=${chatJWT}`;
+        if (sessionId) {
+          wsUrl = `${this.config.wsBase}/ws/chat/${this.config.teamSlug}/${sessionId}/?jwt=${chatJWT}`;
+        }
+        this.ws = new WebSocketService(wsUrl, chatJWT, {
+          onSessionState: (data) => {
+            this.handleSessionState(data);
+            resolve(); // Resolve when we get session state
+          },
+          onMessage: (message) => this.handleWebSocketMessage(message),
+          onFileAttachment: (data) => this.handleWebSocketMessage(data),
+          onMessageHistory: (data) => this.handleMessageHistory(data),
+          onTyping: (data) => this.handleTypingIndicator(data),
+          onStatusChange: (status) => this.handleAgentStatus(status),
+          onError: (error) => {
+            this.handleWebSocketError(error);
+            reject(error);
+          }
+        });
+
+        // Set a timeout in case the connection takes too long
+        setTimeout(() => {
+          if (this.ws && !this.ws.isWsConnected()) {
+            resolve(); // Resolve anyway after timeout to not block UI
+          }
+        }, 5000);
+      } catch (error) {
+        console.warn('WebSocket auth initialization failed:', error);
+        this.track('websocket_auth_init_error', { error: error.message });
+        reject(error);
       }
-      this.ws = new WebSocketService(wsUrl, chatJWT, {
-        onSessionState: (data) => this.handleSessionState(data),
-        onMessage: (message) => this.handleWebSocketMessage(message),
-        onFileAttachment: (data) => this.handleWebSocketMessage(data),
-        onMessageHistory: (data) => this.handleMessageHistory(data),
-        onTyping: (data) => this.handleTypingIndicator(data),
-        onStatusChange: (status) => this.handleAgentStatus(status),
-        onError: (error) => this.handleWebSocketError(error)
-      });
-    } catch (error) {
-      console.warn('WebSocket auth initialization failed:', error);
-      this.track('websocket_auth_init_error', { error: error.message });
-    }
+    });
   }
 
   createWidgetContainer() {
@@ -279,13 +319,6 @@ class TicketpingChat {
     });
   }
 
-  async startConversation() {
-    const result = await this.api.createChatSession();
-    this.currentChatSession = result.sessionId;
-    this.initWsConversation(result.sessionId);
-    this.isChatSessionActive = true;
-  }
-
   async sendMessage(messageData) {
     console.log('sendMessage', messageData);
     if (!this.currentChatSession) {
@@ -386,16 +419,31 @@ class TicketpingChat {
     try {
       // Handle new conversation case
       if (!chatSessionId || chatSessionId === 'new') {
-        this.startConversation();
+        // Show loading state immediately
+        this.chatWindow.switchTab('messages');
+        this.chatWindow.showLoadingState();
+
+        await this.startConversation();
+
+        // Hide loading state and show conversation
+        this.chatWindow.showConversationItem();
         return;
       }
 
-      this.initWsConversation(chatSessionId);
+      // Show loading for existing conversation
+      this.chatWindow.switchTab('messages');
+      this.chatWindow.showLoadingState();
+
+      await this.initWsConversation(chatSessionId);
       this.isChatSessionActive = true;
+
+      // Hide loading state when conversation is loaded
+      this.chatWindow.showConversationItem();
 
       this.track('conversation_loaded', { chatSessionId });
     } catch (error) {
       console.error('Failed to load conversation:', error);
+      this.chatWindow.hideLoadingState();
       this.chatWindow.showError('Failed to load conversation');
     }
   }
