@@ -64,6 +64,7 @@ class TicketpingChat {
         onFileUpload: (file) => this.handleFileUpload(file),
         onConversationSelect: (sessionId) => this.loadConversation(sessionId),
         onBackButtonClick: () => this.backToList(),
+        teamLogoIcon: this.config.teamLogoIcon,
       });
 
       // Load stored conversations

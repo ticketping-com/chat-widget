@@ -47,7 +47,8 @@ Or via CDN:
     <script>
         window.TicketpingChat.init({
             appId: 'your-app-id',
-            teamSlug: 'your-team-slug'
+            teamSlug: 'your-team-slug',
+            teamLogoIcon: 'cdn-link-to-your-logo-square',
         });
     </script>
 </body>
@@ -62,7 +63,8 @@ import '@ticketping/chat-widget/style';
 
 const chat = new TicketpingChat({
     appId: 'your-app-id',
-    teamSlug: 'your-team-slug'
+    teamSlug: 'your-team-slug',
+    teamLogoIcon: 'cdn-link-to-your-logo-square',
 });
 ```
 
@@ -80,6 +82,7 @@ function App() {
             new TicketpingChat({
                 appId: 'your-app-id',
                 teamSlug: 'your-team-slug',
+                teamLogoIcon: 'cdn-link-to-your-logo-square',
                 onReady: () => console.log('Chat ready'),
                 onMessageReceived: (message) => console.log('New message:', message)
             });
@@ -101,6 +104,7 @@ window.TicketpingChat.init({
     // Required
     appId: 'your-app-id',
     teamSlug: 'your-team-slug',
+    teamLogoIcon: 'cdn-link-to-your-logo-square',
     
     // Optional - API endpoints
     apiBase: 'https://api.ticketping.com',
@@ -122,6 +126,7 @@ window.TicketpingChat.init({
 window.TicketpingChat.init({
     appId: 'your-app-id',
     teamSlug: 'your-team-slug',
+    teamLogoIcon: 'cdn-link-to-your-logo-square',
     theme: {
         primaryColor: '#FF78B1',
         primaryHover: '#FF529A',
@@ -141,6 +146,7 @@ window.TicketpingChat.init({
 window.TicketpingChat.init({
     appId: 'your-app-id',
     teamSlug: 'your-team-slug',
+    teamLogoIcon: 'cdn-link-to-your-logo-square',
     
     // Event callbacks
     onReady: () => console.log('Widget ready'),

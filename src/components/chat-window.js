@@ -11,6 +11,7 @@ export class ChatWindow {
       onFileUpload: () => {},
       onConversationSelect: () => {},
       onBackButtonClick: () => {},
+      teamLogoIcon: null,
       ...options
     };
 
@@ -32,7 +33,7 @@ export class ChatWindow {
         <div class="ticketping-tab-content active" id="homeTab">
           <div class="ticketping-chat-header">
             <div class="ticketping-workspace-logo">
-              <img src="https://spendcrypto.com/android-chrome-192x192.png" alt="logo">
+              ${this.getLogoHtml()}
             </div>
             <button class="ticketping-close-btn" aria-label="Close chat">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -478,6 +479,17 @@ export class ChatWindow {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  getLogoHtml() {
+    const teamLogoIcon = this.options.teamLogoIcon;
+
+    if (teamLogoIcon) {
+      return `<img src="${teamLogoIcon}" alt="logo">`;
+    }
+
+    // Default chat icon SVG
+    return '<svg width="40" height="40" viewBox="0 0 1.2 1.2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.1 0.25a0.15 0.15 0 1 1 -0.3 0 0.15 0.15 0 0 1 0.3 0" fill="#4CB782"/><path opacity=".5" d="M0.762 0.127A0.5 0.5 0 0 0 0.6 0.1C0.324 0.1 0.1 0.324 0.1 0.6c0 0.08 0.019 0.156 0.052 0.223 0.009 0.018 0.012 0.038 0.007 0.057l-0.03 0.111a0.065 0.065 0 0 0 0.08 0.08l0.111 -0.03a0.082 0.082 0 0 1 0.057 0.007A0.498 0.498 0 0 0 0.6 1.1c0.276 0 0.5 -0.224 0.5 -0.5 0 -0.057 -0.009 -0.111 -0.027 -0.162a0.225 0.225 0 0 1 -0.312 -0.312" fill="#1C274C"/></svg>';
   }
 
   createAttachmentHtml(filename, filepath) {

@@ -6,6 +6,7 @@
   // Props - Configuration for the widget
   export let appId = '';
   export let teamSlug = '';
+  export let teamLogoIcon = '';
   export let apiBase = 'https://api.ticketping.com';
   export let wsBase = 'wss://api.ticketping.com';
   export let userJWT = null;
@@ -25,6 +26,7 @@
   $: config = {
     appId,
     teamSlug,
+    teamLogoIcon,
     apiBase,
     wsBase,
     userJWT,

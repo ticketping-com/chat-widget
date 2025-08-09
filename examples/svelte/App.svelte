@@ -16,6 +16,7 @@
   const config = {
     appId: 'your-app-id',
     teamSlug: 'your-team-slug',
+    teamLogoIcon: 'cdn-link-to-your-logo-square',
     apiBase: 'https://api.ticketping.com',
     wsBase: 'wss://api.ticketping.com',
     debug: true,
@@ -280,6 +281,7 @@
     bind:this={chatWidget}
     appId={config.appId}
     teamSlug={config.teamSlug}
+    teamLogoIcon={config.teamLogoIcon}
     apiBase={config.apiBase}
     wsBase={config.wsBase}
     user={currentUser}

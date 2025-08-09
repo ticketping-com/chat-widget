@@ -72,6 +72,7 @@ cp TicketpingChat-svelte4.svelte src/lib/TicketpingChat.svelte
 <TicketpingChat
   appId="your-app-id"
   teamSlug="your-team-slug"
+  teamLogoIcon="cdn-link-to-your-logo-square"
   user={currentUser}
   theme={theme}
   debug={true}
@@ -112,6 +113,7 @@ cp TicketpingChat-svelte4.svelte src/lib/TicketpingChat.svelte
 <TicketpingChat
   appId="your-app-id"
   teamSlug="your-team-slug"
+  teamLogoIcon="cdn-link-to-your-logo-square"
   user={currentUser}
   theme={theme}
   debug={true}
@@ -127,6 +129,7 @@ cp TicketpingChat-svelte4.svelte src/lib/TicketpingChat.svelte
 |------|------|---------|-------------|
 | `appId` | `string` | `''` | Your Ticketping app ID |
 | `teamSlug` | `string` | `''` | Your team slug |
+| `teamLogoIcon` | `string` | `''` | Your team logo icon cdn link  |
 | `apiBase` | `string` | `'https://api.ticketping.com'` | API base URL |
 | `wsBase` | `string` | `'wss://api.ticketping.com'` | WebSocket base URL |
 | `userJWT` | `string` | `null` | JWT token for authenticated users |

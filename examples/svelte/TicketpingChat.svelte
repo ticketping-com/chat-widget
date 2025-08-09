@@ -5,6 +5,7 @@
   let {
     appId = '',
     teamSlug = '',
+    teamLogoIcon = '',
     apiBase = 'https://api.ticketping.com',
     wsBase = 'wss://api.ticketping.com',
     userJWT = null,
@@ -31,6 +32,7 @@
   const config = $derived({
     appId,
     teamSlug,
+    teamLogoIcon,
     apiBase,
     wsBase,
     userJWT,

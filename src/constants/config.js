@@ -3,6 +3,7 @@ export const DEFAULT_CONFIG = {
   // Required
   appId: null,
   teamSlug: null,
+  teamLogoIcon: null,
 
   // API Configuration
   apiBase: 'https://api.ticketping.com',
