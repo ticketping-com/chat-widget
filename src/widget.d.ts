@@ -188,8 +188,5 @@ declare global {
   }
 }
 
-// Module declaration for style import
-declare module '@ticketping/chat-widget/style';
-
 declare const TicketpingChat: TicketpingChatInstance;
 export default TicketpingChat;

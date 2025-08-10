@@ -15,7 +15,10 @@
       "require": "./dist/widget.umd.js",
       "default": "./dist/widget.min.js"
     },
-    "./style": "./dist/widget.css",
+    "./style": {
+      "types": "./dist/types/style.d.ts",
+      "default": "./dist/widget.css"
+    },
     "./package.json": "./package.json"
   },
   "files": [

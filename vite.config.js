@@ -44,7 +44,7 @@ export default defineConfig(({ command, mode }) => {
       dts({
         entryRoot: 'src',
         outDir: 'dist/types',
-        include: ['src/widget.d.ts'],
+        include: ['src/widget.d.ts', 'src/style.d.ts'],
         copyDtsFiles: true
       })
     ],
