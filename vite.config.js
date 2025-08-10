@@ -1,6 +1,7 @@
 // vite.config.js - Updated for development workflow
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import dts from 'vite-plugin-dts';
 
 export default defineConfig(({ command, mode }) => {
   const isDev = mode === 'development';
@@ -39,6 +40,14 @@ export default defineConfig(({ command, mode }) => {
 
   // Build configuration for production
   return {
+    plugins: [
+      dts({
+        entryRoot: 'src',
+        outDir: 'dist/types',
+        include: ['src/widget.d.ts'],
+        copyDtsFiles: true
+      })
+    ],
     build: {
       lib: {
         entry: resolve(__dirname, 'src/widget.js'),
