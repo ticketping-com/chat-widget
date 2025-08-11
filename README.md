@@ -5,6 +5,8 @@ A modern, customizable customer support chat widget with real-time messaging cap
 [![npm version](https://badge.fury.io/js/%40ticketping%2Fchat-widget.svg)](https://badge.fury.io/js/%40ticketping%2Fchat-widget)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+This widget is meant to be used with [Ticketping](https://ticketping.com) - Customer support meets Slack
+
 ## Features
 
 - 🚀 **Real-time messaging** with WebSocket support
@@ -23,7 +25,7 @@ A modern, customizable customer support chat widget with real-time messaging cap
 npm install @ticketping/chat-widget
 ```
 
-Link: https://www.npmjs.com/package/@ticketping/chat-widget
+NPM link: https://www.npmjs.com/package/@ticketping/chat-widget
 
 Or via CDN:
 
@@ -250,6 +252,7 @@ MIT © [Ticketping](https://ticketping.com)
 
 ## Support
 
+- 🌐 Website: [Ticketping](https://ticketping.com)
 - 📧 Email: support@ticketping.com
 - 🐛 Issues: [GitHub Issues](https://github.com/ticketping-com/chat-widget/issues)
 - 📖 Documentation: [docs.ticketping.com](https://docs.ticketping.com) 
