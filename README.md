@@ -97,6 +97,128 @@ function App() {
 }
 ```
 
+### Svelte Integration
+
+#### Svelte 5 (Recommended)
+
+```javascript
+// Install the package and Svelte
+npm install @ticketping/chat-widget svelte
+```
+
+```svelte
+<script>
+  import TicketpingChat from '@ticketping/chat-widget/svelte';
+
+  function handleReady() {
+    console.log('Chat widget ready');
+  }
+
+  function handleMessageReceived(event) {
+    console.log('New message:', event.detail);
+  }
+</script>
+
+<TicketpingChat
+  appId="your-app-id"
+  teamSlug="your-team-slug"
+  teamLogoIcon="cdn-link-to-your-logo-square"
+  {onready}={handleReady}
+  {onmessageReceived}={handleMessageReceived}
+/>
+```
+
+#### Svelte 4
+
+```javascript
+// Install the package and Svelte 4
+npm install @ticketping/chat-widget svelte@^4.0.0
+```
+
+```svelte
+<script>
+  import TicketpingChat from '@ticketping/chat-widget/svelte4';
+
+  function handleReady() {
+    console.log('Chat widget ready');
+  }
+
+  function handleMessageReceived(event) {
+    console.log('New message:', event.detail);
+  }
+</script>
+
+<TicketpingChat
+  appId="your-app-id"
+  teamSlug="your-team-slug"
+  teamLogoIcon="cdn-link-to-your-logo-square"
+  on:ready={handleReady}
+  on:messageReceived={handleMessageReceived}
+/>
+```
+
+#### Svelte Component Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `appId` | `string` | `''` | Your Ticketping app ID |
+| `teamSlug` | `string` | `''` | Your team slug |
+| `teamLogoIcon` | `string` | `''` | URL to your team logo |
+| `apiBase` | `string` | `'https://api.ticketping.com'` | API base URL |
+| `wsBase` | `string` | `'wss://api.ticketping.com'` | WebSocket base URL |
+| `userJWT` | `string` | `''` | User authentication token |
+| `debug` | `boolean` | `false` | Enable debug mode |
+| `showPulseAnimation` | `boolean` | `true` | Show pulse animation |
+| `analytics` | `boolean` | `true` | Enable analytics |
+| `theme` | `object` | `null` | Custom theme configuration |
+| `open` | `boolean` | `false` | Control widget open state |
+| `userData` | `object` | `null` | User identification data |
+
+#### Svelte Component Events
+
+**Svelte 5 (Function Props):**
+- `onready` - Widget is ready
+- `onopen` - Widget opened
+- `onclose` - Widget closed
+- `onmessageSent` - Message sent
+- `onmessageReceived` - Message received
+- `onconversationStarted` - Conversation started
+- `onerror` - Error occurred
+
+**Svelte 4 (Event Dispatcher):**
+- `on:ready` - Widget is ready
+- `on:open` - Widget opened
+- `on:close` - Widget closed
+- `on:messageSent` - Message sent
+- `on:messageReceived` - Message received
+- `on:conversationStarted` - Conversation started
+- `on:error` - Error occurred
+
+#### Svelte Component Methods
+
+```svelte
+<script>
+  import TicketpingChat from '@ticketping/chat-widget/svelte';
+  
+  let chatWidget;
+  
+  function openChat() {
+    chatWidget.openWidget();
+  }
+  
+  function closeChat() {
+    chatWidget.closeWidget();
+  }
+  
+  function toggleChat() {
+    chatWidget.toggleWidget();
+  }
+</script>
+
+<TicketpingChat bind:this={chatWidget} appId="your-app-id" teamSlug="your-team-slug" />
+<button on:click={openChat}>Open Chat</button>
+```
+
 ## Configuration
 
 ### Basic Configuration

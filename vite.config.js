@@ -46,6 +46,12 @@ export default defineConfig(({ command, mode }) => {
         outDir: 'dist/types',
         include: ['src/widget.d.ts', 'src/style.d.ts'],
         copyDtsFiles: true
+      }),
+      dts({
+        entryRoot: 'src/frameworks',
+        outDir: 'dist/frameworks',
+        include: ['src/frameworks/**/*.d.ts'],
+        copyDtsFiles: true
       })
     ],
     build: {

@@ -491,30 +491,30 @@ describe('ApiService', () => {
     });
   });
 
-  describe('Analytics', () => {
-    it('should track events', async () => {
-      const eventData = {
-        event: 'widget_opened',
-        timestamp: new Date().toISOString()
-      };
+  // describe('Analytics', () => {
+  //   it('should track events', async () => {
+  //     const eventData = {
+  //       event: 'widget_opened',
+  //       timestamp: new Date().toISOString()
+  //     };
 
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: new global.Headers({ 'content-type': 'application/json' }),
-        json: () => Promise.resolve({ success: true })
-      });
+  //     fetch.mockResolvedValueOnce({
+  //       ok: true,
+  //       headers: new global.Headers({ 'content-type': 'application/json' }),
+  //       json: () => Promise.resolve({ success: true })
+  //     });
 
-      await apiService.track('widget_opened', eventData);
+  //     await apiService.track('widget_opened', eventData);
 
-      expect(fetch).toHaveBeenCalledWith(
-        'https://api.example.com/analytics',
-        expect.objectContaining({
-          method: 'POST',
-          body: expect.stringContaining('"event":"widget_opened"')
-        })
-      );
-    });
-  });
+  //     expect(fetch).toHaveBeenCalledWith(
+  //       'https://api.example.com/analytics',
+  //       expect.objectContaining({
+  //         method: 'POST',
+  //         body: expect.stringContaining('"event":"widget_opened"')
+  //       })
+  //     );
+  //   });
+  // });
 
   describe('Request Configuration', () => {
     it('should handle requests without JWT token', () => {

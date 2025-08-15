@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Svelte Components</title>
+</head>
+<body>
+    <h1>Testing Svelte Components</h1>
+
+    <h2>Import Tests</h2>
+    <div id="results"></div>
+
+    <script type="module">
+        const results = document.getElementById('results');
+
+        async function testImports() {
+            try {
+                // Test Svelte 5 import
+                const svelte5 = await import('../../dist/frameworks/svelte/index.js');
+                results.innerHTML += '<p>✅ Svelte 5 import successful</p>';
+                console.log('Svelte 5 component:', svelte5);
+
+                // Test Svelte 4 import
+                const svelte4 = await import('../../dist/frameworks/svelte4/index.js');
+                results.innerHTML += '<p>✅ Svelte 4 import successful</p>';
+                console.log('Svelte 4 component:', svelte4);
+
+            } catch (error) {
+                results.innerHTML += `<p>❌ Import failed: ${error.message}</p>`;
+                console.error('Import error:', error);
+            }
+        }
+
+        testImports();
+    </script>
+</body>
+</html>
