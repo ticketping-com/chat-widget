@@ -100,9 +100,36 @@ describe('TicketpingChat Widget', () => {
         userJWT: 'valid-jwt-token'
       };
 
+      // Mock the auth-dependent methods to avoid API calls
+      vi.spyOn(widget, 'loadAuthenticatedUserData').mockResolvedValue();
+      vi.spyOn(widget, 'reinitializeWebSocketIfNeeded').mockResolvedValue();
+
       await widget.identify(userData);
 
       expect(widget.config.userJWT).toBe('valid-jwt-token');
+      expect(widget.loadAuthenticatedUserData).toHaveBeenCalled();
+      expect(widget.reinitializeWebSocketIfNeeded).toHaveBeenCalled();
+    });
+
+    it('should load authenticated user conversations', async () => {
+      const mockConversations = {
+        results: [
+          { sessionId: 'conv-1', messages: [], created: '2023-01-01T00:00:00Z' },
+          { sessionId: 'conv-2', messages: [], created: '2023-01-02T00:00:00Z' }
+        ]
+      };
+
+      // Mock API call
+      vi.spyOn(widget.api, 'getConversations').mockResolvedValue(mockConversations);
+
+      // Set userJWT to enable auth functionality
+      widget.config.userJWT = 'valid-jwt-token';
+
+      await widget.loadAuthenticatedUserData();
+
+      expect(widget.conversations.size).toBe(2);
+      expect(widget.conversations.has('conv-1')).toBe(true);
+      expect(widget.conversations.has('conv-2')).toBe(true);
     });
   });
 

@@ -133,9 +133,6 @@ npm run preview
         function identifyUser() {
             if (window.TicketpingChat) {
                 window.TicketpingChat.identify({
-                    id: '123',
-                    name: 'John Doe',
-                    email: 'john@example.com',
                     // In a real app, you'd get this from your auth system
                     userJWT: 'your-actual-jwt-token-here'
                 });

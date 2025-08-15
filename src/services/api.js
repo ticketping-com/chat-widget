@@ -272,17 +272,6 @@ export class ApiService {
     }
   }
 
-  // User management
-  async identifyUser() {
-    return await this.request('/users/identify', {
-      method: 'POST',
-      body: JSON.stringify({
-        appId: this.config.appId,
-        userJWT: this.config.userJWT
-      })
-    });
-  }
-
   async updateUser(updates) {
     return await this.request('/users/me', {
       method: 'PATCH',

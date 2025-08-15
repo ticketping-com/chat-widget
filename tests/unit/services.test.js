@@ -402,24 +402,6 @@ describe('ApiService', () => {
       );
       expect(result).toEqual({ chatJWT: 'chat-token-123' });
     });
-
-    it('should identify user', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: new global.Headers({ 'content-type': 'application/json' }),
-        json: () => Promise.resolve({ success: true })
-      });
-
-      await apiService.identifyUser();
-
-      expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/users/identify'),
-        expect.objectContaining({
-          method: 'POST',
-          body: expect.stringContaining('"appId":"test-app-id"')
-        })
-      );
-    });
   });
 
   describe('Conversation Management', () => {

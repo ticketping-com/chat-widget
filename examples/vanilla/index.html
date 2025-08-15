@@ -323,10 +323,6 @@
         function identifyUser() {
             if (widget) {
                 const userData = {
-                    id: Date.now().toString(),
-                    name: document.getElementById('userName').value,
-                    email: document.getElementById('userEmail').value,
-                    company: document.getElementById('userCompany').value,
                     // In a real app, you'd get this from your auth system
                     userJWT: 'your-actual-jwt-token-here'
                 };

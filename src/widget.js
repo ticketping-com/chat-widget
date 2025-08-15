@@ -307,17 +307,20 @@ class TicketpingChat {
       this.config.userJWT = userData.userJWT;
 
       try {
-        await this.api.identifyUser();
-      } catch (error) {
-        console.warn('Failed to identify user on backend:', error);
-      }
-      // this.initWsConversation();
-    }
+        // Load authenticated user conversations
+        await this.loadAuthenticatedUserData();
 
-    this.track('user_identified', {
-      userId: userData.id,
-      hasEmail: !!userData.email
-    });
+        // Reinitialize WebSocket connection with authentication if currently active
+        await this.reinitializeWebSocketIfNeeded();
+        this.track('user_identified', {
+          userId: userData.id || userData.email || 'unknown',
+          hasJWT: !!userData.userJWT
+        });
+      } catch (error) {
+        console.warn('Failed to initialize authenticated user features:', error);
+        this.track('user_identify_error', { error: error.message });
+      }
+    }
   }
 
   async sendMessage(messageData) {
@@ -466,6 +469,83 @@ class TicketpingChat {
       this.chatWindow.setConversations(Array.from(this.conversations.values()));
     } catch (error) {
       console.warn('Failed to load conversations:', error);
+    }
+  }
+
+  /**
+   * Load authenticated user data including conversations and user preferences
+   */
+  async loadAuthenticatedUserData() {
+    if (!this.config.userJWT) {
+      return;
+    }
+
+    try {
+      // Load user conversations from server
+      const serverConversations = await this.api.getConversations();
+
+      if (serverConversations && serverConversations.results) {
+        // Clear existing conversations and load fresh data
+        this.conversations.clear();
+        // Load server conversations
+        serverConversations.results.forEach(conv => {
+          this.conversations.set(conv.sessionId, conv);
+          this.storage.saveConversation(conv);
+        });
+
+        // Update UI with new conversations
+        if (this.chatWindow) {
+          this.chatWindow.setConversations(Array.from(this.conversations.values()));
+        }
+
+        console.log(`Loaded ${serverConversations.results.length} conversations for authenticated user`);
+      }
+
+    } catch (error) {
+      console.warn('Failed to load authenticated user data:', error);
+      // Fallback to local storage data
+      await this.loadStoredConversations();
+      throw error;
+    }
+  }
+
+  /**
+   * Reinitialize WebSocket connection with authentication if needed
+   */
+  async reinitializeWebSocketIfNeeded() {
+    // Only reinitialize if we have an active chat session
+    if (!this.isChatSessionActive || !this.currentChatSession) {
+      return;
+    }
+
+    try {
+      console.log('Reinitializing WebSocket with authentication...');
+
+      // Disconnect current WebSocket
+      if (this.ws) {
+        this.ws.disconnect();
+        this.ws = null;
+      }
+
+      // Reinitialize with authentication
+      await this.initWsConversation(this.currentChatSession);
+
+      console.log('WebSocket reinitialized with authentication successfully');
+
+      this.track('websocket_reinitialized', {
+        sessionId: this.currentChatSession,
+        authenticated: true
+      });
+
+    } catch (error) {
+      console.error('Failed to reinitialize WebSocket:', error);
+      this.track('websocket_reinit_error', {
+        error: error.message,
+        sessionId: this.currentChatSession
+      });
+
+      // Don't throw - allow the widget to continue working
+      // The user can still use the chat, just without real-time features
     }
   }
 

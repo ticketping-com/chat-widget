@@ -213,10 +213,6 @@ Identify users when they log in to your app:
 const identifyUser = () => {
   if (window.TicketpingChat?.instance) {
     window.TicketpingChat.identify({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      company: user.company,
       userJWT: userJwtToken // Get from your auth system
     })
   }

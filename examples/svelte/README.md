@@ -249,9 +249,6 @@ You can call methods on the widget using a component reference:
 
   function identifyUser() {
     chatWidget.identifyUser({
-      id: 'user-123',
-      name: 'John Doe',
-      email: 'john@example.com',
       userJWT: 'jwt-token'
     });
   }
@@ -272,9 +269,6 @@ You can call methods on the widget using a component reference:
 
   function identifyUser() {
     chatWidget.identifyUser({
-      id: 'user-123',
-      name: 'John Doe',
-      email: 'john@example.com',
       userJWT: 'jwt-token'
     });
   }
@@ -307,10 +301,6 @@ For authenticated users, provide user data and JWT token:
     const authUser = await getCurrentUser();
     
     user = {
-      id: authUser.id,
-      name: authUser.name,
-      email: authUser.email,
-      company: authUser.company,
       userJWT: authUser.chatToken // JWT token for chat authentication
     };
   });

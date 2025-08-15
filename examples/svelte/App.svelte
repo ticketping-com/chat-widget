@@ -114,10 +114,6 @@
   function identifyUser() {
     if (userName && userEmail) {
       currentUser = {
-        id: Date.now().toString(),
-        name: userName,
-        email: userEmail,
-        company: userCompany,
         // In a real app, you'd get this from your auth system
         userJWT: 'your-actual-jwt-token-here'
       };

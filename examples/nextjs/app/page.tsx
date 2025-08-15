@@ -34,7 +34,6 @@ export default function Home() {
     if (window.TicketpingChat?.instance && userData.name && userData.email) {
       const userDataWithId = {
         ...userData,
-        id: Date.now().toString(),
         userJWT: 'your-actual-jwt-token-here' // Replace with real JWT from your auth system
       }
 
