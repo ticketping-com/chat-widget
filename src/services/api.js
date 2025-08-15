@@ -252,24 +252,7 @@ export class ApiService {
 
   // Analytics
   async track(event, data = {}) {
-    try {
-      await this.request(API_ENDPOINTS.analytics, {
-        method: 'POST',
-        body: JSON.stringify({
-          event,
-          data: {
-            ...data,
-            appId: this.config.appId,
-            timestamp: new Date().toISOString(),
-            userAgent: navigator.userAgent,
-            url: window.location.href
-          }
-        })
-      });
-    } catch (error) {
-      // Don't throw on analytics failures
-      console.warn('Analytics tracking failed:', error);
-    }
+    return;
   }
 
   async updateUser(updates) {
