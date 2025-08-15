@@ -123,8 +123,5 @@
   "funding": {
     "type": "github",
     "url": "https://github.com/sponsors/ticketping"
-  },
-  "peerDependencies": {
-    "svelte": "^4.0.0 || ^5.0.0"
   }
 }
