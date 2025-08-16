@@ -1,7 +1,5 @@
 <script>
-  import { onMount, onDestroy, createEventDispatcher } from 'svelte'
-
-  const dispatch = createEventDispatcher()
+  import { onMount, onDestroy } from 'svelte'
 
   // Props - Configuration for the widget
   export let appId = ''
@@ -31,29 +29,6 @@
     showPulseAnimation,
     analytics,
     theme,
-    // Event callbacks that dispatch Svelte events
-    onReady: () => {
-      widgetReady = true
-      dispatch('ready')
-    },
-    onOpen: () => {
-      dispatch('open')
-    },
-    onClose: () => {
-      dispatch('close')
-    },
-    onMessageSent: (message) => {
-      dispatch('messageSent', message)
-    },
-    onMessageReceived: (message) => {
-      dispatch('messageReceived', message)
-    },
-    onConversationStarted: (id) => {
-      dispatch('conversationStarted', id)
-    },
-    onError: (error) => {
-      dispatch('error', error)
-    }
   }
 
   // Reactive statement to handle open/close when prop changes
@@ -82,7 +57,6 @@
         }
       } catch (error) {
         console.error('Failed to load Ticketping Chat Widget:', error)
-        dispatch('error', error)
       }
     }
   })

@@ -14,14 +14,6 @@
     analytics = true,
     theme = null,
     open = false,
-    // Event handlers
-    onready = () => {},
-    onopen = () => {},
-    onclose = () => {},
-    onmessageSent = () => {},
-    onmessageReceived = () => {},
-    onconversationStarted = () => {},
-    onerror = () => {}
   } = $props()
 
   let widget = $state(null)
@@ -39,29 +31,6 @@
     showPulseAnimation,
     analytics,
     theme,
-    // Event callbacks that call the provided handlers
-    onReady: () => {
-      widgetReady = true
-      onready()
-    },
-    onOpen: () => {
-      onopen()
-    },
-    onClose: () => {
-      onclose()
-    },
-    onMessageSent: (message) => {
-      onmessageSent(message)
-    },
-    onMessageReceived: (message) => {
-      onmessageReceived(message)
-    },
-    onConversationStarted: (id) => {
-      onconversationStarted(id)
-    },
-    onError: (error) => {
-      onerror(error)
-    }
   })
 
   // Effect to handle open/close when prop changes

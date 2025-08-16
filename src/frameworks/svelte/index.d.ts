@@ -44,13 +44,6 @@ export interface TicketpingChatProps {
   analytics?: boolean
   theme?: TicketpingChatTheme | null
   open?: boolean
-  onready?: () => void
-  onopen?: () => void
-  onclose?: () => void
-  onmessageSent?: (message: any) => void
-  onmessageReceived?: (message: any) => void
-  onconversationStarted?: (id: string) => void
-  onerror?: (error: any) => void
 }
 
 export default class TicketpingChat extends SvelteComponent<TicketpingChatProps> {

@@ -46,19 +46,8 @@ export interface TicketpingChatProps {
   open?: boolean
 }
 
-export interface TicketpingChatEvents {
-  ready: CustomEvent<void>
-  open: CustomEvent<void>
-  close: CustomEvent<void>
-  messageSent: CustomEvent<any>
-  messageReceived: CustomEvent<any>
-  conversationStarted: CustomEvent<string>
-  error: CustomEvent<any>
-}
-
 export default class TicketpingChat extends SvelteComponentTyped<
-  TicketpingChatProps,
-  TicketpingChatEvents
+  TicketpingChatProps
 > {
   openWidget(): void
   closeWidget(): void
