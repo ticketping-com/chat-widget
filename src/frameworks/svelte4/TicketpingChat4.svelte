@@ -16,9 +16,6 @@
   export let theme = null
   export let open = false
 
-  // User identification props
-  export let userData = null
-
   let widget = null
   let widgetReady = false
 
@@ -68,11 +65,6 @@
     }
   }
 
-  // Reactive statement to handle user identification
-  $: if (widget && widgetReady && userData) {
-    widget.identify(userData)
-  }
-
   onMount(async () => {
     // Dynamic import to avoid SSR issues
     if (typeof window !== 'undefined') {
@@ -83,11 +75,6 @@
 
         // Initialize the widget
         widget = window.TicketpingChat.init(config)
-
-        // If userData is provided on mount, identify user
-        if (userData) {
-          widget.identify(userData)
-        }
 
         // Open widget if prop is set
         if (open) {

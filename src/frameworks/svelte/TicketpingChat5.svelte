@@ -14,7 +14,6 @@
     analytics = true,
     theme = null,
     open = false,
-    userData = null,
     // Event handlers
     onready = () => {},
     onopen = () => {},
@@ -76,13 +75,6 @@
     }
   })
 
-  // Effect to handle user identification
-  $effect(() => {
-    if (widget && widgetReady && userData) {
-      widget.identify(userData)
-    }
-  })
-
   onMount(async () => {
     // Dynamic import to avoid SSR issues
     if (typeof window !== 'undefined') {
@@ -93,11 +85,6 @@
 
         // Initialize the widget
         widget = window.TicketpingChat.init(config)
-
-        // If userData is provided on mount, identify user
-        if (userData) {
-          widget.identify(userData)
-        }
 
         // Open widget if prop is set
         if (open) {
