@@ -29,11 +29,7 @@ export interface TicketpingChatTheme {
 }
 
 export interface TicketpingChatUserData {
-  id?: string
-  name?: string
-  email?: string
-  avatar?: string
-  [key: string]: any
+  userJWT: string
 }
 
 export interface TicketpingChatProps {
@@ -48,7 +44,6 @@ export interface TicketpingChatProps {
   analytics?: boolean
   theme?: TicketpingChatTheme | null
   open?: boolean
-  userData?: TicketpingChatUserData | null
 }
 
 export interface TicketpingChatEvents {
