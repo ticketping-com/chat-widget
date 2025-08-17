@@ -29,10 +29,21 @@ export interface TicketpingChatTheme {
 }
 
 export interface TicketpingChatUserData {
-  id?: string;
-  name?: string;
-  email?: string;
-  avatar?: string;
+  userJWT: string;
+}
+
+export interface TicketpingChatMessage {
+  sessionId: string;
+  type: 'user_message' | 'agent_message' | 'system_message';
+  sender: 'USER' | 'AGENT' | 'SYSTEM';
+  messageText: string;
+  created: string;
+  file?: {
+    name: string;
+    size: number;
+    type: string;
+    url: string;
+  };
   [key: string]: any;
 }
 
@@ -46,21 +57,16 @@ export interface TicketpingChatProps {
   debug?: boolean;
   showPulseAnimation?: boolean;
   analytics?: boolean;
-  theme?: TicketpingChatTheme | null;
-  open?: boolean;
+  theme?: TicketpingChatTheme;
+  onReady?: () => void;
+  onError?: (error: any) => void;
+  onOpen?: () => void;
+  onClose?: () => void;
+  onMessageSent?: (message: TicketpingChatMessage) => void;
+  onMessageReceived?: (message: TicketpingChatMessage) => void;
+  onConversationStarted?: (id: string) => void;
 }
 
-export interface TicketpingChatRef {
-  openWidget(): void;
-  closeWidget(): void;
-  toggleWidget(): void;
-  startConversation(): Promise<string> | undefined;
-  identifyUser(userData: TicketpingChatUserData): void;
-  isReady(): boolean;
-}
-
-declare const TicketpingChat: React.ForwardRefExoticComponent<
-  TicketpingChatProps & React.RefAttributes<TicketpingChatRef>
->;
+declare const TicketpingChat: React.FC<TicketpingChatProps>;
 
 export default TicketpingChat;
