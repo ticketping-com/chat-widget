@@ -381,6 +381,7 @@ export class ApiService {
       await this.request('/health');
       return true;
     } catch (error) {
+      console.warn('Health check failed:', error.message);
       return false;
     }
   }

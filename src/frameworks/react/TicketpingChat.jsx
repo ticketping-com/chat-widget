@@ -53,10 +53,12 @@ const TicketpingChat = forwardRef(({
       if (typeof window !== 'undefined') {
         try {
           // Import the widget
-          const TicketpingChat = await import('@ticketping/chat-widget');
+          await import('@ticketping/chat-widget');
           await import('@ticketping/chat-widget/style');
 
-          if (!isMounted) return; // Component was unmounted during import
+          if (!isMounted) {
+            return; // Component was unmounted during import
+          }
 
           // Initialize the widget
           const widgetInstance = window.TicketpingChat.init(configRef.current);

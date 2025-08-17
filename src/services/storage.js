@@ -13,8 +13,8 @@ export class StorageService {
       localStorage.setItem(test, test);
       localStorage.removeItem(test);
       return true;
-    } catch (e) {
-      console.warn('localStorage not available, using memory storage');
+    } catch (error) {
+      console.warn('localStorage not available, using memory storage:', error.message);
       this.memoryStorage = new Map();
       return false;
     }

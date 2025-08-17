@@ -1,10 +1,15 @@
 export default [
   {
-    files: ['src/**/*.{js,ts}'],
+    files: ['src/**/*.{js,ts,jsx,tsx}'],
     ignores: ['src/**/*.d.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      },
       globals: {
         window: 'readonly',
         document: 'readonly',
@@ -23,11 +28,14 @@ export default [
         localStorage: 'readonly',
         sessionStorage: 'readonly',
         __VERSION__: 'readonly',
-        __DEV__: 'readonly'
+        __DEV__: 'readonly',
+        React: 'readonly'
       }
     },
     rules: {
-      'no-unused-vars': 'warn',
+      'no-unused-vars': ['warn', {
+        'varsIgnorePattern': '^React$'
+      }],
       'no-console': 'off',
       'prefer-const': 'error',
       'no-var': 'error',
