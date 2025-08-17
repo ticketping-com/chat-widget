@@ -1,10 +1,12 @@
-// Example showing both approaches:
-// 1. Direct widget integration (your approach)
-// 2. React component from the package
+// Two simple ways to use Ticketping Chat Widget in React:
 
 import { useEffect, useRef } from 'react'
 
-// Option 1: Your Direct Integration Approach (Recommended for custom themes)
+// Option 1: Simple React Component (Recommended - Just Works!)
+// Uncomment this to use the packaged React component:
+// import TicketpingChat from '@ticketping/chat-widget/react'
+
+// Option 2: Direct Integration (More Control)
 interface TicketpingWidgetProps {
   appId?: string;
   teamSlug?: string;
@@ -139,14 +141,21 @@ const TicketpingWidget: React.FC<TicketpingWidgetProps> = ({
   return null // Widget renders itself into DOM
 }
 
-// Option 2: Using the React Component from the package
-// Uncomment this if you want to use the packaged React component instead:
+// Option 1: Simple React Component Usage Example
+// If you uncommented the import above, you can use it like this:
 /*
-import TicketpingChat from '@ticketping/chat-widget/react'
-
-const TicketpingWidgetPackaged: React.FC<TicketpingWidgetProps> = (props) => {
-  return <TicketpingChat {...props} theme={lcsTheme} />
-}
+const TicketpingWidgetSimple: React.FC<TicketpingWidgetProps> = (props) => {
+  return (
+    <TicketpingChat
+      appId="your-app-id"
+      teamSlug="your-team"
+      theme={lcsTheme}
+      onReady={() => console.log('Widget ready!')}
+      onError={(error) => console.error('Widget error:', error)}
+      {...props}
+    />
+  );
+};
 */
 
 export default TicketpingWidget

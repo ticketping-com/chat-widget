@@ -101,6 +101,7 @@ function App() {
 export default App;
 ```
 
+
 #### React Component Props
 
 | Prop | Type | Default | Description |

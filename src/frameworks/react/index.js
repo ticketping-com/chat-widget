@@ -1,2 +1,2 @@
 // React component export
-export { default } from './TicketpingChat.jsx';
+export { default } from './TicketpingChat.js';

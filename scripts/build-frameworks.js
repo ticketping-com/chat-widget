@@ -57,8 +57,8 @@ function copyFiles() {
 
   // Copy React files
   copyFileSync(
-    resolve(srcDir, 'react/TicketpingChat.jsx'),
-    resolve(distDir, 'react/TicketpingChat.jsx')
+    resolve(srcDir, 'react/TicketpingChat.js'),
+    resolve(distDir, 'react/TicketpingChat.js')
   )
   copyFileSync(
     resolve(srcDir, 'react/index.js'),
