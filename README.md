@@ -103,28 +103,19 @@ function App() {
 
 ```javascript
 // Install the package and Svelte
-npm install @ticketping/chat-widget svelte
+npm install @ticketping/chat-widget
 ```
 
 ```svelte
 <script>
   import TicketpingChat from '@ticketping/chat-widget/svelte';
-
-  function handleReady() {
-    console.log('Chat widget ready');
-  }
-
-  function handleMessageReceived(event) {
-    console.log('New message:', event.detail);
-  }
+  import('@ticketping/chat-widget/style')
 </script>
 
 <TicketpingChat
   appId="your-app-id"
   teamSlug="your-team-slug"
   teamLogoIcon="cdn-link-to-your-logo-square"
-  {onready}={handleReady}
-  {onmessageReceived}={handleMessageReceived}
 />
 ```
 
@@ -138,22 +129,13 @@ npm install @ticketping/chat-widget svelte@^4.0.0
 ```svelte
 <script>
   import TicketpingChat from '@ticketping/chat-widget/svelte4';
-
-  function handleReady() {
-    console.log('Chat widget ready');
-  }
-
-  function handleMessageReceived(event) {
-    console.log('New message:', event.detail);
-  }
+  import('@ticketping/chat-widget/style')
 </script>
 
 <TicketpingChat
   appId="your-app-id"
   teamSlug="your-team-slug"
   teamLogoIcon="cdn-link-to-your-logo-square"
-  on:ready={handleReady}
-  on:messageReceived={handleMessageReceived}
 />
 ```
 
