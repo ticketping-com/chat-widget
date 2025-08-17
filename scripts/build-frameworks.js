@@ -18,13 +18,14 @@ function ensureDir(dir) {
   }
 }
 
-// Copy Svelte files
+// Copy framework files
 function copyFiles() {
-  console.log('📦 Building Svelte components...')
+  console.log('📦 Building framework components...')
 
   // Create directories
   ensureDir(resolve(distDir, 'svelte'))
   ensureDir(resolve(distDir, 'svelte4'))
+  ensureDir(resolve(distDir, 'react'))
 
   // Copy Svelte 5 files
   copyFileSync(
@@ -49,12 +50,26 @@ function copyFiles() {
     resolve(srcDir, 'svelte4/index.js'),
     resolve(distDir, 'svelte4/index.js')
   )
-  copyFileSync(
+    copyFileSync(
     resolve(srcDir, 'svelte4/index.d.ts'),
     resolve(distDir, 'svelte4/index.d.ts')
   )
 
-  console.log('✅ Svelte components built successfully!')
+  // Copy React files
+  copyFileSync(
+    resolve(srcDir, 'react/TicketpingChat.jsx'),
+    resolve(distDir, 'react/TicketpingChat.jsx')
+  )
+  copyFileSync(
+    resolve(srcDir, 'react/index.js'),
+    resolve(distDir, 'react/index.js')
+  )
+  copyFileSync(
+    resolve(srcDir, 'react/index.d.ts'),
+    resolve(distDir, 'react/index.d.ts')
+  )
+
+  console.log('✅ Framework components built successfully!')
 }
 
 copyFiles()

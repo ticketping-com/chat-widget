@@ -72,29 +72,63 @@ const chat = new TicketpingChat({
 
 ### React Integration
 
+```javascript
+// Install the package and React
+npm install @ticketping/chat-widget react
+```
+
 ```jsx
-import { useEffect } from 'react';
-import '@ticketping/chat-widget/style';
+import React, { useRef } from 'react';
+import TicketpingChat from '@ticketping/chat-widget/react';
 
 function App() {
-    useEffect(() => {
-        const loadChat = async () => {
-            const { default: TicketpingChat } = await import('@ticketping/chat-widget');
-            
-            new TicketpingChat({
-                appId: 'your-app-id',
-                teamSlug: 'your-team-slug',
-                teamLogoIcon: 'cdn-link-to-your-logo-square',
-                onReady: () => console.log('Chat ready'),
-                onMessageReceived: (message) => console.log('New message:', message)
-            });
-        };
+  const chatRef = useRef();
 
-        loadChat();
-    }, []);
-
-    return <div>Your React App</div>;
+  return (
+    <div>
+      <h1>My App</h1>
+      
+      <TicketpingChat
+        ref={chatRef}
+        appId="your-app-id"
+        teamSlug="your-team-slug"
+        teamLogoIcon="cdn-link-to-your-logo-square"
+      />
+    </div>
+  );
 }
+
+export default App;
+```
+
+#### React Component Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `appId` | `string` | `''` | Your Ticketping app ID |
+| `teamSlug` | `string` | `''` | Your team slug |
+| `teamLogoIcon` | `string` | `''` | URL to your team logo |
+| `apiBase` | `string` | `'https://api.ticketping.com'` | API base URL |
+| `wsBase` | `string` | `'wss://api.ticketping.com'` | WebSocket base URL |
+| `userJWT` | `string` | `''` | User authentication token |
+| `debug` | `boolean` | `false` | Enable debug mode |
+| `showPulseAnimation` | `boolean` | `true` | Show pulse animation |
+| `analytics` | `boolean` | `true` | Enable analytics |
+| `theme` | `object` | `null` | Custom theme configuration |
+| `open` | `boolean` | `false` | Control widget open state |
+
+#### React Component Methods (via ref)
+
+```jsx
+const chatRef = useRef();
+
+// Available methods:
+chatRef.current.openWidget()           // Open the chat widget
+chatRef.current.closeWidget()          // Close the chat widget  
+chatRef.current.toggleWidget()         // Toggle widget open/closed
+chatRef.current.startConversation()    // Start a new conversation
+chatRef.current.identifyUser(userData) // Identify the current user
+chatRef.current.isReady()             // Check if widget is ready
 ```
 
 ### Svelte Integration

@@ -29,6 +29,11 @@
       "svelte": "./dist/frameworks/svelte4/index.js",
       "default": "./dist/frameworks/svelte4/index.js"
     },
+    "./react": {
+      "types": "./dist/frameworks/react/index.d.ts",
+      "import": "./dist/frameworks/react/index.js",
+      "default": "./dist/frameworks/react/index.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -39,7 +44,7 @@
   ],
   "scripts": {
     "dev": "vite --host",
-    "build": "npm run clean && vite build && node scripts/build-svelte.js",
+    "build": "npm run clean && vite build && node scripts/build-frameworks.js",
     "build:watch": "vite build --watch",
     "preview": "vite preview --port 4173",
     "serve": "vite preview --port 8080 --host",
@@ -123,5 +128,9 @@
   "funding": {
     "type": "github",
     "url": "https://github.com/sponsors/ticketping"
+  },
+  "peerDependencies": {
+    "svelte": "^4.0.0 || ^5.0.0",
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
   }
 }
