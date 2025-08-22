@@ -175,8 +175,8 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 360px;
-  height: 600px;
+  width: 400px;
+  height: 640px;
   background: var(--tp-background);
   border-radius: var(--tp-border-radius);
   box-shadow: var(--tp-shadow-medium) 0px 5px 40px 0px;

@@ -101,6 +101,12 @@ function App() {
 export default App;
 ```
 
+#### Error on importing react component
+
+If you get an error on `import TicketpingChat from '@ticketping/chat-widget/react'` it's likely that your moduleResolution config is set to `node`.
+
+I'd recommend to directly use the component like the way it's defined in TicketpingWidgetDirect.tsx
+
 
 #### React Component Props
 
