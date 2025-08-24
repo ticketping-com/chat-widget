@@ -15,7 +15,6 @@ interface TicketpingWidgetProps {
   wsBase?: string;
   userJWT?: string;
   debug?: boolean;
-  showPulseAnimation?: boolean;
   analytics?: boolean;
   theme?: any;
   onReady?: () => void;
@@ -50,7 +49,6 @@ const lcsTheme = {
   errorBg: '#f8d4d4', // cherry.300 (light background)
   errorText: '#c52424', // cherry.700 (dark text)
   errorBorder: '#e25353', // cherry.DEFAULT
-  pulseColor: '#007BFF', // azureblue.DEFAULT
   shadowLight: 'rgba(26, 32, 44, 0.08)', // bone.900 with opacity
   shadowMedium: 'rgba(26, 32, 44, 0.15)', // bone.900 with opacity
   shadowDark: 'rgba(26, 32, 44, 0.25)', // bone.900 with opacity
@@ -69,7 +67,6 @@ const TicketpingWidget: React.FC<TicketpingWidgetProps> = ({
   wsBase = 'wss://api.ticketping.com',
   userJWT,
   debug = false,
-  showPulseAnimation = true,
   analytics = true,
   theme = lcsTheme,
   onReady,
@@ -103,7 +100,6 @@ const TicketpingWidget: React.FC<TicketpingWidgetProps> = ({
           wsBase,
           userJWT,
           debug,
-          showPulseAnimation,
           analytics,
           theme,
           onReady: () => {

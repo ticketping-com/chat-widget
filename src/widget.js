@@ -52,9 +52,7 @@ class TicketpingChat {
 
       // Initialize components
       this.chatBubble = new ChatBubble(this.widgetContainer, {
-        showPulseAnimation: this.config.showPulseAnimation,
         onClick: () => this.toggle(),
-        onAnimationComplete: () => this.removePulse()
       });
 
       this.chatWindow = new ChatWindow(this.widgetContainer, {
@@ -239,7 +237,6 @@ class TicketpingChat {
       errorBg: '--tp-error-bg',
       errorText: '--tp-error-text',
       errorBorder: '--tp-error-border',
-      pulseColor: '--tp-pulse-color',
       shadowLight: '--tp-shadow-light',
       shadowMedium: '--tp-shadow-medium',
       shadowDark: '--tp-shadow-dark',
@@ -249,19 +246,6 @@ class TicketpingChat {
     Object.entries(themeMap).forEach(([themeKey, cssVar]) => {
       if (theme[themeKey]) {
         root.style.setProperty(cssVar, theme[themeKey]);
-
-        // Handle pulse color opacity variants
-        if (themeKey === 'pulseColor') {
-          const color = theme[themeKey];
-          if (color.startsWith('#')) {
-            // Convert hex to RGB for opacity variants
-            const r = parseInt(color.slice(1, 3), 16);
-            const g = parseInt(color.slice(3, 5), 16);
-            const b = parseInt(color.slice(5, 7), 16);
-            root.style.setProperty('--tp-pulse-color-70', `rgba(${r}, ${g}, ${b}, 0.7)`);
-            root.style.setProperty('--tp-pulse-color-0', `rgba(${r}, ${g}, ${b}, 0)`);
-          }
-        }
       }
     });
   }
@@ -566,12 +550,6 @@ class TicketpingChat {
       Object.assign(conversation, updates);
       this.storage.saveConversation(conversation);
     }
-  }
-
-  removePulse() {
-    setTimeout(() => {
-      this.chatBubble.removePulse();
-    }, 10000);
   }
 
   track(event, data = {}) {

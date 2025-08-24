@@ -119,7 +119,6 @@ I'd recommend to directly use the component like the way it's defined in Ticketp
 | `wsBase` | `string` | `'wss://api.ticketping.com'` | WebSocket base URL |
 | `userJWT` | `string` | `''` | User authentication token |
 | `debug` | `boolean` | `false` | Enable debug mode |
-| `showPulseAnimation` | `boolean` | `true` | Show pulse animation |
 | `analytics` | `boolean` | `true` | Enable analytics |
 | `theme` | `object` | `null` | Custom theme configuration |
 | `open` | `boolean` | `false` | Control widget open state |
@@ -191,7 +190,6 @@ npm install @ticketping/chat-widget svelte@^4.0.0
 | `wsBase` | `string` | `'wss://api.ticketping.com'` | WebSocket base URL |
 | `userJWT` | `string` | `''` | User authentication token |
 | `debug` | `boolean` | `false` | Enable debug mode |
-| `showPulseAnimation` | `boolean` | `true` | Show pulse animation |
 | `analytics` | `boolean` | `true` | Enable analytics |
 | `theme` | `object` | `null` | Custom theme configuration |
 | `open` | `boolean` | `false` | Control widget open state |
@@ -262,7 +260,6 @@ window.TicketpingChat.init({
     
     // Optional - Behavior
     autoOpen: false,
-    showPulseAnimation: true,
     position: 'bottom-right' // or 'bottom-left'
 });
 ```

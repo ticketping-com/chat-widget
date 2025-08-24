@@ -29,7 +29,6 @@
     errorBg: '#FA6563', // error (with opacity)
     errorText: '#FA6563', // error
     errorBorder: '#FA6563', // error
-    pulseColor: '#905DFF', // lavender
     shadowLight: 'rgba(2, 2, 5, 0.2)',
     shadowMedium: 'rgba(2, 2, 5, 0.3)',
     shadowDark: 'rgba(2, 2, 5, 0.4)',

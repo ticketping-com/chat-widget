@@ -134,7 +134,6 @@ cp TicketpingChat-svelte4.svelte src/lib/TicketpingChat.svelte
 | `wsBase` | `string` | `'wss://api.ticketping.com'` | WebSocket base URL |
 | `userJWT` | `string` | `null` | JWT token for authenticated users |
 | `debug` | `boolean` | `false` | Enable debug mode |
-| `showPulseAnimation` | `boolean` | `true` | Show pulse animation on widget |
 | `analytics` | `boolean` | `true` | Enable analytics tracking |
 | `theme` | `object` | `null` | Custom theme configuration |
 | `open` | `boolean` | `false` | Control widget open/closed state |
@@ -166,7 +165,6 @@ const theme = {
   errorBg: '#feb2b2',
   errorText: '#c53030',
   errorBorder: '#fed7d7',
-  pulseColor: '#667eea',
   shadowLight: 'rgba(0, 0, 0, 0.1)',
   shadowMedium: 'rgba(0, 0, 0, 0.15)',
   shadowDark: 'rgba(0, 0, 0, 0.2)',

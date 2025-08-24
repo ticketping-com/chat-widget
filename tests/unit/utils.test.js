@@ -260,13 +260,11 @@ describe('Configuration Validation', () => {
       const config = {
         appId: 'test-app-id',
         teamSlug: 'test-team',
-        showPulseAnimation: 'true' // Should be boolean
       };
 
       const result = validateConfig(config);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('showPulseAnimation must be a boolean');
     });
 
     it('should validate position enum', () => {
@@ -340,7 +338,6 @@ describe('Configuration Validation', () => {
         userJWT: 'jwt-token',
         position: 'bottom-right',
         theme: 'dark',
-        showPulseAnimation: true,
         autoOpen: false,
         maxFileSize: 10485760,
         allowedFileTypes: ['image/*', 'application/pdf']

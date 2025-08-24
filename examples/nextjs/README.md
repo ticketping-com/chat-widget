@@ -40,7 +40,6 @@ interface TicketpingWidgetProps {
   wsBase?: string;
   userJWT?: string;
   debug?: boolean;
-  showPulseAnimation?: boolean;
   analytics?: boolean;
   theme?: any;
   onReady?: () => void;
@@ -60,7 +59,6 @@ const TicketpingWidget: React.FC<TicketpingWidgetProps> = ({
   wsBase = 'wss://ws.ticketping.com',
   userJWT,
   debug = false,
-  showPulseAnimation = true,
   analytics = true,
   theme,
   onReady,
@@ -94,7 +92,6 @@ const TicketpingWidget: React.FC<TicketpingWidgetProps> = ({
           wsBase,
           userJWT,
           debug,
-          showPulseAnimation,
           analytics,
           theme,
           onReady: () => {
@@ -194,7 +191,6 @@ export default function Home() {
 - `wsBase` - WebSocket base URL (defaults to production)
 - `userJWT` - JWT token for authenticated users
 - `debug` - Enable debug mode (default: false)
-- `showPulseAnimation` - Show pulse animation (default: true)
 - `analytics` - Enable analytics (default: true)
 - `theme` - Custom theme object
 - `onReady` - Callback when widget is ready

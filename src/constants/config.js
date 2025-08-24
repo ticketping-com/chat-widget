@@ -22,7 +22,6 @@ export const DEFAULT_CONFIG = {
 
   // Widget Behavior
   autoOpen: false,
-  showPulseAnimation: true,
   enableTypingIndicators: true,
   enableFileUpload: true,
   enableEmojis: true,

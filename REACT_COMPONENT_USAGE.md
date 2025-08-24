@@ -80,7 +80,6 @@ interface TicketpingChatProps {
   wsBase?: string;
   userJWT?: string;
   debug?: boolean;
-  showPulseAnimation?: boolean;
   analytics?: boolean;
   theme?: TicketpingChatTheme;
   onReady?: () => void;

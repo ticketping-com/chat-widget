@@ -21,7 +21,6 @@ export interface TicketpingChatTheme {
   errorBg?: string;
   errorText?: string;
   errorBorder?: string;
-  pulseColor?: string;
   shadowLight?: string;
   shadowMedium?: string;
   shadowDark?: string;
@@ -55,7 +54,6 @@ export interface TicketpingChatProps {
   wsBase?: string;
   userJWT?: string;
   debug?: boolean;
-  showPulseAnimation?: boolean;
   analytics?: boolean;
   theme?: TicketpingChatTheme;
   onReady?: () => void;

@@ -12,7 +12,6 @@ const TicketpingChat = ({
   wsBase = 'wss://api.ticketping.com',
   userJWT,
   debug = false,
-  showPulseAnimation = true,
   analytics = true,
   theme,
   onReady = () => {},
@@ -51,7 +50,6 @@ const TicketpingChat = ({
           wsBase,
           userJWT,
           debug,
-          showPulseAnimation,
           analytics,
           theme,
           onReady: () => {

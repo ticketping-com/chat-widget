@@ -10,7 +10,6 @@
     wsBase = 'wss://api.ticketping.com',
     userJWT = '',
     debug = false,
-    showPulseAnimation = true,
     analytics = true,
     theme = null,
     open = false,
@@ -28,7 +27,6 @@
     wsBase,
     userJWT,
     debug,
-    showPulseAnimation,
     analytics,
     theme,
   })

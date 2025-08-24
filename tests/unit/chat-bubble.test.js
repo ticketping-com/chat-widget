@@ -39,53 +39,15 @@ describe('ChatBubble Component', () => {
     it('should initialize with default options', () => {
       chatBubble = new ChatBubble(container);
 
-      expect(chatBubble.options.showPulseAnimation).toBe(true);
       expect(typeof chatBubble.options.onClick).toBe('function');
-      expect(typeof chatBubble.options.onAnimationComplete).toBe('function');
     });
 
     it('should merge provided options with defaults', () => {
       chatBubble = new ChatBubble(container, {
-        showPulseAnimation: false,
         onClick: onClickSpy
       });
 
-      expect(chatBubble.options.showPulseAnimation).toBe(false);
       expect(chatBubble.options.onClick).toBe(onClickSpy);
-    });
-  });
-
-  describe('Pulse Animation', () => {
-    beforeEach(() => {
-      chatBubble = new ChatBubble(container, {
-        showPulseAnimation: true,
-        onClick: onClickSpy,
-        onAnimationComplete: onAnimationCompleteSpy
-      });
-    });
-
-    it('should add pulse class when pulse animation is enabled', () => {
-      const bubbleElement = container.querySelector('.ticketping-chat-bubble');
-      expect(bubbleElement.classList.contains('pulse')).toBe(true);
-    });
-
-    it('should not add pulse class when disabled', () => {
-      chatBubble.destroy();
-
-      chatBubble = new ChatBubble(container, {
-        showPulseAnimation: false
-      });
-
-      const bubbleElement = container.querySelector('.ticketping-chat-bubble');
-      expect(bubbleElement.classList.contains('pulse')).toBe(false);
-    });
-
-    it('should remove pulse animation', () => {
-      const bubbleElement = container.querySelector('.ticketping-chat-bubble');
-      expect(bubbleElement.classList.contains('pulse')).toBe(true);
-
-      chatBubble.removePulse();
-      expect(bubbleElement.classList.contains('pulse')).toBe(false);
     });
   });
 

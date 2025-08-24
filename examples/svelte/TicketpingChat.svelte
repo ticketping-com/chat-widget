@@ -10,7 +10,6 @@
     wsBase = 'wss://api.ticketping.com',
     userJWT = null,
     debug = false,
-    showPulseAnimation = true,
     analytics = true,
     theme = null,
     open = false,
@@ -37,7 +36,6 @@
     wsBase,
     userJWT,
     debug,
-    showPulseAnimation,
     analytics,
     theme,
     // Event callbacks that call the provided handlers

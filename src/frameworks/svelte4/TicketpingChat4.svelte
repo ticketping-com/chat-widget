@@ -9,7 +9,6 @@
   export let wsBase = 'wss://api.ticketping.com'
   export let userJWT = ''
   export let debug = false
-  export let showPulseAnimation = true
   export let analytics = true
   export let theme = null
   export let open = false
@@ -26,7 +25,6 @@
     wsBase,
     userJWT,
     debug,
-    showPulseAnimation,
     analytics,
     theme,
   }

@@ -20,7 +20,6 @@
     apiBase: 'https://api.ticketping.com',
     wsBase: 'wss://api.ticketping.com',
     debug: true,
-    showPulseAnimation: true,
     analytics: true,
     // Custom theme
     theme: {
@@ -283,7 +282,6 @@
     user={currentUser}
     theme={config.theme}
     debug={config.debug}
-    showPulseAnimation={config.showPulseAnimation}
     analytics={config.analytics}
     open={isWidgetOpen}
     onready={handleReady}

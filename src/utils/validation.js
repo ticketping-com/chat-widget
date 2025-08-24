@@ -37,11 +37,6 @@ export function validateConfig(config) {
     errors.push('userJWT must be a string');
   }
 
-  // Boolean fields
-  if (config.showPulseAnimation !== undefined && typeof config.showPulseAnimation !== 'boolean') {
-    errors.push('showPulseAnimation must be a boolean');
-  }
-
   if (config.autoStart !== undefined && typeof config.autoStart !== 'boolean') {
     errors.push('autoStart must be a boolean');
   }

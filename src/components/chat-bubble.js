@@ -13,8 +13,6 @@ export class ChatBubble {
       this.isOpen = false;
       this.options = {
         onClick: () => {},
-        onAnimationComplete: () => {},
-        showPulseAnimation: true,
         showNotificationBadge: false,
         notificationCount: 0,
         ...options
@@ -25,8 +23,6 @@ export class ChatBubble {
     this.container = container;
     this.options = {
       onClick: () => {},
-      onAnimationComplete: () => {},
-      showPulseAnimation: true,
       showNotificationBadge: false,
       notificationCount: 0,
       ...options
@@ -46,7 +42,7 @@ export class ChatBubble {
     }
 
     this.element = createDOMElement('button', {
-      className: `${CSS_CLASSES.BUBBLE} ${this.options.showPulseAnimation ? CSS_CLASSES.PULSE : ''}`,
+      className: `${CSS_CLASSES.BUBBLE}`,
       'aria-label': 'Open chat',
       'aria-expanded': 'false',
       role: 'button',
@@ -112,19 +108,10 @@ export class ChatBubble {
         this.handleClick();
       }
     });
-
-    // Remove pulse animation after timeout
-    if (this.options.showPulseAnimation) {
-      setTimeout(() => {
-        this.removePulse();
-        this.options.onAnimationComplete();
-      }, 10000);
-    }
   }
 
   handleClick() {
     this.options.onClick();
-    this.removePulse();
 
     // Hide notification badge when clicked
     if (this.notificationBadge) {
@@ -158,10 +145,6 @@ export class ChatBubble {
         this.element.appendChild(this.createChatIcon());
       }
     }
-  }
-
-  removePulse() {
-    this.element.classList.remove(CSS_CLASSES.PULSE);
   }
 
   showNotificationBadge(count = 1) {
@@ -205,15 +188,6 @@ export class ChatBubble {
   setPosition(position) {
     // Position will be handled by parent container
     this.element.setAttribute('data-position', position);
-  }
-
-  // Animation methods
-  pulse() {
-    this.element.classList.add(CSS_CLASSES.PULSE);
-  }
-
-  stopPulse() {
-    this.element.classList.remove(CSS_CLASSES.PULSE);
   }
 
   bounce() {

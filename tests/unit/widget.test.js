@@ -41,11 +41,9 @@ describe('TicketpingChat Widget', () => {
       widget = new TicketpingChat({
         appId: 'test-app-id',
         teamSlug: 'test-team',
-        showPulseAnimation: false,
         position: 'bottom-left'
       });
 
-      expect(widget.config.showPulseAnimation).toBe(false);
       expect(widget.config.position).toBe('bottom-left');
       expect(widget.config.apiBase).toBe('https://api.ticketping.com'); // default value
     });

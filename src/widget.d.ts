@@ -23,7 +23,6 @@ export interface TicketpingConfig {
 
   // Widget Behavior
   autoOpen?: boolean;
-  showPulseAnimation?: boolean;
   enableTypingIndicators?: boolean;
   enableFileUpload?: boolean;
   enableEmojis?: boolean;
@@ -95,7 +94,6 @@ export interface CustomTheme {
   errorBg?: string;
   errorText?: string;
   errorBorder?: string;
-  pulseColor?: string;
   shadowLight?: string;
   shadowMedium?: string;
   shadowDark?: string;

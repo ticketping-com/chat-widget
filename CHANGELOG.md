@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SpendCrypto.com theme integration
 
 ### Features
-- Chat bubble with pulse animation
+- Chat bubble
 - Collapsible chat window
 - Multi-tab interface (Home, Messages)
 - Message input with emoji support
