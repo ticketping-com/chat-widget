@@ -1,6 +1,6 @@
 {
   "name": "@ticketping/chat-widget",
-  "version": "1.4.6",
+  "version": "1.5.0",
   "description": "Customer support chat widget for Ticketping - Intercom-like experience with real-time messaging",
   "type": "module",
   "main": "./dist/widget.umd.js",
