@@ -29,11 +29,8 @@ function MyApp() {
 import TicketpingChat from '@ticketping/chat-widget/react';
 
 const customTheme = {
-  primaryColor: '#007BFF',
-  primaryButtonBg: '#007BFF',
-  primaryButtonText: '#ffffff',
-  background: '#ffffff',
-  textPrimary: '#1a202c',
+  primaryColor: '#007BFF',  // accent color
+  primaryHover: '#1a202c',  // slightly dark accent color
   // ... more theme options
 };
 

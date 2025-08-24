@@ -21,30 +21,14 @@ interface TicketpingWidgetProps {
 
 const lcsTheme = {
   // Light theme with bone & azure blue
-  primaryColor: '#007BFF', // azureblue.DEFAULT
-  primaryButtonBg: '#007BFF', // azureblue.DEFAULT
-  primaryButtonText: '#ffffff', // white
-  primaryHover: '#0056b3', // darker azure blue for hover
+  primaryColor: '#007BFF', // accent color
+  primaryHover: '#0056b3', // slightly darker accent color
   textPrimary: '#1a202c', // bone.900 (main text)
   textSecondary: '#4a5568', // bone.700 (secondary text)
   textMuted: '#718096', // bone.600 (muted text)
-  textWhite: '#fff', // white
   background: '#ffffff', // white
   backgroundSecondary: '#f7fafc', // bone.100
   backgroundTertiary: '#edf2f7', // bone.200
-  border: '#e2e8f0', // bone.300
-  borderLight: '#cbd5e0', // bone.400
-  borderCard: '#e2e8f0', // bone.300
-  notificationBg: '#FFC806', // sunrise.DEFAULT
-  successColor: '#21BA45', // forest.500
-  offlineColor: '#a0aec0', // bone.500
-  errorBg: '#f8d4d4', // cherry.300 (light background)
-  errorText: '#c52424', // cherry.700 (dark text)
-  errorBorder: '#e25353', // cherry.DEFAULT
-  shadowLight: 'rgba(26, 32, 44, 0.08)', // bone.900 with opacity
-  shadowMedium: 'rgba(26, 32, 44, 0.15)', // bone.900 with opacity
-  shadowDark: 'rgba(26, 32, 44, 0.25)', // bone.900 with opacity
-  overlayLight: 'rgba(26, 32, 44, 0.05)', // bone.900 with opacity
 }
 
 const TicketpingWidget: React.FC<TicketpingWidgetProps> = ({

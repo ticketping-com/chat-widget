@@ -272,13 +272,8 @@ window.TicketpingChat.init({
     teamSlug: 'your-team-slug',
     teamLogoIcon: 'cdn-link-to-your-logo-square',
     theme: {
-        primaryColor: '#FF78B1',
-        primaryHover: '#FF529A',
-        textPrimary: '#333333',
-        textSecondary: '#666666',
-        background: '#ffffff',
-        backgroundSecondary: '#f9fafb',
-        border: '#e9e9e9',
+        primaryColor: '#3b82f6',  // accent color
+        primaryHover: '#2563eb',  // slightly darker accent color
         // ... more theme options
     }
 });

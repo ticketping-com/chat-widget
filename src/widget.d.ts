@@ -17,8 +17,6 @@ export interface TicketpingConfig {
   // Widget Appearance
   position?: 'bottom-right' | 'bottom-left';
   theme?: 'default' | 'dark' | 'light' | CustomTheme;
-  primaryColor?: string;
-  borderRadius?: string;
   zIndex?: number;
 
   // Widget Behavior
@@ -75,19 +73,16 @@ export interface TicketpingConfig {
 
 export interface CustomTheme {
   primaryColor?: string;
-  primaryButtonBg?: string;
   primaryButtonText?: string;
   primaryHover?: string;
   textPrimary?: string;
   textSecondary?: string;
   textMuted?: string;
-  textWhite?: string;
   background?: string;
   backgroundSecondary?: string;
   backgroundTertiary?: string;
   border?: string;
   borderLight?: string;
-  borderCard?: string;
   notificationBg?: string;
   successColor?: string;
   offlineColor?: string;
@@ -97,7 +92,6 @@ export interface CustomTheme {
   shadowLight?: string;
   shadowMedium?: string;
   shadowDark?: string;
-  overlayLight?: string;
 }
 
 export interface WidgetLabels {

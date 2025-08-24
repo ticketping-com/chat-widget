@@ -16,8 +16,6 @@ export const DEFAULT_CONFIG = {
   // Widget Appearance
   position: 'bottom-right', // 'bottom-right' | 'bottom-left'
   theme: 'default', // 'default' | 'dark' | 'light'
-  primaryColor: '#667eea',
-  borderRadius: '12px',
   zIndex: 999999,
 
   // Widget Behavior

@@ -24,7 +24,6 @@
     // Custom theme
     theme: {
       primaryColor: '#667eea',
-      primaryButtonBg: '#667eea',
       primaryButtonText: '#ffffff',
       primaryHover: '#5a6fd8',
       textPrimary: '#2d3748',
@@ -252,7 +251,6 @@
 
   const theme = &#123;
     primaryColor: '#667eea',
-    primaryButtonBg: '#667eea',
     // ... other theme options
   &#125;;
 &lt;/script&gt;

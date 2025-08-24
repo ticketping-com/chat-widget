@@ -2,19 +2,16 @@ import React from 'react';
 
 export interface TicketpingChatTheme {
   primaryColor?: string;
-  primaryButtonBg?: string;
   primaryButtonText?: string;
   primaryHover?: string;
   textPrimary?: string;
   textSecondary?: string;
   textMuted?: string;
-  textWhite?: string;
   background?: string;
   backgroundSecondary?: string;
   backgroundTertiary?: string;
   border?: string;
   borderLight?: string;
-  borderCard?: string;
   notificationBg?: string;
   successColor?: string;
   offlineColor?: string;
@@ -24,7 +21,6 @@ export interface TicketpingChatTheme {
   shadowLight?: string;
   shadowMedium?: string;
   shadowDark?: string;
-  overlayLight?: string;
 }
 
 export interface TicketpingChatUserData {

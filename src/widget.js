@@ -218,19 +218,16 @@ class TicketpingChat {
     // Apply theme colors as CSS custom properties
     const themeMap = {
       primaryColor: '--tp-primary-color',
-      primaryButtonBg: '--tp-primary-button-bg',
       primaryButtonText: '--tp-primary-button-text',
       primaryHover: '--tp-primary-hover',
       textPrimary: '--tp-text-primary',
       textSecondary: '--tp-text-secondary',
       textMuted: '--tp-text-muted',
-      textWhite: '--tp-text-white',
       background: '--tp-background',
       backgroundSecondary: '--tp-background-secondary',
       backgroundTertiary: '--tp-background-tertiary',
       border: '--tp-border',
       borderLight: '--tp-border-light',
-      borderCard: '--tp-border-card',
       notificationBg: '--tp-notification-bg',
       successColor: '--tp-success-color',
       offlineColor: '--tp-offline-color',
@@ -240,7 +237,6 @@ class TicketpingChat {
       shadowLight: '--tp-shadow-light',
       shadowMedium: '--tp-shadow-medium',
       shadowDark: '--tp-shadow-dark',
-      overlayLight: '--tp-overlay-light'
     };
 
     Object.entries(themeMap).forEach(([themeKey, cssVar]) => {

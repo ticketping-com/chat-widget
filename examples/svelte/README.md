@@ -54,10 +54,8 @@ cp TicketpingChat-svelte4.svelte src/lib/TicketpingChat.svelte
   });
 
   const theme = {
-    primaryColor: '#667eea',
-    primaryButtonBg: '#667eea',
-    primaryButtonText: '#ffffff',
-    primaryHover: '#5a6fd8'
+    primaryColor: '#3b82f6',  // accent color
+    primaryHover: '#2563eb',  // slightly darker accent color
   };
 
   function handleMessageSent(message) {
@@ -95,10 +93,8 @@ cp TicketpingChat-svelte4.svelte src/lib/TicketpingChat.svelte
   };
 
   const theme = {
-    primaryColor: '#667eea',
-    primaryButtonBg: '#667eea',
-    primaryButtonText: '#ffffff',
-    primaryHover: '#5a6fd8'
+    primaryColor: '#3b82f6',  // accent color
+    primaryHover: '#2563eb',  // slightly darker accent color
   };
 
   function handleMessageSent(event) {
@@ -145,30 +141,26 @@ The `theme` prop accepts an object with the following properties:
 
 ```javascript
 const theme = {
-  primaryColor: '#667eea',
-  primaryButtonBg: '#667eea',
+  primaryColor: '#3b82f6',
   primaryButtonText: '#ffffff',
-  primaryHover: '#5a6fd8',
-  textPrimary: '#2d3748',
-  textSecondary: '#4a5568',
-  textMuted: '#718096',
-  textWhite: '#ffffff',
+  primaryHover: '#2563eb',
+  textPrimary: '#374151',
+  textSecondary: '#747d8f',
+  textMuted: '#c3c5ca',
   background: '#ffffff',
-  backgroundSecondary: '#f7fafc',
-  backgroundTertiary: '#edf2f7',
-  border: '#e2e8f0',
-  borderLight: '#edf2f7',
-  borderCard: '#e2e8f0',
-  notificationBg: '#fef5e7',
-  successColor: '#38a169',
-  offlineColor: '#718096',
-  errorBg: '#feb2b2',
-  errorText: '#c53030',
-  errorBorder: '#fed7d7',
-  shadowLight: 'rgba(0, 0, 0, 0.1)',
-  shadowMedium: 'rgba(0, 0, 0, 0.15)',
-  shadowDark: 'rgba(0, 0, 0, 0.2)',
-  overlayLight: 'rgba(255, 255, 255, 0.9)'
+  backgroundSecondary: '#f9fafb',
+  backgroundTertiary: '#e5e7eb',
+  border: '#e9e9e9',
+  borderLight: '#f3f3f3',
+  notificationBg: '#ff4757',
+  successColor: '#4caf50',
+  offlineColor: '#9e9e9e',
+  errorBg: '#ffebee',
+  errorText: '#c62828',
+  errorBorder: '#f44336',
+  shadowLight: 'rgba(15, 15, 15, 0.06)',
+  shadowMedium: 'rgba(15, 15, 15, 0.16)',
+  shadowDark: 'rgba(9, 14, 21, 0.06)',
 };
 ```
 
@@ -435,10 +427,8 @@ Here's a complete example for a typical e-commerce site:
   let showChat = $state(false);
 
   const theme = {
-    primaryColor: '#1f2937',
-    primaryButtonBg: '#1f2937',
-    primaryButtonText: '#ffffff',
-    primaryHover: '#111827'
+    primaryColor: '#3b82f6',  // accent color
+    primaryHover: '#2563eb',  // slightly darker accent color
   };
 
   function handleMessageSent(message) {
@@ -478,10 +468,8 @@ Here's a complete example for a typical e-commerce site:
   let showChat = false;
 
   const theme = {
-    primaryColor: '#1f2937',
-    primaryButtonBg: '#1f2937',
-    primaryButtonText: '#ffffff',
-    primaryHover: '#111827'
+    primaryColor: '#3b82f6',  // accent color
+    primaryHover: '#2563eb',  // slightly darker accent color
   };
 
   function handleMessageSent(event) {
