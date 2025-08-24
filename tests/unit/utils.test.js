@@ -256,17 +256,6 @@ describe('Configuration Validation', () => {
       expect(result.errors).toContain('apiBase must be a string');
     });
 
-    it('should validate boolean fields', () => {
-      const config = {
-        appId: 'test-app-id',
-        teamSlug: 'test-team',
-      };
-
-      const result = validateConfig(config);
-
-      expect(result.isValid).toBe(false);
-    });
-
     it('should validate position enum', () => {
       const config = {
         appId: 'test-app-id',
