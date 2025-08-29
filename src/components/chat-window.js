@@ -88,7 +88,7 @@ export class ChatWindow {
           </div>
           <div class="ticketping-messages-content">
             <div class="ticketping-conversation-container">
-              <div class="ticketping-conversation-list" id="conversationList">
+              <div class="ticketping-conversation-list ticketping-thin-scrollbar" id="conversationList">
                 <!-- Conversations will be populated here -->
               </div>
               <div class="ticketping-send-a-message-container" id="sendMessageBtnContainer">
@@ -112,7 +112,7 @@ export class ChatWindow {
                 </div>
               </div>
 
-              <div class="ticketping-messages-list" id="messagesList">
+              <div class="ticketping-messages-list ticketping-thin-scrollbar" id="messagesList">
                 <!-- Messages will be populated here -->
               </div>
 
