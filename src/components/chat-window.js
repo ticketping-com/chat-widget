@@ -47,6 +47,15 @@ export class ChatWindow {
               <p>How can we help you?</p>
             </div>
             <div class="ticketping-actions-container">
+              <div class="ticketping-recent-conversation" id="recentConversationSection" style="display: none;">
+                <div class="ticketping-recent-conversation-header">
+                  <span class="ticketping-recent-conversation-title">Recent Conversation</span>
+                </div>
+                <div class="ticketping-recent-conversation-item" id="recentConversationItem">
+                  <div class="ticketping-recent-conversation-preview"></div>
+                  <div class="ticketping-recent-conversation-time"></div>
+                </div>
+              </div>
               <button class="ticketping-start-conversation-btn">
                 <div class="ticketping-start-conversation-btn-content">
                   <span class="ticketping-start-conversation-btn-text">Send us a message</span>
@@ -201,6 +210,17 @@ export class ChatWindow {
       }, 50);
     });
 
+    // Recent conversation click handler
+    const recentConversationItem = this.element.querySelector('#recentConversationItem');
+    if (recentConversationItem) {
+      recentConversationItem.addEventListener('click', () => {
+        const sessionId = recentConversationItem.dataset.conversationId;
+        if (sessionId) {
+          this.options.onConversationSelect(sessionId);
+        }
+      });
+    }
+
     // Message input handling
     const messageInput = this.element.querySelector('#messageInput');
     const sendBtn = this.element.querySelector('.ticketping-send-btn');
@@ -262,6 +282,7 @@ export class ChatWindow {
   setConversations(conversations) {
     this.conversations = conversations;
     this.renderConversationList();
+    this.updateRecentConversation();
   }
 
   renderConversationList() {
@@ -515,6 +536,42 @@ export class ChatWindow {
     } else {
       headerSubtext.textContent = 'We\'ll get back to you soon!';
     }
+  }
+
+  updateRecentConversation() {
+    const recentConversationSection = this.element.querySelector('#recentConversationSection');
+    const recentConversationItem = this.element.querySelector('#recentConversationItem');
+
+    if (!recentConversationSection || !recentConversationItem) {
+      return;
+    }
+
+    // Get the most recent conversation
+    if (this.conversations.length === 0) {
+      recentConversationSection.style.display = 'none';
+      return;
+    }
+
+    // Sort conversations by latest first (modified or created timestamp)
+    const sortedConversations = [...this.conversations].sort((a, b) => {
+      const dateA = new Date(a.modified || a.created);
+      const dateB = new Date(b.modified || b.created);
+      return dateB - dateA; // Descending order (newest first)
+    });
+
+    const recentConversation = sortedConversations[0];
+    const lastMessage = recentConversation['messages']?.[recentConversation['messages'].length - 1];
+    const snippet = lastMessage ? lastMessage.messageText.substring(0, 60) + '...' : '';
+    const preview = recentConversation.summary || snippet || 'Support Chat';
+
+    // Update the recent conversation item
+    recentConversationItem.querySelector('.ticketping-recent-conversation-preview').textContent = preview;
+    recentConversationItem.querySelector('.ticketping-recent-conversation-time').textContent =
+      this.formatDateTime(recentConversation.modified || recentConversation.created);
+    recentConversationItem.dataset.conversationId = recentConversation.sessionId;
+
+    // Show the recent conversation section
+    recentConversationSection.style.display = 'block';
   }
 
   showError(message) {

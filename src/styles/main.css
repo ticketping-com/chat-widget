@@ -168,8 +168,8 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 400px;
-  height: 640px;
+  width: 380px;
+  height: 600px;
   background: var(--tp-background);
   border-radius: var(--tp-border-radius);
   box-shadow: var(--tp-shadow-medium) 0px 5px 40px 0px;
@@ -478,6 +478,62 @@
   padding: 20px 28px;
 }
 
+/* Recent Conversation Section */
+.ticketping-recent-conversation {
+  border: 1px solid var(--tp-border-light);
+  border-radius: var(--tp-border-radius-small);
+  background: var(--tp-background);
+  overflow: hidden;
+  margin-bottom: var(--tp-spacing-md);
+  border: 1px solid var(--tp-border);
+  padding: 0px;
+  background: var(--tp-background);
+  border-radius: 12px;
+  box-shadow: var(--tp-shadow-card);
+  cursor: pointer;
+  transition: box-shadow 150ms;
+  transition: all var(--tp-animation-speed) ease;
+}
+
+.ticketping-recent-conversation:hover {
+  transform: translateY(-1px);
+  color: var(--tp-text-primary);
+}
+
+.ticketping-recent-conversation-header {
+  padding: var(--tp-spacing-md) var(--tp-spacing-lg);
+}
+
+.ticketping-recent-conversation-title {
+  font-size: var(--tp-font-size-xs);
+  font-weight: var(--tp-font-weight-medium);
+  color: var(--tp-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ticketping-recent-conversation-item {
+  padding: 0 var(--tp-spacing-md) var(--tp-spacing-md) var(--tp-spacing-lg);
+  transition: background var(--tp-animation-speed-fast) ease;
+  position: relative;
+}
+
+.ticketping-recent-conversation-preview {
+  font-size: var(--tp-font-size-base);
+  color: var(--tp-text-primary);
+  margin-bottom: var(--tp-spacing-xs);
+  font-weight: var(--tp-font-weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.ticketping-recent-conversation-time {
+  font-size: var(--tp-font-size-sm);
+  color: var(--tp-text-muted);
+}
+
 .ticketping-plug {
   display: flex;
   align-items: center;
@@ -507,15 +563,14 @@
   padding: 0px;
   background: var(--tp-background);
   border-radius: 12px;
-  transition: box-shadow 150ms;
   box-shadow: var(--tp-shadow-card);
   cursor: pointer;
+  transition: box-shadow 150ms;
   transition: all var(--tp-animation-speed) ease;
   margin-bottom: var(--tp-spacing-lg);
   width: 100%;
   font-family: inherit;
   padding: 16px 20px;
-  color: var(--tp-text-secondary);
 }
 
 .ticketping-start-conversation-btn:hover {
@@ -535,11 +590,14 @@
 }
 
 .ticketping-start-conversation-btn-text {
-  font-size: var(--tp-font-size-lg);
-  font-weight: var(--tp-font-weight-semibold);
+  font-size: var(--tp-font-size-base);
+  color: var(--tp-text-primary);
+  margin-bottom: var(--tp-spacing-xs);
+  font-weight: var(--tp-font-weight-medium);
 }
 
 .ticketping-start-conversation-btn-subtext {
+  color: var(--tp-text-secondary);
   font-size: var(--tp-font-size-sm);
   font-weight: var(--tp-font-weight-normal);
 }
