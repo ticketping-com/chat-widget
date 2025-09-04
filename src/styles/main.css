@@ -1175,10 +1175,6 @@
   .ticketping-message {
     max-width: 100%;
   }
-
-  .ticketping-home-content {
-    padding: var(--tp-spacing-lg);
-  }
 }
 
 @media (max-width: 320px) {
