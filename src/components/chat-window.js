@@ -18,6 +18,7 @@ export class ChatWindow {
     this.element = null;
     this.activeTab = 'home';
     this.conversations = [];
+    this.currentMessages = []; // Track messages for the active conversation
 
     this.render();
     this.attachEventListeners();
@@ -380,16 +381,35 @@ export class ChatWindow {
   }
 
   addMessage(message) {
+    // Add message to current state
+    this.currentMessages.push(message);
+
+    // Reprocess all messages to determine correct timestamp visibility
+    const processedMessages = this.processMessagesForGrouping(this.currentMessages);
+
+    // Re-render all messages to ensure correct timestamp display
     const messagesList = this.element.querySelector('#messagesList');
-    const messageElement = this.createMessageElement(message);
-    messagesList.appendChild(messageElement);
+    messagesList.innerHTML = '';
+
+    processedMessages.forEach(processedMessage => {
+      const messageElement = this.createMessageElement(processedMessage);
+      messagesList.appendChild(messageElement);
+    });
+
     this.scrollToBottom();
   }
 
   setMessages(messages) {
     const messagesList = this.element.querySelector('#messagesList');
     messagesList.innerHTML = '';
-    messages.forEach(message => {
+
+    // Update current messages state
+    this.currentMessages = [...messages];
+
+    // Process messages to determine which ones should show timestamps
+    const processedMessages = this.processMessagesForGrouping(messages);
+
+    processedMessages.forEach(message => {
       const messageElement = this.createMessageElement(message);
       messagesList.appendChild(messageElement);
     });
@@ -399,15 +419,34 @@ export class ChatWindow {
   clearMessages() {
     const messagesList = this.element.querySelector('#messagesList');
     messagesList.innerHTML = '';
+    this.currentMessages = [];
   }
 
   createMessageElement(message) {
+    // Build CSS classes
+    let cssClasses = `ticketping-message ${message.sender.toLowerCase()}`;
+
+    if (message.isGrouped) {
+      cssClasses += ' grouped';
+    }
+
+    if (message.isFirstInGroup) {
+      cssClasses += ' first-in-group';
+    }
+
+    if (message.isLastInGroup) {
+      cssClasses += ' last-in-group';
+    }
+
     const element = createDOMElement('div', {
-      className: `ticketping-message ${message.sender.toLowerCase()}`
+      className: cssClasses
     });
 
     // Check if message has file attachment
     const hasAttachment = message.filename && message.filepath;
+
+    // Determine if timestamp should be shown (default to true for backward compatibility)
+    const showTimestamp = message.showTimestamp !== false;
 
     if (hasAttachment) {
       const messageContent = message.messageHtml ? message.messageHtml : this.escapeHtml(message.messageText || '');
@@ -418,17 +457,87 @@ export class ChatWindow {
           ${messageContent}
           ${attachmentHtml}
         </div>
-        <div class="ticketping-message-time">${this.formatTime(message.created)}</div>
+        ${showTimestamp ? `<div class="ticketping-message-time">${this.formatTime(message.created)}</div>` : ''}
       `;
     } else {
       element.innerHTML = `
         <div class="ticketping-message-bubble">${message.messageHtml ? message.messageHtml : this.escapeHtml(message.messageText)}</div>
-        <div class="ticketping-message-time">${this.formatTime(message.created)}</div>
+        ${showTimestamp ? `<div class="ticketping-message-time">${this.formatTime(message.created)}</div>` : ''}
       `;
     }
 
     return element;
   }
+
+  processMessagesForGrouping(messages) {
+    if (!messages || messages.length === 0) {
+      return messages;
+    }
+
+    if (messages.length === 1) {
+      return [{ ...messages[0], showTimestamp: true }];
+    }
+
+    // Time threshold for grouping messages (5 minutes in milliseconds)
+    const TIME_THRESHOLD = 5 * 60 * 1000;
+
+    // Initialize all messages with showTimestamp: false
+    const processedMessages = messages.map(message => ({ ...message, showTimestamp: false }));
+
+    // First pass: identify message groups and their boundaries
+    const groups = [];
+    let currentGroup = { start: 0, end: 0, sender: processedMessages[0].sender };
+
+    for (let i = 1; i < processedMessages.length; i++) {
+      const current = processedMessages[i];
+      const previous = processedMessages[i - 1];
+
+      const currentTime = new Date(current.created).getTime();
+      const previousTime = new Date(previous.created).getTime();
+      const timeGap = currentTime - previousTime;
+
+      const senderChanged = current.sender !== previous.sender;
+      const timeGapTooLarge = timeGap > TIME_THRESHOLD;
+
+      // If sender changed OR time gap is too large, end current group and start new one
+      if (senderChanged || timeGapTooLarge) {
+        currentGroup.end = i - 1;
+        groups.push(currentGroup);
+        currentGroup = { start: i, end: i, sender: current.sender };
+      } else {
+        // Extend current group
+        currentGroup.end = i;
+      }
+    }
+
+    // Add the last group
+    groups.push(currentGroup);
+
+    // Second pass: apply timestamp visibility rules and CSS classes
+    groups.forEach((group) => {
+      // Always show timestamp for the last message in each group
+      processedMessages[group.end].showTimestamp = true;
+
+      // For single-message groups (isolated messages), always show timestamp
+      if (group.start === group.end) {
+        processedMessages[group.start].showTimestamp = true;
+        // Single messages don't get grouped classes
+      } else {
+        // Multi-message group: add grouped classes
+        for (let i = group.start; i <= group.end; i++) {
+          processedMessages[i].isGrouped = true;
+          processedMessages[i].isFirstInGroup = (i === group.start);
+          processedMessages[i].isLastInGroup = (i === group.end);
+        }
+      }
+    });
+
+    // Always show timestamp for the very first message
+    processedMessages[0].showTimestamp = true;
+
+    return processedMessages;
+  }
+
 
   handleInputChange(input, sendBtn) {
     const hasText = input.value.trim().length > 0;

@@ -32,7 +32,7 @@
   --tp-shadow-send-btn: 0px 0px 25px 0px rgba(9, 14, 21, 0.06), 0px 0px 25px 0px rgba(9, 14, 21, 0.06);
   --tp-border-radius: 16px;
   --tp-border-radius-small: 8px;
-  --tp-border-radius-large: 20px;
+  --tp-border-radius-large: 16px;
   --tp-spacing-xs: 4px;
   --tp-spacing-sm: 8px;
   --tp-spacing-md: 12px;
@@ -789,6 +789,36 @@
   animation: tp-slide-in var(--tp-animation-speed) ease;
 }
 
+/* Grouped message styles - reduced spacing for messages in the same group */
+.ticketping-message.grouped {
+  margin-bottom: var(--tp-spacing-xs);
+}
+
+.ticketping-message.grouped.last-in-group {
+  margin-bottom: var(--tp-spacing-lg);
+}
+
+/* Grouped message border radius adjustments for continuous bubble effect */
+/* User messages (right side) - reduce top-right and bottom-right radius for grouped messages */
+.ticketping-message.user.grouped:not(.first-in-group) .ticketping-message-bubble {
+  border-top-right-radius: var(--tp-spacing-xs);
+}
+
+.ticketping-message.user.grouped:not(.last-in-group) .ticketping-message-bubble {
+  border-bottom-right-radius: var(--tp-spacing-xs);
+}
+
+/* Agent/System messages (left side) - reduce top-left and bottom-left radius for grouped messages */
+.ticketping-message.agent.grouped:not(.first-in-group) .ticketping-message-bubble,
+.ticketping-message.system.grouped:not(.first-in-group) .ticketping-message-bubble {
+  border-top-left-radius: var(--tp-spacing-xs);
+}
+
+.ticketping-message.agent.grouped:not(.last-in-group) .ticketping-message-bubble,
+.ticketping-message.system.grouped:not(.last-in-group) .ticketping-message-bubble {
+  border-bottom-left-radius: var(--tp-spacing-xs);
+}
+
 @keyframes tp-slide-in {
   from {
     opacity: 0;
@@ -833,19 +863,16 @@
 .ticketping-message.user .ticketping-message-bubble {
   background: var(--tp-background-secondary);
   color: var(--tp-text-primary);
-  border-bottom-right-radius: var(--tp-spacing-xs);
 }
 
 .ticketping-message.agent .ticketping-message-bubble {
   background: var(--tp-background-secondary);
   color: var(--tp-text-primary);
-  border-bottom-left-radius: var(--tp-spacing-xs);
 }
 
 .ticketping-message.system .ticketping-message-bubble {
   background: var(--tp-background-secondary);
   color: var(--tp-text-primary);
-  border-bottom-left-radius: var(--tp-spacing-xs);
 }
 
 .ticketping-message.date .ticketping-message-bubble {
