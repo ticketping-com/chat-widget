@@ -392,6 +392,12 @@ export class ChatWindow {
     messagesList.innerHTML = '';
 
     processedMessages.forEach(processedMessage => {
+      // Add date separator if needed
+      if (processedMessage.showDateSeparator) {
+        const dateSeparator = this.createDateSeparatorElement(processedMessage.created);
+        messagesList.appendChild(dateSeparator);
+      }
+
       const messageElement = this.createMessageElement(processedMessage);
       messagesList.appendChild(messageElement);
     });
@@ -410,6 +416,12 @@ export class ChatWindow {
     const processedMessages = this.processMessagesForGrouping(messages);
 
     processedMessages.forEach(message => {
+      // Add date separator if needed
+      if (message.showDateSeparator) {
+        const dateSeparator = this.createDateSeparatorElement(message.created);
+        messagesList.appendChild(dateSeparator);
+      }
+
       const messageElement = this.createMessageElement(message);
       messagesList.appendChild(messageElement);
     });
@@ -469,6 +481,20 @@ export class ChatWindow {
     return element;
   }
 
+  createDateSeparatorElement(date) {
+    const element = createDOMElement('div', {
+      className: 'ticketping-date-separator'
+    });
+
+    element.innerHTML = `
+      <div class="ticketping-date-separator-line"></div>
+      <div class="ticketping-date-separator-text">${this.formatDateSeparator(date)}</div>
+      <div class="ticketping-date-separator-line"></div>
+    `;
+
+    return element;
+  }
+
   processMessagesForGrouping(messages) {
     if (!messages || messages.length === 0) {
       return messages;
@@ -481,10 +507,10 @@ export class ChatWindow {
     // Time threshold for grouping messages (5 minutes in milliseconds)
     const TIME_THRESHOLD = 5 * 60 * 1000;
 
-    // Initialize all messages with showTimestamp: false
-    const processedMessages = messages.map(message => ({ ...message, showTimestamp: false }));
+    // Initialize all messages with showTimestamp: false and track date changes
+    const processedMessages = messages.map(message => ({ ...message, showTimestamp: false, showDateSeparator: false }));
 
-    // First pass: identify message groups and their boundaries
+    // Single pass: identify date changes and message groups simultaneously
     const groups = [];
     let currentGroup = { start: 0, end: 0, sender: processedMessages[0].sender };
 
@@ -492,6 +518,14 @@ export class ChatWindow {
       const current = processedMessages[i];
       const previous = processedMessages[i - 1];
 
+      // Check for date changes using user's timezone
+      const currentDate = this.getDateInUserTimezone(current.created);
+      const previousDate = this.getDateInUserTimezone(previous.created);
+      if (currentDate !== previousDate) {
+        processedMessages[i].showDateSeparator = true;
+      }
+
+      // Check for message grouping
       const currentTime = new Date(current.created).getTime();
       const previousTime = new Date(previous.created).getTime();
       const timeGap = currentTime - previousTime;
@@ -603,6 +637,35 @@ export class ChatWindow {
 
   formatDateTime(date) {
     return new Date(date).toLocaleString([], { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  }
+
+  getDateInUserTimezone(date) {
+    return new Date(date).toLocaleDateString();
+  }
+
+  formatDateSeparator(date) {
+    const messageDate = new Date(date);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    // Compare dates in user's timezone
+    const messageDateStr = this.getDateInUserTimezone(date);
+    const todayStr = this.getDateInUserTimezone(today);
+    const yesterdayStr = this.getDateInUserTimezone(yesterday);
+
+    if (messageDateStr === todayStr) {
+      return 'Today';
+    } else if (messageDateStr === yesterdayStr) {
+      return 'Yesterday';
+    } else {
+      return messageDate.toLocaleDateString([], {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: messageDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
+      });
+    }
   }
 
   escapeHtml(text) {

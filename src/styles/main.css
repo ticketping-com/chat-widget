@@ -845,12 +845,6 @@
   width: fit-content;
 }
 
-.ticketping-message.date {
-  margin: var(--tp-spacing-sm) auto;
-  max-width: 90%;
-  text-align: center;
-}
-
 .ticketping-message-bubble {
   padding: var(--tp-spacing-md) var(--tp-spacing-lg);
   border-radius: var(--tp-border-radius-large);
@@ -875,13 +869,6 @@
   color: var(--tp-text-primary);
 }
 
-.ticketping-message.date .ticketping-message-bubble {
-  background: var(--tp-background-tertiary);
-  color: var(--tp-text-secondary);
-  font-size: var(--tp-font-size-sm);
-  border-radius: var(--tp-border-radius-small);
-}
-
 .ticketping-message-time {
   font-size: var(--tp-font-size-sm);
   color: var(--tp-text-muted);
@@ -895,6 +882,28 @@
 
 .ticketping-message.system .ticketping-message-time {
   text-align: left;
+}
+
+/* Date separator */
+.ticketping-date-separator {
+  display: flex;
+  align-items: center;
+  margin: var(--tp-spacing-xl) 0;
+  padding: 0 var(--tp-spacing-lg);
+}
+
+.ticketping-date-separator-line {
+  flex: 1;
+  height: 1px;
+  background: var(--tp-border);
+}
+
+.ticketping-date-separator-text {
+  padding: 0 var(--tp-spacing-md);
+  font-size: var(--tp-font-size-sm);
+  color: var(--tp-text-muted);
+  font-weight: var(--tp-font-weight-medium);
+  background: var(--tp-background);
 }
 
 /* Message status */
