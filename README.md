@@ -9,23 +9,28 @@ This widget is meant to be used with [Ticketping](https://ticketping.com) - Cust
 
 ## Features
 
-- 🚀 **Real-time messaging** with WebSocket support
-- 🎨 **Fully customizable** themes and colors
-- 📱 **Mobile responsive** design
-- 💬 **Conversation history** and persistence
-- 📎 **File attachments** support
-- 🔔 **Typing indicators** and notifications
-- 🌙 **Dark/Light theme** support
-- 🛡️ **Secure authentication** with JWT
-- ⚡ **Lightweight** (< 50KB gzipped)
+- **Real-time messaging** with WebSocket support
+- **Fully customizable** themes and colors
+- **Mobile responsive** design
+- **Conversation history** and persistence
+- **File attachments** support
+- **Secure authentication** with JWT
+- **Lightweight** (< 50KB gzipped)
+
+|       | URL                                                                 |
+|----------------|---------------------------------------------------------------------|
+| Documentation  | [docs.ticketping.com](https://docs.ticketping.com/docs)             |
+| Demo        | [Ticketping](https://ticketping.com)                                |
+| Email          | support@ticketping.com                                              |
+| Issues         | [GitHub Issues](https://github.com/ticketping-com/chat-widget/issues) |
+| NPM         | [NPM Package](https://www.npmjs.com/package/@ticketping/chat-widget) |
+
 
 ## Installation
 
 ```bash
 npm install @ticketping/chat-widget
 ```
-
-NPM link: https://www.npmjs.com/package/@ticketping/chat-widget
 
 Or via CDN:
 
@@ -101,12 +106,9 @@ function App() {
 export default App;
 ```
 
-#### Error on importing react component
+#### Custoizing theme and troubleshooting
 
-If you get an error on `import TicketpingChat from '@ticketping/chat-widget/react'` it's likely that your moduleResolution config is set to `node`.
-
-I'd recommend to directly use the component like the way it's defined in TicketpingWidgetDirect.tsx
-
+Read more on [react docs](https://docs.ticketping.com/docs/react-nextjs).
 
 #### React Component Props
 
@@ -123,19 +125,6 @@ I'd recommend to directly use the component like the way it's defined in Ticketp
 | `theme` | `object` | `null` | Custom theme configuration |
 | `open` | `boolean` | `false` | Control widget open state |
 
-#### React Component Methods (via ref)
-
-```jsx
-const chatRef = useRef();
-
-// Available methods:
-chatRef.current.openWidget()           // Open the chat widget
-chatRef.current.closeWidget()          // Close the chat widget  
-chatRef.current.toggleWidget()         // Toggle widget open/closed
-chatRef.current.startConversation()    // Start a new conversation
-chatRef.current.identifyUser(userData) // Identify the current user
-chatRef.current.isReady()             // Check if widget is ready
-```
 
 ### Svelte Integration
 
@@ -195,50 +184,6 @@ npm install @ticketping/chat-widget svelte@^4.0.0
 | `open` | `boolean` | `false` | Control widget open state |
 | `userData` | `object` | `null` | User identification data |
 
-#### Svelte Component Events
-
-**Svelte 5 (Function Props):**
-- `onready` - Widget is ready
-- `onopen` - Widget opened
-- `onclose` - Widget closed
-- `onmessageSent` - Message sent
-- `onmessageReceived` - Message received
-- `onconversationStarted` - Conversation started
-- `onerror` - Error occurred
-
-**Svelte 4 (Event Dispatcher):**
-- `on:ready` - Widget is ready
-- `on:open` - Widget opened
-- `on:close` - Widget closed
-- `on:messageSent` - Message sent
-- `on:messageReceived` - Message received
-- `on:conversationStarted` - Conversation started
-- `on:error` - Error occurred
-
-#### Svelte Component Methods
-
-```svelte
-<script>
-  import TicketpingChat from '@ticketping/chat-widget/svelte';
-  
-  let chatWidget;
-  
-  function openChat() {
-    chatWidget.openWidget();
-  }
-  
-  function closeChat() {
-    chatWidget.closeWidget();
-  }
-  
-  function toggleChat() {
-    chatWidget.toggleWidget();
-  }
-</script>
-
-<TicketpingChat bind:this={chatWidget} appId="your-app-id" teamSlug="your-team-slug" />
-<button on:click={openChat}>Open Chat</button>
-```
 
 ## Configuration
 
