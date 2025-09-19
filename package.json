@@ -66,12 +66,13 @@
     "type": "git",
     "url": "git+https://github.com/ticketping-com/chat-widget.git"
   },
-  "author": "Ticketping Team <developers@ticketping.com>",
+  "author": "Ticketping Team <ravi@ticketping.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ticketping-com/chat-widget/issues"
   },
   "homepage": "https://ticketping.com",
+  "documentation": "https://docs.ticketping.com",
   "devDependencies": {
     "@types/node": "^24.0.10",
     "@vitest/coverage-v8": "^3.2.4",

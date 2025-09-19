@@ -392,4 +392,4 @@ MIT © [Ticketping](https://ticketping.com)
 - 🌐 Website: [Ticketping](https://ticketping.com)
 - 📧 Email: support@ticketping.com
 - 🐛 Issues: [GitHub Issues](https://github.com/ticketping-com/chat-widget/issues)
-- 📖 Documentation: [docs.ticketping.com](https://docs.ticketping.com) 
+- 📖 Documentation: [docs.ticketping.com](https://docs.ticketping.com/docs) 
