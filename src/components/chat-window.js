@@ -381,26 +381,32 @@ export class ChatWindow {
   }
 
   addMessage(message) {
+    const messagesList = this.element.querySelector('#messagesList');
+    const previousMessage = this.currentMessages[this.currentMessages.length - 1];
     // Add message to current state
     this.currentMessages.push(message);
 
-    // Reprocess all messages to determine correct timestamp visibility
-    const processedMessages = this.processMessagesForGrouping(this.currentMessages);
+    // Process the new message for grouping and timestamp display
+    const processedMessage = this.processNewMessageForGrouping(message, previousMessage);
 
-    // Re-render all messages to ensure correct timestamp display
-    const messagesList = this.element.querySelector('#messagesList');
-    messagesList.innerHTML = '';
-
-    processedMessages.forEach(processedMessage => {
-      // Add date separator if needed
-      if (processedMessage.showDateSeparator) {
-        const dateSeparator = this.createDateSeparatorElement(processedMessage.created);
-        messagesList.appendChild(dateSeparator);
+    // If we need to update the previous message (remove timestamp due to grouping)
+    if (processedMessage.updatePrevious && previousMessage) {
+      const previousMessageElements = messagesList.querySelectorAll('.ticketping-message');
+      const lastPreviousElement = previousMessageElements[previousMessageElements.length - 1];
+      if (lastPreviousElement) {
+        this.updateMessageElementForGrouping(lastPreviousElement, previousMessage, false);
       }
+    }
 
-      const messageElement = this.createMessageElement(processedMessage);
-      messagesList.appendChild(messageElement);
-    });
+    // Add date separator if needed
+    if (processedMessage.showDateSeparator) {
+      const dateSeparator = this.createDateSeparatorElement(processedMessage.created);
+      messagesList.appendChild(dateSeparator);
+    }
+
+    // Create and append the new message element
+    const messageElement = this.createMessageElement(processedMessage);
+    messagesList.appendChild(messageElement);
 
     this.scrollToBottom();
   }
@@ -570,6 +576,64 @@ export class ChatWindow {
     processedMessages[0].showTimestamp = true;
 
     return processedMessages;
+  }
+
+  processNewMessageForGrouping(newMessage, previousMessage) {
+    // Time threshold for grouping messages (5 minutes in milliseconds)
+    const TIME_THRESHOLD = 5 * 60 * 1000;
+    // Initialize the processed message
+    const processedMessage = {
+      ...newMessage,
+      showTimestamp: true, // Default to showing timestamp
+      showDateSeparator: false,
+      isGrouped: false,
+      isFirstInGroup: false,
+      isLastInGroup: false,
+      updatePrevious: false
+    };
+
+    // If this is the first message, always show timestamp and no grouping
+    if (!previousMessage) {
+      return processedMessage;
+    }
+
+    // Check for date changes using user's timezone
+    const currentDate = this.getDateInUserTimezone(newMessage.created);
+    const previousDate = this.getDateInUserTimezone(previousMessage.created);
+    if (currentDate !== previousDate) {
+      processedMessage.showDateSeparator = true;
+    }
+
+    // Check for message grouping conditions
+    const currentTime = new Date(newMessage.created).getTime();
+    const previousTime = new Date(previousMessage.created).getTime();
+    const timeGap = currentTime - previousTime;
+
+    const senderChanged = newMessage.sender !== previousMessage.sender;
+    const timeGapTooLarge = timeGap > TIME_THRESHOLD;
+
+    // If messages can be grouped (same sender and within time threshold)
+    if (!senderChanged && !timeGapTooLarge) {
+      // This message becomes part of a group
+      processedMessage.isGrouped = true;
+      processedMessage.isLastInGroup = true;
+      processedMessage.showTimestamp = true; // Last in group shows timestamp
+      // Previous message should be updated to not show timestamp and be part of group
+      processedMessage.updatePrevious = true;
+    }
+
+    return processedMessage;
+  }
+
+  updateMessageElementForGrouping(messageElement, message, showTimestamp) {
+    // Update CSS classes for grouping
+    messageElement.classList.add('grouped');
+    messageElement.classList.remove('last-in-group');
+    // Update timestamp visibility
+    const timeElement = messageElement.querySelector('.ticketping-message-time');
+    if (timeElement) {
+      timeElement.style.display = showTimestamp ? 'block' : 'none';
+    }
   }
 
 
