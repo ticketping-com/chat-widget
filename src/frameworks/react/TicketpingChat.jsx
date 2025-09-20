@@ -14,18 +14,8 @@ const TicketpingChat = ({
   debug = false,
   analytics = true,
   theme,
-  onReady = () => {},
-  onError = (e) => {
-    console.error('Ticketping Chat Widget error:', e);
-  },
-  onOpen = () => {},
-  onClose = () => {},
-  onMessageSent = () => {},
-  onMessageReceived = () => {},
-  onConversationStarted = () => {},
 }) => {
   const widgetRef = useRef(null);
-  const widgetReadyRef = useRef(false);
 
   useEffect(() => {
     // Only run on client side
@@ -52,23 +42,12 @@ const TicketpingChat = ({
           debug,
           analytics,
           theme,
-          onReady: () => {
-            widgetReadyRef.current = true;
-            onReady?.();
-          },
-          onOpen,
-          onClose,
-          onMessageSent,
-          onMessageReceived,
-          onConversationStarted,
-          onError,
         };
 
         // Initialize the widget
         widgetRef.current = window.TicketpingChat.init(config);
       } catch (error) {
         console.error('Failed to load Ticketping Chat Widget:', error);
-        onError?.(error);
       }
     };
 
@@ -79,7 +58,6 @@ const TicketpingChat = ({
       if (widgetRef.current) {
         widgetRef.current.destroy();
         widgetRef.current = null;
-        widgetReadyRef.current = false;
       }
     };
   }, []); // Only run once on mount
