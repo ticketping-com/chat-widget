@@ -118,11 +118,6 @@ export class StorageService {
     this.removeItem(STORAGE_KEYS.CONVERSATIONS);
   }
 
-  getConversation(conversationId) {
-    const conversations = this.getConversations();
-    return conversations.find(c => c.sessionId === conversationId);
-  }
-
   deleteConversation(conversationId) {
     const conversations = this.getConversations();
     const filtered = conversations.filter(c => c.sessionId !== conversationId);

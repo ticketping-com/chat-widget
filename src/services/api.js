@@ -132,13 +132,14 @@ export class ApiService {
     const headers = {
       'Content-Type': 'application/json'
     };
+    const { chatJWT } = await this.getChatToken();
     return await this.request(API_ENDPOINTS.newChatSession, {
       method: 'POST',
       headers,
       body: JSON.stringify({
         appId: this.config.appId,
         team: this.config.teamSlug,
-        jwt: this.config.userJWT,
+        jwt: chatJWT,
       })
     });
   }
@@ -156,27 +157,6 @@ export class ApiService {
     });
 
     return await this.request(`${API_ENDPOINTS.conversations}?${params}`, { headers });
-  }
-
-  async getConversation(conversationId) {
-    return await this.request(`${API_ENDPOINTS.conversations}/${conversationId}`);
-  }
-
-  async createConversation(data = {}) {
-    return await this.request(API_ENDPOINTS.conversations, {
-      method: 'POST',
-      body: JSON.stringify({
-        appId: this.config.appId,
-        ...data
-      })
-    });
-  }
-
-  async updateConversation(conversationId, updates) {
-    return await this.request(`${API_ENDPOINTS.conversations}/${conversationId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(updates)
-    });
   }
 
   // Messages

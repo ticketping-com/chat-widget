@@ -540,14 +540,6 @@ class TicketpingChat {
     }
   }
 
-  updateConversation(chatSessionId, updates) {
-    const conversation = this.conversations.get(chatSessionId);
-    if (conversation) {
-      Object.assign(conversation, updates);
-      this.storage.saveConversation(conversation);
-    }
-  }
-
   track(event, data = {}) {
     if (__DEV__) {
       console.log('Track:', event, data);
