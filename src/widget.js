@@ -53,6 +53,7 @@ class TicketpingChat {
       // Initialize components
       this.chatBubble = new ChatBubble(this.widgetContainer, {
         onClick: () => this.toggle(),
+        iconColor: this.getIconColor(),
       });
 
       this.chatWindow = new ChatWindow(this.widgetContainer, {
@@ -237,6 +238,7 @@ class TicketpingChat {
       shadowLight: '--tp-shadow-light',
       shadowMedium: '--tp-shadow-medium',
       shadowDark: '--tp-shadow-dark',
+      iconColor: '--tp-icon-color',
     };
 
     Object.entries(themeMap).forEach(([themeKey, cssVar]) => {
@@ -244,6 +246,14 @@ class TicketpingChat {
         root.style.setProperty(cssVar, theme[themeKey]);
       }
     });
+  }
+
+  getIconColor() {
+    // Return icon color from theme, fallback to primary color, then default
+    if (this.config.theme && typeof this.config.theme === 'object') {
+      return this.config.theme.iconColor;
+    }
+    return null; // Will use default color in ChatBubble
   }
 
 

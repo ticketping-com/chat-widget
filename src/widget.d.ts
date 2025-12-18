@@ -92,6 +92,7 @@ export interface CustomTheme {
   shadowLight?: string;
   shadowMedium?: string;
   shadowDark?: string;
+  iconColor?: string;
 }
 
 export interface WidgetLabels {

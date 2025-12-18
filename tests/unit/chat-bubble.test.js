@@ -206,6 +206,50 @@ describe('ChatBubble Component', () => {
       const computedStyle = window.getComputedStyle(svg);
       expect(bubbleElement.classList.contains('open')).toBe(true);
     });
+
+    it('should use default icon color when none specified', () => {
+      const bubbleElement = container.querySelector('.ticketping-chat-bubble');
+      const svg = bubbleElement.querySelector('svg');
+      const path = svg.querySelector('path');
+
+      expect(path.getAttribute('stroke')).toBe('#1c1f21');
+    });
+
+    it('should use custom icon color when specified', () => {
+      // Clean up existing instance
+      if (chatBubble) {
+        chatBubble.destroy();
+      }
+
+      chatBubble = new ChatBubble(container, {
+        iconColor: '#007BFF'
+      });
+
+      const bubbleElement = container.querySelector('.ticketping-chat-bubble');
+      const svg = bubbleElement.querySelector('svg');
+      const path = svg.querySelector('path');
+
+      expect(path.getAttribute('stroke')).toBe('#007BFF');
+    });
+
+    it('should apply icon color to close icon as well', () => {
+      // Clean up existing instance
+      if (chatBubble) {
+        chatBubble.destroy();
+      }
+
+      chatBubble = new ChatBubble(container, {
+        iconColor: '#FF5722'
+      });
+
+      chatBubble.setOpen(true);
+
+      const bubbleElement = container.querySelector('.ticketping-chat-bubble');
+      const svg = bubbleElement.querySelector('svg');
+      const path = svg.querySelector('path');
+
+      expect(path.getAttribute('fill')).toBe('#FF5722');
+    });
   });
 
   describe('Error Handling', () => {

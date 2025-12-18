@@ -3,6 +3,7 @@
 /* CSS Custom Properties for theming */
 :root {
   --tp-primary-color: #3b82f6;
+  --tp-icon-color: #ffffff;
   --tp-primary-button-text: #ffffff;
   --tp-primary-hover: #2563eb;
   --tp-text-primary: #374151;
@@ -217,7 +218,7 @@
 .ticketping-chat-header {
   padding: 28px 36px;
   display: flex;
-  align-items: center;
+  flex-direction: row;
   justify-content: space-between;
   min-height: 60px;
 }

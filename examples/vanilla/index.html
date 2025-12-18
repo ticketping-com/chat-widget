@@ -203,7 +203,7 @@
         window.ticketpingConfig = {
             appId: 'dev-app-id',
             teamSlug: 'localcoinswap',
-            teamLogoIcon: 'https://cdn.ticketping.com/cdn-cgi/imagedelivery/5r6ynTdZPDSnSrCrsat4pg/8eafda87-54f0-452a-e12b-86eef4927400/public',
+            teamLogoIcon: 'https://cdn.ticketping.com/cdn-cgi/imagedelivery/5r6ynTdZPDSnSrCrsat4pg/4cc09c7b-1533-437c-fdd8-a64e2ea00b00/public',
             apiBase: 'http://localhost:7800',
             wsBase: 'ws://localhost:7800',
             userJWT: '',
@@ -211,14 +211,15 @@
             analytics: false, // Disable for dev
             theme: {
                 // Light theme with bone & azure blue
-                // primaryColor: '#007BFF', // azureblue.DEFAULT
-                // primaryHover: '#0056b3', // darker azure blue for hover
-                // textPrimary: '#1a202c', // bone.900 (main text)
-                // textSecondary: '#4a5568', // bone.700 (secondary text)
-                // textMuted: '#718096', // bone.600 (muted text)
-                // background: '#ffffff', // white
-                // backgroundSecondary: '#f7fafc', // bone.100
-                // backgroundTertiary: '#edf2f7', // bone.200
+                primaryColor: '#007BFF', // azureblue.DEFAULT
+                primaryHover: '#0056b3', // darker azure blue for hover
+                textPrimary: '#1a202c', // bone.900 (main text)
+                textSecondary: '#4a5568', // bone.700 (secondary text)
+                textMuted: '#718096', // bone.600 (muted text)
+                background: '#ffffff', // white
+                backgroundSecondary: '#f7fafc', // bone.100
+                backgroundTertiary: '#edf2f7', // bone.200
+                iconColor: '#edf2f7', // Custom icon color - matches primary color
             },
             onReady: () => logEvent('Widget ready'),
             onOpen: () => logEvent('Widget opened'),

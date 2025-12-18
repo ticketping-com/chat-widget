@@ -21,6 +21,7 @@ export interface TicketpingChatTheme {
   shadowLight?: string;
   shadowMedium?: string;
   shadowDark?: string;
+  iconColor?: string;
 }
 
 export interface TicketpingChatUserData {

@@ -217,12 +217,85 @@ window.TicketpingChat.init({
     teamSlug: 'your-team-slug',
     teamLogoIcon: 'cdn-link-to-your-logo-square',
     theme: {
-        primaryColor: '#3b82f6',  // accent color
-        primaryHover: '#2563eb',  // slightly darker accent color
-        // ... more theme options
+        // Primary colors
+        primaryColor: '#3b82f6',           // Main brand/accent color
+        primaryButtonText: '#ffffff',      // Text color on primary buttons
+        primaryHover: '#2563eb',           // Hover state for primary color
+        iconColor: '#ffffff',              // Icon color (e.g., in chat bubble)
+        
+        // Text colors
+        textPrimary: '#374151',            // Main text color
+        textSecondary: '#747d8f',          // Secondary text color
+        textMuted: '#c3c5ca',              // Muted/disabled text color
+        
+        // Background colors
+        background: '#ffffff',             // Main background color
+        backgroundSecondary: '#f9fafb',    // Secondary background areas
+        backgroundTertiary: '#e5e7eb',     // Tertiary background areas
+        
+        // Border colors
+        border: '#e9e9e9',                 // Default border color
+        borderLight: '#f3f3f3',            // Light border color
+        
+        // Status colors
+        notificationBg: '#ff4757',         // Notification badge background
+        successColor: '#4caf50',           // Success state color
+        offlineColor: '#9e9e9e',           // Offline status color
+        
+        // Error colors
+        errorBg: '#ffebee',                // Error background color
+        errorText: '#c62828',              // Error text color
+        errorBorder: '#f44336',            // Error border color
+        
+        // Shadow colors (for advanced customization)
+        shadowLight: 'rgba(15, 15, 15, 0.06)',    // Light shadow
+        shadowMedium: 'rgba(15, 15, 15, 0.16)',   // Medium shadow
+        shadowDark: 'rgba(9, 14, 21, 0.06)',      // Dark shadow
     }
 });
 ```
+
+The widget supports extensive theming through CSS custom properties:
+
+```css
+:root {
+    /* Primary colors */
+    --tp-primary-color: #3b82f6;
+    --tp-primary-button-text: #ffffff;
+    --tp-primary-hover: #2563eb;
+    --tp-icon-color: #ffffff;
+
+    /* Text colors */
+    --tp-text-primary: #374151;
+    --tp-text-secondary: #747d8f;
+    --tp-text-muted: #c3c5ca;
+    
+    /* Background colors */
+    --tp-background: #ffffff;
+    --tp-background-secondary: #f9fafb;
+    --tp-background-tertiary: #e5e7eb;
+    
+    /* Border colors */
+    --tp-border: #e9e9e9;
+    --tp-border-light: #f3f3f3;
+    
+    /* Status colors */
+    --tp-notification-bg: #ff4757;
+    --tp-success-color: #4caf50;
+    --tp-offline-color: #9e9e9e;
+    
+    /* Error colors */
+    --tp-error-bg: #ffebee;
+    --tp-error-text: #c62828;
+    --tp-error-border: #f44336;
+    
+    /* Shadow colors */
+    --tp-shadow-light: rgba(15, 15, 15, 0.06);
+    --tp-shadow-medium: rgba(15, 15, 15, 0.16);
+    --tp-shadow-dark: rgba(9, 14, 21, 0.06);
+}
+```
+
 
 ### Event Callbacks
 
@@ -271,28 +344,6 @@ chat.destroy();
 
 ## Theming
 
-The widget supports extensive theming through CSS custom properties:
-
-```css
-:root {
-    --tp-primary-color: #your-brand-color;
-    --tp-text-primary: #333333;
-    --tp-background: #ffffff;
-    /* ... more variables */
-}
-```
-
-### Available Theme Variables
-
-- `--tp-primary-color` - Primary brand color
-- `--tp-primary-hover` - Primary color hover state
-- `--tp-text-primary` - Primary text color
-- `--tp-text-secondary` - Secondary text color
-- `--tp-text-muted` - Muted text color
-- `--tp-background` - Main background color
-- `--tp-background-secondary` - Secondary background color
-- `--tp-border` - Border color
-- And many more...
 
 ## Browser Support
 
