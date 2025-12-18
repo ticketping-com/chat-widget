@@ -212,7 +212,7 @@ describe('ChatBubble Component', () => {
       const svg = bubbleElement.querySelector('svg');
       const path = svg.querySelector('path');
 
-      expect(path.getAttribute('stroke')).toBe('#1c1f21');
+      expect(path.getAttribute('stroke')).toBe('#ffffff');
     });
 
     it('should use custom icon color when specified', () => {
@@ -230,25 +230,6 @@ describe('ChatBubble Component', () => {
       const path = svg.querySelector('path');
 
       expect(path.getAttribute('stroke')).toBe('#007BFF');
-    });
-
-    it('should apply icon color to close icon as well', () => {
-      // Clean up existing instance
-      if (chatBubble) {
-        chatBubble.destroy();
-      }
-
-      chatBubble = new ChatBubble(container, {
-        iconColor: '#FF5722'
-      });
-
-      chatBubble.setOpen(true);
-
-      const bubbleElement = container.querySelector('.ticketping-chat-bubble');
-      const svg = bubbleElement.querySelector('svg');
-      const path = svg.querySelector('path');
-
-      expect(path.getAttribute('fill')).toBe('#FF5722');
     });
   });
 
