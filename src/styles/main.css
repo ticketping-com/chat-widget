@@ -384,7 +384,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  row-gap: 0.25rem;
+  gap: 0.2rem;
   width: 100%;
   padding: var(--tp-spacing-md) var(--tp-spacing-xl);
   background: none;
@@ -412,9 +412,11 @@
 }
 .ticketping-tab .icon-inactive {
   display: block;
+  opacity: 0.9;
 }
 .ticketping-tab.active .icon-active {
   display: block;
+  opacity: 1;
 }
 .ticketping-tab.active .icon-inactive {
   display: none;
@@ -485,13 +487,11 @@
   background: var(--tp-background);
   overflow: hidden;
   margin-bottom: var(--tp-spacing-md);
-  border: 1px solid var(--tp-border);
+  border: 2px solid var(--tp-border);
   padding: 0px;
   background: var(--tp-background);
-  border-radius: 12px;
-  box-shadow: var(--tp-shadow-card);
+  border-radius: 16px;
   cursor: pointer;
-  transition: box-shadow 150ms;
   transition: all var(--tp-animation-speed) ease;
 }
 
@@ -543,7 +543,7 @@
 
 .ticketping-plug a {
   text-decoration: none;
-  font-size: var(--tp-font-size-xs);
+  font-size: var(--tp-font-size-sm);
   color: var(--tp-text-muted);
   transition: color var(--tp-animation-speed-fast) ease;
 }
@@ -559,18 +559,17 @@
   position: relative;
   box-sizing: border-box;
   overflow: hidden;
-  border: 1px solid var(--tp-border);
+  border: 2px solid var(--tp-border);
   padding: 0px;
   background: var(--tp-background);
-  border-radius: 12px;
-  box-shadow: var(--tp-shadow-card);
+  border-radius: 16px;
   cursor: pointer;
-  transition: box-shadow 150ms;
   transition: all var(--tp-animation-speed) ease;
   margin-bottom: var(--tp-spacing-lg);
   width: 100%;
   font-family: inherit;
   padding: 16px 20px;
+  color: var(--tp-text-secondary);
 }
 
 .ticketping-start-conversation-btn:hover {
@@ -637,7 +636,7 @@
   justify-content: center;
   -webkit-box-align: center;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   cursor: pointer;
   pointer-events: auto;
   font-size: 14px;
@@ -937,6 +936,9 @@
   min-width: 0;
 }
 
+.ticketping-attachment-image {
+  margin-top: var(--tp-spacing-sm);
+}
 .ticketping-attachment-name {
   white-space: nowrap;
   overflow: hidden;
@@ -1001,6 +1003,7 @@
 
 /* Message input */
 .ticketping-message-input-container {
+  position: relative;
   border-top: 1px solid var(--tp-border);
   background: var(--tp-background);
   outline: none;
@@ -1076,12 +1079,103 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--tp-text-secondary);
+  color: var(--tp-text-primary);
   transition: color var(--tp-animation-speed-fast) ease;
 }
 
 .ticketping-file-btn:hover {
   color: var(--tp-text-primary);
+}
+
+/* Uploading overlay */
+.ticketping-uploading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: inherit;
+}
+
+.dark .ticketping-uploading-overlay {
+  background: rgba(31, 41, 55, 0.95);
+}
+
+.ticketping-uploading-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--tp-text-primary);
+  font-size: 14px;
+}
+
+.ticketping-spinner svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ticketping-uploading-text {
+  font-weight: 500;
+}
+
+/* Image attachment with loading placeholder */
+.ticketping-image-container {
+  position: relative;
+  display: inline-block;
+  max-width: 240px;
+  min-height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--tp-background-secondary);
+}
+
+.ticketping-image-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--tp-background-secondary);
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.ticketping-attachment-img {
+  display: block;
+  max-width: 240px;
+  max-height: 200px;
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ticketping-image-container.loaded .ticketping-image-placeholder {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ticketping-image-container.loaded .ticketping-attachment-img {
+  opacity: 1;
+}
+
+.ticketping-image-container.error .ticketping-image-placeholder {
+  opacity: 1;
 }
 
 .ticketping-send-btn {

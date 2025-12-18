@@ -19,6 +19,7 @@ export class ChatWindow {
     this.activeTab = 'home';
     this.conversations = [];
     this.currentMessages = []; // Track messages for the active conversation
+    this.isUploading = false; // Track file upload state
 
     this.render();
     this.attachEventListeners();
@@ -62,7 +63,7 @@ export class ChatWindow {
                   <span class="ticketping-start-conversation-btn-text">Send us a message</span>
                   <span class="ticketping-start-conversation-btn-subtext">Typically respond within minutes</span>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M231.4,44.34s0,.1,0,.15l-58.2,191.94a15.88,15.88,0,0,1-14,11.51q-.69.06-1.38.06a15.86,15.86,0,0,1-14.42-9.15L107,164.15a4,4,0,0,1,.77-4.58l57.92-57.92a8,8,0,0,0-11.31-11.31L96.43,148.26a4,4,0,0,1-4.58.77L17.08,112.64a16,16,0,0,1,2.49-29.8l191.94-58.2.15,0A16,16,0,0,1,231.4,44.34Z"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 18 18"><path d="M16.345,1.654c-.344-.344-.845-.463-1.305-.315L2.117,5.493c-.491,.158-.831,.574-.887,1.087-.056,.512,.187,.992,.632,1.251l4.576,2.669,3.953-3.954c.293-.293,.768-.293,1.061,0s.293,.768,0,1.061l-3.954,3.954,2.669,4.576c.235,.402,.65,.639,1.107,.639,.048,0,.097-.003,.146-.008,.512-.056,.929-.396,1.086-.886L16.661,2.96h0c.148-.463,.027-.963-.316-1.306Z" fill="currentColor" fill-opacity="0.6"></path></svg>
               </button>
             </div>
           </div>
@@ -95,7 +96,7 @@ export class ChatWindow {
               <div class="ticketping-send-a-message-container" id="sendMessageBtnContainer">
                 <button class="ticketping-send-message-btn">
                   <span class="ticketping-send-message-btn-text">Send us a message</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M231.4,44.34s0,.1,0,.15l-58.2,191.94a15.88,15.88,0,0,1-14,11.51q-.69.06-1.38.06a15.86,15.86,0,0,1-14.42-9.15L107,164.15a4,4,0,0,1,.77-4.58l57.92-57.92a8,8,0,0,0-11.31-11.31L96.43,148.26a4,4,0,0,1-4.58.77L17.08,112.64a16,16,0,0,1,2.49-29.8l191.94-58.2.15,0A16,16,0,0,1,231.4,44.34Z"></path></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 18 18"><path d="M16.345,1.654c-.344-.344-.845-.463-1.305-.315L2.117,5.493c-.491,.158-.831,.574-.887,1.087-.056,.512,.187,.992,.632,1.251l4.576,2.669,3.953-3.954c.293-.293,.768-.293,1.061,0s.293,.768,0,1.061l-3.954,3.954,2.669,4.576c.235,.402,.65,.639,1.107,.639,.048,0,.097-.003,.146-.008,.512-.056,.929-.396,1.086-.886L16.661,2.96h0c.148-.463,.027-.963-.316-1.306Z" fill="currentColor"></path></svg>
                 </button>
               </div>
             </div>
@@ -138,12 +139,26 @@ export class ChatWindow {
                     <div class="ticketping-file-input-container">
                       <input type="file" class="ticketping-file-input" accept="image/*,.pdf,.doc,.docx">
                       <button class="ticketping-file-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M209.66,122.34a8,8,0,0,1,0,11.32l-82.05,82a56,56,0,0,1-79.2-79.21L147.67,35.73a40,40,0,1,1,56.61,56.55L105,193A24,24,0,1,1,71,159L154.3,74.38A8,8,0,1,1,165.7,85.6L82.39,170.31a8,8,0,1,0,11.27,11.36L192.93,81A24,24,0,1,0,159,47L59.76,147.68a40,40,0,1,0,56.53,56.62l82.06-82A8,8,0,0,1,209.66,122.34Z"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 18 18"><path fill-rule="evenodd" clip-rule="evenodd" d="M14.5 1.75C14.5 1.33579 14.1642 1 13.75 1C13.3358 1 13 1.33579 13 1.75V3.5H11.25C10.8358 3.5 10.5 3.83579 10.5 4.25C10.5 4.66421 10.8358 5 11.25 5H13V6.75C13 7.16421 13.3358 7.5 13.75 7.5C14.1642 7.5 14.5 7.16421 14.5 6.75V5H16.25C16.6642 5 17 4.66421 17 4.25C17 3.83579 16.6642 3.5 16.25 3.5H14.5V1.75Z" fill="currentColor"></path>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M2 4.75C2 2.67879 3.67879 1 5.75 1C7.82121 1 9.5 2.67879 9.5 4.75V11.75C9.5 12.9922 8.49221 14 7.25 14C6.00779 14 5 12.9922 5 11.75V5C5 4.58579 5.33579 4.25 5.75 4.25C6.16421 4.25 6.5 4.58579 6.5 5V11.75C6.5 12.1638 6.83621 12.5 7.25 12.5C7.66379 12.5 8 12.1638 8 11.75V4.75C8 3.50721 6.99279 2.5 5.75 2.5C4.50721 2.5 3.5 3.50721 3.5 4.75V11.75C3.5 13.8208 5.17921 15.5 7.25 15.5C9.32079 15.5 11 13.8208 11 11.75V8.75C11 8.33579 11.3358 8 11.75 8C12.1642 8 12.5 8.33579 12.5 8.75V11.75C12.5 14.6492 10.1492 17 7.25 17C4.35079 17 2 14.6492 2 11.75V4.75Z" fill="currentColor" fill-opacity="0.4" data-color="color-2"></path></svg>
                       </button>
                     </div>
                     <button class="ticketping-send-btn" disabled>
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M208.49,120.49a12,12,0,0,1-17,0L140,69V216a12,12,0,0,1-24,0V69L64.49,120.49a12,12,0,0,1-17-17l72-72a12,12,0,0,1,17,0l72,72A12,12,0,0,1,208.49,120.49Z"></path></svg>
                     </button>
+                  </div>
+                </div>
+                <div class="ticketping-uploading-overlay" style="display: none;">
+                  <div class="ticketping-uploading-content">
+                    <div class="ticketping-spinner">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="#e5e7eb" stroke-width="2"/>
+                        <path d="M12 2a10 10 0 0 1 10 10" stroke="#3b82f6" stroke-width="2" stroke-linecap="round">
+                          <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+                        </path>
+                      </svg>
+                    </div>
+                    <span class="ticketping-uploading-text">Uploading...</span>
                   </div>
                 </div>
               </div>
@@ -155,16 +170,22 @@ export class ChatWindow {
       <div class="ticketping-chat-tabs" id="ticketpingChatTabs">
         <button class="ticketping-tab active" data-tab="home">
           <div class="tab-icon">
-            <svg class="icon-inactive" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"></path></svg>
-            <svg class="icon-active" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z"></path></svg>
+          <svg class="icon-inactive" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 18 18"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0591 1.36312C9.4333 0.886573 8.56694 0.887449 7.94127 1.36281L2.69155 5.3526C2.2559 5.68346 2 6.19867 2 6.746V14.25C2 15.7692 3.23079 17 4.75 17H13.25C14.7692 17 16 15.7692 16 14.25V6.746C16 6.20008 15.7448 5.68398 15.3088 5.35288L10.0591 1.36312Z" fill="currentColor" fill-opacity="0.4" data-color="color-2"></path>
+<path d="M11.5 13.5V17H6.5V13.5C6.5 12.1193 7.61929 11 9 11C10.3807 11 11.5 12.1193 11.5 13.5Z" fill="currentColor"></path></svg>
+            <svg class="icon-active" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 18 18"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0591 1.36312C9.4333 0.886573 8.56694 0.887449 7.94127 1.36281L2.69155 5.3526C2.2559 5.68346 2 6.19867 2 6.746V14.25C2 15.7692 3.23079 17 4.75 17H13.25C14.7692 17 16 15.7692 16 14.25V6.746C16 6.20008 15.7448 5.68398 15.3088 5.35288L10.0591 1.36312Z" fill="currentColor" fill-opacity="0.4" data-color="color-2"></path>
+<path d="M11.5 13.5V17H6.5V13.5C6.5 12.1193 7.61929 11 9 11C10.3807 11 11.5 12.1193 11.5 13.5Z" fill="currentColor"></path></svg>
           </div>
-
           <span>Home</span>
         </button>
         <button class="ticketping-tab" data-tab="messages">
           <div class="tab-icon">
-            <svg class="icon-inactive" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.85,15.85,0,0,0,9.24,14.5A16.13,16.13,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78l.09-.07L83,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM40,224h0ZM216,192H80a8,8,0,0,0-5.23,1.95L40,224V64H216ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm0,32a8,8,0,0,1,8-8h64a8,8,0,1,1,0,16H96A8,8,0,0,1,88,144Z"></path></svg>
-            <svg class="icon-active" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.84,15.84,0,0,0,9.25,14.5A16.05,16.05,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78l.09-.07L83,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM160,152H96a8,8,0,0,1,0-16h64a8,8,0,0,1,0,16Zm0-32H96a8,8,0,0,1,0-16h64a8,8,0,0,1,0,16Z"></path></svg>
+          <svg class="icon-inactive" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 18 18"><path d="M3.75 1.5C2.23054 1.5 1 2.73203 1 4.25V11.25C1 12.768 2.23054 14 3.75 14H5V16.25C5 16.5383 5.16526 16.8011 5.42511 16.926C5.68496 17.0509 5.99339 17.0158 6.21852 16.8357L9.76309 14H14.25C15.7695 14 17 12.768 17 11.25V4.25C17 2.73203 15.7695 1.5 14.25 1.5H3.75Z" fill="currentColor" fill-opacity="0.4" data-color="color-2"></path>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M4.25 6.25C4.25 5.83579 4.58579 5.5 5 5.5H13C13.4142 5.5 13.75 5.83579 13.75 6.25C13.75 6.66421 13.4142 7 13 7H5C4.58579 7 4.25 6.66421 4.25 6.25Z" fill="currentColor"></path>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M4.25 9.25C4.25 8.83579 4.58579 8.5 5 8.5H10.25C10.6642 8.5 11 8.83579 11 9.25C11 9.66421 10.6642 10 10.25 10H5C4.58579 10 4.25 9.66421 4.25 9.25Z" fill="currentColor"></path></svg>
+            <svg class="icon-active" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 18 18"><path d="M3.75 1.5C2.23054 1.5 1 2.73203 1 4.25V11.25C1 12.768 2.23054 14 3.75 14H5V16.25C5 16.5383 5.16526 16.8011 5.42511 16.926C5.68496 17.0509 5.99339 17.0158 6.21852 16.8357L9.76309 14H14.25C15.7695 14 17 12.768 17 11.25V4.25C17 2.73203 15.7695 1.5 14.25 1.5H3.75Z" fill="currentColor" fill-opacity="0.4" data-color="color-2"></path>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M4.25 6.25C4.25 5.83579 4.58579 5.5 5 5.5H13C13.4142 5.5 13.75 5.83579 13.75 6.25C13.75 6.66421 13.4142 7 13 7H5C4.58579 7 4.25 6.66421 4.25 6.25Z" fill="currentColor"></path>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M4.25 9.25C4.25 8.83579 4.58579 8.5 5 8.5H10.25C10.6642 8.5 11 8.83579 11 9.25C11 9.66421 10.6642 10 10.25 10H5C4.58579 10 4.25 9.66421 4.25 9.25Z" fill="currentColor"></path></svg>
+
           </div>
           <span>Messages</span>
         </button>
@@ -667,12 +688,31 @@ export class ChatWindow {
     }
   }
 
-  handleFileUpload(fileInput) {
+  async handleFileUpload(fileInput) {
     const file = fileInput.files[0];
     if (file) {
-      this.options.onFileUpload(file);
+      this.setUploadingState(true);
+      await this.options.onFileUpload(file);
       fileInput.value = '';
+      this.finishFileUpload();
     }
+  }
+
+  setUploadingState(isUploading) {
+    this.isUploading = isUploading;
+    const uploadingOverlay = this.element.querySelector('.ticketping-uploading-overlay');
+
+    if (isUploading) {
+      // Show uploading overlay (blocks all interactions)
+      uploadingOverlay.style.display = 'flex';
+    } else {
+      // Hide uploading overlay (re-enables all interactions)
+      uploadingOverlay.style.display = 'none';
+    }
+  }
+
+  finishFileUpload() {
+    this.setUploadingState(false);
   }
 
   showTypingIndicator(show = true) {
@@ -749,20 +789,42 @@ export class ChatWindow {
     return '<svg width="40" height="40" viewBox="0 0 1.2 1.2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.1 0.25a0.15 0.15 0 1 1 -0.3 0 0.15 0.15 0 0 1 0.3 0" fill="#4CB782"/><path opacity=".5" d="M0.762 0.127A0.5 0.5 0 0 0 0.6 0.1C0.324 0.1 0.1 0.324 0.1 0.6c0 0.08 0.019 0.156 0.052 0.223 0.009 0.018 0.012 0.038 0.007 0.057l-0.03 0.111a0.065 0.065 0 0 0 0.08 0.08l0.111 -0.03a0.082 0.082 0 0 1 0.057 0.007A0.498 0.498 0 0 0 0.6 1.1c0.276 0 0.5 -0.224 0.5 -0.5 0 -0.057 -0.009 -0.111 -0.027 -0.162a0.225 0.225 0 0 1 -0.312 -0.312" fill="#1C274C"/></svg>';
   }
 
+  isImageFile(filename) {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg'];
+    const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+    return imageExtensions.includes(extension);
+  }
+
   createAttachmentHtml(filename, filepath) {
     const escapedFilename = this.escapeHtml(filename);
+    const isImage = this.isImageFile(filename);
 
-    return `
-      <div class="ticketping-message-attachment">
-        <div class="ticketping-attachment-info">
-          <div class="ticketping-attachment-name">
-            <a href="${filepath}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">
-              ${escapedFilename}
+    if (isImage) {
+      return `
+        <div class="ticketping-message-attachment">
+          <div class="ticketping-attachment-image">
+            <a href="${filepath}" target="_blank" rel="noopener noreferrer">
+              <div class="ticketping-image-container">
+                <div class="ticketping-image-placeholder"></div>
+                <img src="${filepath}" alt="${escapedFilename}" class="ticketping-attachment-img" onload="this.parentElement.classList.add('loaded')" onerror="this.parentElement.classList.add('error')" />
+              </div>
             </a>
           </div>
         </div>
-      </div>
-    `;
+      `;
+    } else {
+      return `
+        <div class="ticketping-message-attachment">
+          <div class="ticketping-attachment-info">
+            <div class="ticketping-attachment-name">
+              <a href="${filepath}" target="_blank" rel="noopener noreferrer" style="color: #3B82F6; text-decoration: underline;">
+                ${escapedFilename}
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+    }
   }
 
   updateAgentStatus(status) {
