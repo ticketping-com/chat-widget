@@ -3,6 +3,7 @@ import './styles/main.css';
 import { ChatBubble } from './components/chat-bubble.js';
 import { ChatWindow } from './components/chat-window.js';
 import { WebSocketService } from './services/websocket.js';
+import { NotificationWS } from './services/notification-websocket.js';
 import { ApiService } from './services/api.js';
 import { StorageService } from './services/storage.js';
 import { DEFAULT_CONFIG } from './constants/config.js';
@@ -19,7 +20,8 @@ class TicketpingChat {
     // Services
     this.api = new ApiService(this.config);
     this.storage = new StorageService();
-    this.ws = null;
+    this.ws = null; // Conversation WebSocket (per-conversation)
+    this.notifiWs = null; // Notification WebSocket (persistent)
 
     // Components
     this.chatBubble = null;
@@ -30,6 +32,8 @@ class TicketpingChat {
     this.conversations = new Map();
     this.isChatSessionActive = false;
     this.currentChatSession = null;
+    this.unreadCount = 0; // Track total unread messages when widget is closed
+    this.unreadConversations = new Set(); // Track which conversations have unread messages
 
     this.init();
   }
@@ -69,6 +73,9 @@ class TicketpingChat {
       // Load stored conversations
       await this.loadStoredConversations();
 
+      // Initialize notification WebSocket for real-time unread updates
+      this.initNotificationWebSocket();
+
       this.isInitialized = true;
 
       // Track initialization
@@ -90,7 +97,10 @@ class TicketpingChat {
       this.ws.disconnect();
     }
     // Update the conversation list with the latest conversations
-    this.chatWindow.setConversations(Array.from(this.conversations.values()));
+    this.chatWindow.setConversations(
+      Array.from(this.conversations.values()),
+      this.unreadConversations
+    );
     this.track('back_to_list');
   }
 
@@ -190,6 +200,84 @@ class TicketpingChat {
     });
   }
 
+  /**
+   * Initialize persistent notification WebSocket for real-time unread count updates
+   */
+  initNotificationWebSocket() {
+    // Disconnect existing notification WebSocket if any
+    if (this.notifiWs) {
+      this.notifiWs.disconnect();
+    }
+
+    const wsUrl = `${this.config.wsBase}/ws/customer-notifs/${this.config.teamSlug}/`;
+
+    this.notifiWs = new NotificationWS(wsUrl, {
+      onUnreadCount: (count) => this.handleUnreadCountUpdate(count),
+      onConnect: () => {
+        console.log('Notification WebSocket connected');
+        this.track('notification_ws_connected');
+      },
+      onDisconnect: () => {
+        console.log('Notification WebSocket disconnected');
+      },
+      onError: (error) => {
+        console.warn('Notification WebSocket error:', error);
+      }
+    });
+  }
+
+  /**
+   * Handle unread count updates from notification WebSocket
+   */
+  handleUnreadCountUpdate(count) {
+    this.unreadCount = count;
+
+    // Update bubble notification (only when widget is closed)
+    if (count > 0 && !this.isOpen) {
+      this.chatBubble.showNotificationBadge(count);
+    } else {
+      this.chatBubble.hideNotificationBadge();
+    }
+
+    // Update Messages tab unread dot
+    this.chatWindow.setMessagesTabUnread(count > 0);
+
+    // Refresh conversations list to get updated hasUnread flags
+    this.refreshConversations();
+
+    this.track('unread_count_updated', { count });
+  }
+
+  /**
+   * Refresh conversations from server to get updated unread state
+   */
+  async refreshConversations() {
+    try {
+      if (this.config.userJWT) {
+        const serverConversations = await this.api.getConversations();
+        if (serverConversations && serverConversations.results) {
+          this.unreadConversations.clear();
+          serverConversations.results.forEach(conv => {
+            // Preserve existing messages array if conversation already exists
+            const existing = this.conversations.get(conv.sessionId);
+            const messages = existing?.messages || conv.messages || [];
+            this.conversations.set(conv.sessionId, { ...conv, messages });
+            if (conv.hasUnread) {
+              this.unreadConversations.add(conv.sessionId);
+            }
+          });
+
+          this.chatWindow.setConversations(
+            Array.from(this.conversations.values()),
+            this.unreadConversations
+          );
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to refresh conversations:', error);
+    }
+  }
+
   createWidgetContainer() {
     // Remove existing widget if any
     const existing = document.querySelector('.ticketping-widget');
@@ -265,7 +353,34 @@ class TicketpingChat {
     this.isOpen = true;
     this.chatBubble.setOpen(true);
     this.chatWindow.show();
+
+    // Clear unread notification when opening
+    this.clearUnreadNotification();
+
     this.track('widget_opened');
+  }
+
+  clearUnreadNotification() {
+    this.unreadCount = 0;
+    this.chatBubble.hideNotificationBadge();
+  }
+
+  markConversationAsRead(sessionId) {
+    if (this.unreadConversations.has(sessionId)) {
+      // Update local state immediately for responsive UI
+      this.unreadConversations.delete(sessionId);
+
+      // Update conversation list UI
+      this.chatWindow.setConversations(
+        Array.from(this.conversations.values()),
+        this.unreadConversations
+      );
+
+      // Send mark_read to server via WebSocket
+      if (this.ws && this.ws.isWsConnected()) {
+        this.ws.markRead(sessionId);
+      }
+    }
   }
 
   close() {
@@ -392,6 +507,24 @@ class TicketpingChat {
     if (data.sessionId === this.currentChatSession) {
       this.chatWindow.addMessage(data);
     }
+
+    // Track unread conversations for the conversation list UI (immediate feedback)
+    // Only track messages from agent/system, not user's own messages
+    // Note: The bubble notification is handled by the notification WebSocket
+    if (data.sender !== 'USER') {
+      const isViewingThisConversation = this.isOpen && data.sessionId === this.currentChatSession;
+
+      if (!isViewingThisConversation) {
+        // Mark this conversation as having unread messages (client-side for immediate UI)
+        this.unreadConversations.add(data.sessionId);
+
+        // Update conversation list UI to show unread indicator
+        this.chatWindow.setConversations(
+          Array.from(this.conversations.values()),
+          this.unreadConversations
+        );
+      }
+    }
   }
 
   handleMessageHistory(data) {
@@ -431,6 +564,9 @@ class TicketpingChat {
       await this.initWsConversation(chatSessionId);
       this.isChatSessionActive = true;
 
+      // Mark conversation as read when opened
+      this.markConversationAsRead(chatSessionId);
+
       // Hide loading state when conversation is loaded
       this.chatWindow.showConversationItem();
 
@@ -453,10 +589,17 @@ class TicketpingChat {
         serverConversations['results'].forEach(conv => {
           this.conversations.set(conv.sessionId, conv);
           this.storage.saveConversation(conv);
+          // Use server's hasUnread flag as source of truth
+          if (conv.hasUnread) {
+            this.unreadConversations.add(conv.sessionId);
+          }
         });
       }
 
-      this.chatWindow.setConversations(Array.from(this.conversations.values()));
+      this.chatWindow.setConversations(
+        Array.from(this.conversations.values()),
+        this.unreadConversations
+      );
     } catch (error) {
       console.warn('Failed to load conversations:', error);
     }
@@ -475,17 +618,26 @@ class TicketpingChat {
       const serverConversations = await this.api.getConversations();
 
       if (serverConversations && serverConversations.results) {
-        // Clear existing conversations and load fresh data
+        // Clear existing conversations and unread state, load fresh from server
         this.conversations.clear();
+        this.unreadConversations.clear();
+
         // Load server conversations
         serverConversations.results.forEach(conv => {
           this.conversations.set(conv.sessionId, conv);
           this.storage.saveConversation(conv);
+          // Use server's hasUnread flag as source of truth
+          if (conv.hasUnread) {
+            this.unreadConversations.add(conv.sessionId);
+          }
         });
 
         // Update UI with new conversations
         if (this.chatWindow) {
-          this.chatWindow.setConversations(Array.from(this.conversations.values()));
+          this.chatWindow.setConversations(
+            Array.from(this.conversations.values()),
+            this.unreadConversations
+          );
         }
 
         console.log(`Loaded ${serverConversations.results.length} conversations for authenticated user`);
@@ -587,8 +739,14 @@ class TicketpingChat {
 
   // Cleanup
   destroy() {
+    // Disconnect conversation WebSocket
     if (this.ws) {
       this.ws.disconnect();
+    }
+
+    // Disconnect notification WebSocket
+    if (this.notifiWs) {
+      this.notifiWs.disconnect();
     }
 
     if (this.widgetContainer) {

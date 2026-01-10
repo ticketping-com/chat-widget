@@ -23,10 +23,34 @@ export class StorageService {
   getOrCreateDeviceId() {
     let deviceId = this.getItem(STORAGE_KEYS.DEVICE_ID);
     if (!deviceId) {
-      deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      deviceId = this.generateUUID();
       this.setItem(STORAGE_KEYS.DEVICE_ID, deviceId);
     }
     return deviceId;
+  }
+
+  /**
+   * Generate a UUID v4 using crypto.randomUUID() with fallback for older browsers
+   */
+  generateUUID() {
+    // Modern browsers (Chrome 92+, Firefox 95+, Safari 15.4+)
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+
+    // Fallback using crypto.getRandomValues() for older browsers
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c =>
+        (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+      );
+    }
+
+    // Last resort fallback (not cryptographically secure)
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
   }
 
   getDeviceId() {
@@ -122,6 +146,19 @@ export class StorageService {
     const conversations = this.getConversations();
     const filtered = conversations.filter(c => c.sessionId !== conversationId);
     this.setItem(STORAGE_KEYS.CONVERSATIONS, filtered);
+  }
+
+  // Unread conversations management
+  saveUnreadConversations(unreadSessionIds) {
+    this.setItem(STORAGE_KEYS.UNREAD_CONVERSATIONS, unreadSessionIds);
+  }
+
+  getUnreadConversations() {
+    return this.getItem(STORAGE_KEYS.UNREAD_CONVERSATIONS) || [];
+  }
+
+  clearUnreadConversations() {
+    this.removeItem(STORAGE_KEYS.UNREAD_CONVERSATIONS);
   }
 
   // User management

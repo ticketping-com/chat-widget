@@ -106,7 +106,7 @@
   justify-content: center;
   transition: all var(--tp-animation-speed) var(--tp-animation-easing);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   outline: none;
 }
 
@@ -146,22 +146,30 @@
   transform: rotate(180deg);
 }
 
-/* Notification badge */
+/* Notification badge - red dot style for unread messages */
+/* Unread notification dot */
 .ticketping-chat-bubble .notification-badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
   background: var(--tp-notification-bg);
-  color: #ffffff;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--tp-font-size-xs);
-  font-weight: var(--tp-font-weight-semibold);
   border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(255, 71, 87, 0.5);
+  animation: tp-notification-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes tp-notification-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(255, 71, 87, 0.4);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.6);
+  }
 }
 
 /* Chat window */
@@ -413,11 +421,29 @@
 }
 .ticketping-tab .icon-inactive {
   display: block;
-  opacity: 0.9;
+  opacity: 0.6;
 }
 .ticketping-tab.active .icon-active {
   display: block;
   opacity: 1;
+}
+
+/* Tab icon container for positioning unread dot */
+.ticketping-tab .tab-icon {
+  position: relative;
+}
+
+/* Unread dot on Messages tab */
+.ticketping-tab-unread-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  background: var(--tp-notification-bg);
+  border-radius: 50%;
+  border: 1.5px solid var(--tp-background);
+  z-index: 1;
 }
 .ticketping-tab.active .icon-inactive {
   display: none;
@@ -519,6 +545,22 @@
   position: relative;
 }
 
+/* Unread state for recent conversation */
+.ticketping-recent-conversation-item.unread {
+  padding-left: calc(var(--tp-spacing-lg) + 16px);
+}
+
+.ticketping-recent-conversation-item .ticketping-unread-dot {
+  position: absolute;
+  left: var(--tp-spacing-md);
+  top: 8px;
+  width: 8px;
+  height: 8px;
+  background: var(--tp-notification-bg);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
+}
+
 .ticketping-recent-conversation-preview {
   font-size: var(--tp-font-size-base);
   color: var(--tp-text-primary);
@@ -528,6 +570,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   line-height: 1.4;
+}
+
+/* Bold preview text for unread recent conversation */
+.ticketping-recent-conversation-preview.unread {
+  font-weight: var(--tp-font-weight-semibold);
 }
 
 .ticketping-recent-conversation-time {
@@ -699,6 +746,9 @@
   cursor: pointer;
   transition: background var(--tp-animation-speed-fast) ease;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tp-spacing-xs);
 }
 
 .ticketping-conversation-item:hover {
@@ -710,14 +760,37 @@
   border-left: 3px solid var(--tp-primary-color);
 }
 
+/* Unread conversation styles */
+.ticketping-conversation-item.unread {
+  padding-left: calc(var(--tp-spacing-xl) + 16px);
+}
+
+.ticketping-unread-dot {
+  position: absolute;
+  left: var(--tp-spacing-lg);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: var(--tp-notification-bg);
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
+}
+
 .ticketping-conversation-preview {
   font-size: var(--tp-font-size-base);
   color: var(--tp-text-primary);
-  margin-bottom: var(--tp-spacing-xs);
   font-weight: var(--tp-font-weight-medium);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Bold preview text for unread conversations */
+.ticketping-conversation-preview.unread {
+  font-weight: var(--tp-font-weight-semibold);
+  color: var(--tp-text-primary);
 }
 
 .ticketping-conversation-time {

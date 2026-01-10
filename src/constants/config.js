@@ -151,6 +151,7 @@ export const WEBSOCKET_EVENTS = {
   JOIN_CONVERSATION: 'join_conversation',
   LEAVE_CONVERSATION: 'leave_conversation',
   FILE_ATTACHMENT: 'file_attachment',
+  MARK_READ: 'mark_read',
 
   // Server -> Client
   SERVER_STATE: 'server_session_state',
@@ -173,7 +174,8 @@ export const STORAGE_KEYS = {
   CONVERSATIONS: 'ticketping_conversations',
   USER_DATA: 'ticketping_user',
   SETTINGS: 'ticketping_settings',
-  DEVICE_ID: 'ticketping_device_id'
+  DEVICE_ID: 'ticketping_device_id',
+  UNREAD_CONVERSATIONS: 'ticketping_unread_conversations'
 };
 
 export const CSS_CLASSES = {

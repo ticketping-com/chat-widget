@@ -241,6 +241,13 @@ export class WebSocketService {
     });
   }
 
+  markRead(sessionId) {
+    return this.send({
+      type: WEBSOCKET_EVENTS.MARK_READ,
+      sessionId
+    });
+  }
+
   startHeartbeat() {
     this.heartbeatTimer = setInterval(() => {
       if (this.isConnected) {

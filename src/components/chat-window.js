@@ -18,6 +18,7 @@ export class ChatWindow {
     this.element = null;
     this.activeTab = 'home';
     this.conversations = [];
+    this.unreadConversations = new Set(); // Track which conversations have unread messages
     this.currentMessages = []; // Track messages for the active conversation
     this.isUploading = false; // Track file upload state
 
@@ -170,8 +171,7 @@ export class ChatWindow {
       <div class="ticketping-chat-tabs" id="ticketpingChatTabs">
         <button class="ticketping-tab active" data-tab="home">
           <div class="tab-icon">
-          <svg class="icon-inactive" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 18 18"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0591 1.36312C9.4333 0.886573 8.56694 0.887449 7.94127 1.36281L2.69155 5.3526C2.2559 5.68346 2 6.19867 2 6.746V14.25C2 15.7692 3.23079 17 4.75 17H13.25C14.7692 17 16 15.7692 16 14.25V6.746C16 6.20008 15.7448 5.68398 15.3088 5.35288L10.0591 1.36312Z" fill="currentColor" fill-opacity="0.4" data-color="color-2"></path>
-<path d="M11.5 13.5V17H6.5V13.5C6.5 12.1193 7.61929 11 9 11C10.3807 11 11.5 12.1193 11.5 13.5Z" fill="currentColor"></path></svg>
+<svg class="icon-inactive" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 18 18"><path d="M14.855 5.95L9.605 1.96C9.247 1.688 8.752 1.688 8.395 1.96L3.145 5.95C2.896 6.139 2.75 6.434 2.75 6.747V14.251C2.75 15.356 3.645 16.251 4.75 16.251H7.25V12.251C7.25 11.699 7.698 11.251 8.25 11.251H9.75C10.302 11.251 10.75 11.699 10.75 12.251V16.251H13.25C14.355 16.251 15.25 15.356 15.25 14.251V6.746C15.25 6.433 15.104 6.14 14.855 5.95Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
             <svg class="icon-active" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 18 18"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0591 1.36312C9.4333 0.886573 8.56694 0.887449 7.94127 1.36281L2.69155 5.3526C2.2559 5.68346 2 6.19867 2 6.746V14.25C2 15.7692 3.23079 17 4.75 17H13.25C14.7692 17 16 15.7692 16 14.25V6.746C16 6.20008 15.7448 5.68398 15.3088 5.35288L10.0591 1.36312Z" fill="currentColor" fill-opacity="0.4" data-color="color-2"></path>
 <path d="M11.5 13.5V17H6.5V13.5C6.5 12.1193 7.61929 11 9 11C10.3807 11 11.5 12.1193 11.5 13.5Z" fill="currentColor"></path></svg>
           </div>
@@ -179,9 +179,8 @@ export class ChatWindow {
         </button>
         <button class="ticketping-tab" data-tab="messages">
           <div class="tab-icon">
-          <svg class="icon-inactive" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 18 18"><path d="M3.75 1.5C2.23054 1.5 1 2.73203 1 4.25V11.25C1 12.768 2.23054 14 3.75 14H5V16.25C5 16.5383 5.16526 16.8011 5.42511 16.926C5.68496 17.0509 5.99339 17.0158 6.21852 16.8357L9.76309 14H14.25C15.7695 14 17 12.768 17 11.25V4.25C17 2.73203 15.7695 1.5 14.25 1.5H3.75Z" fill="currentColor" fill-opacity="0.4" data-color="color-2"></path>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M4.25 6.25C4.25 5.83579 4.58579 5.5 5 5.5H13C13.4142 5.5 13.75 5.83579 13.75 6.25C13.75 6.66421 13.4142 7 13 7H5C4.58579 7 4.25 6.66421 4.25 6.25Z" fill="currentColor"></path>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M4.25 9.25C4.25 8.83579 4.58579 8.5 5 8.5H10.25C10.6642 8.5 11 8.83579 11 9.25C11 9.66421 10.6642 10 10.25 10H5C4.58579 10 4.25 9.66421 4.25 9.25Z" fill="currentColor"></path></svg>
+            <div class="ticketping-tab-unread-dot" id="messagesTabUnreadDot" style="display: none;"></div>
+<svg class="icon-inactive" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 18 18"><path d="M14.25,2.25H3.75c-1.105,0-2,.896-2,2v7c0,1.104,.895,2,2,2h2v3l3.75-3h4.75c1.105,0,2-.896,2-2V4.25c0-1.104-.895-2-2-2Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><line x1="5" y1="6.25" x2="13" y2="6.25" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" data-color="color-2"></line><line x1="5" y1="9.25" x2="10.25" y2="9.25" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" data-color="color-2"></line></svg>
             <svg class="icon-active" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 18 18"><path d="M3.75 1.5C2.23054 1.5 1 2.73203 1 4.25V11.25C1 12.768 2.23054 14 3.75 14H5V16.25C5 16.5383 5.16526 16.8011 5.42511 16.926C5.68496 17.0509 5.99339 17.0158 6.21852 16.8357L9.76309 14H14.25C15.7695 14 17 12.768 17 11.25V4.25C17 2.73203 15.7695 1.5 14.25 1.5H3.75Z" fill="currentColor" fill-opacity="0.4" data-color="color-2"></path>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.25 6.25C4.25 5.83579 4.58579 5.5 5 5.5H13C13.4142 5.5 13.75 5.83579 13.75 6.25C13.75 6.66421 13.4142 7 13 7H5C4.58579 7 4.25 6.66421 4.25 6.25Z" fill="currentColor"></path>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.25 9.25C4.25 8.83579 4.58579 8.5 5 8.5H10.25C10.6642 8.5 11 8.83579 11 9.25C11 9.66421 10.6642 10 10.25 10H5C4.58579 10 4.25 9.66421 4.25 9.25Z" fill="currentColor"></path></svg>
@@ -301,8 +300,11 @@ export class ChatWindow {
     this.options.onTabSwitch(tabName);
   }
 
-  setConversations(conversations) {
+  setConversations(conversations, unreadConversations = new Set()) {
     this.conversations = conversations;
+    this.unreadConversations = unreadConversations instanceof Set
+      ? unreadConversations
+      : new Set(unreadConversations);
     this.renderConversationList();
     this.updateRecentConversation();
   }
@@ -325,8 +327,9 @@ export class ChatWindow {
     });
 
     sortedConversations.forEach(conversation => {
+      const isUnread = this.unreadConversations.has(conversation.sessionId);
       const item = createDOMElement('div', {
-        className: 'ticketping-conversation-item',
+        className: `ticketping-conversation-item${isUnread ? ' unread' : ''}`,
         'data-conversation': conversation.sessionId
       });
 
@@ -334,7 +337,8 @@ export class ChatWindow {
       const snippet = lastMessage ? lastMessage.messageText.substring(0, 50) + '...' : '';
 
       item.innerHTML = `
-        <div class="ticketping-conversation-preview">${conversation.summary || snippet || 'Support Chat'}</div>
+        ${isUnread ? '<div class="ticketping-unread-dot"></div>' : ''}
+        <div class="ticketping-conversation-preview${isUnread ? ' unread' : ''}">${conversation.summary || snippet || 'Support Chat'}</div>
         <div class="ticketping-conversation-time">${this.formatDateTime(conversation.modified || conversation.created)}</div>
       `;
 
@@ -858,18 +862,50 @@ export class ChatWindow {
     });
 
     const recentConversation = sortedConversations[0];
+    const isUnread = this.unreadConversations.has(recentConversation.sessionId);
     const lastMessage = recentConversation['messages']?.[recentConversation['messages'].length - 1];
     const snippet = lastMessage ? lastMessage.messageText.substring(0, 60) + '...' : '';
     const preview = recentConversation.summary || snippet || 'Support Chat';
 
     // Update the recent conversation item
-    recentConversationItem.querySelector('.ticketping-recent-conversation-preview').textContent = preview;
+    const previewElement = recentConversationItem.querySelector('.ticketping-recent-conversation-preview');
+    previewElement.textContent = preview;
+
+    // Handle unread state
+    if (isUnread) {
+      recentConversationItem.classList.add('unread');
+      previewElement.classList.add('unread');
+      // Add unread dot if not present
+      if (!recentConversationItem.querySelector('.ticketping-unread-dot')) {
+        const dot = createDOMElement('div', { className: 'ticketping-unread-dot' });
+        recentConversationItem.insertBefore(dot, recentConversationItem.firstChild);
+      }
+    } else {
+      recentConversationItem.classList.remove('unread');
+      previewElement.classList.remove('unread');
+      // Remove unread dot if present
+      const existingDot = recentConversationItem.querySelector('.ticketping-unread-dot');
+      if (existingDot) {
+        existingDot.remove();
+      }
+    }
+
     recentConversationItem.querySelector('.ticketping-recent-conversation-time').textContent =
       this.formatDateTime(recentConversation.modified || recentConversation.created);
     recentConversationItem.dataset.conversationId = recentConversation.sessionId;
 
     // Show the recent conversation section
     recentConversationSection.style.display = 'block';
+  }
+
+  /**
+   * Show or hide the unread dot on the Messages tab
+   */
+  setMessagesTabUnread(hasUnread) {
+    const dot = this.element.querySelector('#messagesTabUnreadDot');
+    if (dot) {
+      dot.style.display = hasUnread ? 'block' : 'none';
+    }
   }
 
   showError(message) {

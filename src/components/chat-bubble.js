@@ -94,8 +94,7 @@ export class ChatBubble {
 
   createNotificationBadge() {
     this.notificationBadge = createDOMElement('div', {
-      className: 'notification-badge',
-      textContent: this.options.notificationCount > 99 ? '99+' : this.options.notificationCount.toString()
+      className: 'notification-badge'
     });
 
     this.element.appendChild(this.notificationBadge);
@@ -158,12 +157,9 @@ export class ChatBubble {
     }
 
     this.options.notificationCount = count;
-    this.notificationBadge.textContent = count > 99 ? '99+' : count.toString();
 
     if (count > 0) {
       this.notificationBadge.style.display = 'flex';
-      // Add pulse animation to draw attention
-      this.notificationBadge.style.animation = 'tp-pulse 1s ease-in-out 3';
     } else {
       this.notificationBadge.style.display = 'none';
     }
