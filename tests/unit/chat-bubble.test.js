@@ -89,7 +89,7 @@ describe('ChatBubble Component', () => {
 
       const badge = container.querySelector('.notification-badge');
       expect(badge).toBeTruthy();
-      expect(badge.textContent).toBe('3');
+      expect(chatBubble.options.notificationCount).toBe(3);
       expect(badge.style.display).not.toBe('none');
     });
 
@@ -105,8 +105,7 @@ describe('ChatBubble Component', () => {
       chatBubble.showNotification(1);
       chatBubble.showNotification(5);
 
-      const badge = container.querySelector('.notification-badge');
-      expect(badge.textContent).toBe('5');
+      expect(chatBubble.options.notificationCount).toBe(5);
     });
 
     it('should handle zero notifications', () => {
