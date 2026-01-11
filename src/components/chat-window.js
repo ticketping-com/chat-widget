@@ -12,6 +12,7 @@ export class ChatWindow {
       onConversationSelect: () => {},
       onBackButtonClick: () => {},
       teamLogoIcon: null,
+      teamSettings: null,
       ...options
     };
 
@@ -46,8 +47,8 @@ export class ChatWindow {
           </div>
           <div class="ticketping-home-container">
             <div class="ticketping-home-content">
-              <h4>Hi there 👋</h4>
-              <p>How can we help you?</p>
+              <h4>${this.getWelcomeTitle()}</h4>
+              <p>${this.getWelcomeMessage()}</p>
             </div>
             <div class="ticketping-actions-container">
               <div class="ticketping-recent-conversation" id="recentConversationSection" style="display: none;">
@@ -62,7 +63,7 @@ export class ChatWindow {
               <button class="ticketping-start-conversation-btn">
                 <div class="ticketping-start-conversation-btn-content">
                   <span class="ticketping-start-conversation-btn-text">Send us a message</span>
-                  <span class="ticketping-start-conversation-btn-subtext">Typically respond within minutes</span>
+                  <span class="ticketping-start-conversation-btn-subtext">${this.getResponseTimeText()}</span>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 18 18"><path d="M16.345,1.654c-.344-.344-.845-.463-1.305-.315L2.117,5.493c-.491,.158-.831,.574-.887,1.087-.056,.512,.187,.992,.632,1.251l4.576,2.669,3.953-3.954c.293-.293,.768-.293,1.061,0s.293,.768,0,1.061l-3.954,3.954,2.669,4.576c.235,.402,.65,.639,1.107,.639,.048,0,.097-.003,.146-.008,.512-.056,.929-.396,1.086-.886L16.661,2.96h0c.148-.463,.027-.963-.316-1.306Z" fill="currentColor" fill-opacity="0.6"></path></svg>
               </button>
@@ -70,7 +71,7 @@ export class ChatWindow {
           </div>
           <div class="ticketping-plug">
             <a href="https://ticketping.com" target="_blank" rel="noopener noreferrer">
-              Powered by Ticketping
+              <span>Powered by</span> <svg width="65.499" height="13" viewBox="0 0 65.499 13" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Ticketping" style="margin-top: 1px;"><path d="M35.072 9.717q-0.6 0 -0.96 -0.36 -0.347 -0.36 -0.347 -0.96V4.304h-1.813V3.144h1.813V0.971h1.374v2.173h1.96v1.16h-1.96V8.157q0 0.4 0.374 0.4h1.374V9.717zm-6.992 0.186q-1 0 -1.746 -0.413 -0.746 -0.427 -1.173 -1.186 -0.413 -0.773 -0.413 -1.786v-0.16q0 -1.026 0.413 -1.786 0.413 -0.773 1.147 -1.186 0.746 -0.427 1.72 -0.427 0.947 0 1.653 0.427 0.719 0.413 1.12 1.16t0.4 1.746v0.52h-5.054q0.027 0.867 0.573 1.387 0.56 0.506 1.387 0.506 0.773 0 1.16 -0.347 0.4 -0.347 0.613 -0.801l1.133 0.587q-0.186 0.374 -0.547 0.786 -0.347 0.413 -0.92 0.693t-1.467 0.281m-1.921 -4.148h3.64q-0.053 -0.746 -0.534 -1.16 -0.48 -0.427 -1.253 -0.427t-1.266 0.427q-0.48 0.413 -0.587 1.16M18.099 9.717V0.385h1.374v5.32h0.213l2.586 -2.56h1.826l-3.319 3.187 3.427 3.386H22.392l-2.707 -2.733h-0.213v2.733zm-4.837 0.186q-0.947 0 -1.72 -0.4 -0.759 -0.4 -1.213 -1.16 -0.44 -0.759 -0.44 -1.826v-0.173q0 -1.067 0.44 -1.813 0.453 -0.759 1.213 -1.16 0.773 -0.413 1.72 -0.413t1.613 0.347 1.067 0.92q0.413 0.573 0.534 1.266l-1.334 0.281q-0.067 -0.44 -0.281 -0.801t-0.6 -0.573 -0.973 -0.213q-0.573 0 -1.04 0.266 -0.453 0.253 -0.719 0.746 -0.266 0.48 -0.266 1.173v0.12q0 0.693 0.266 1.186t0.719 0.746q0.467 0.253 1.04 0.253 0.867 0 1.321 -0.44 0.453 -0.453 0.573 -1.147l1.334 0.307q-0.16 0.68 -0.573 1.253 -0.4 0.573 -1.067 0.92 -0.666 0.334 -1.613 0.334m-6.464 -0.186V3.144h1.374V9.717zm0.693 -7.466q-0.4 0 -0.68 -0.253 -0.266 -0.266 -0.266 -0.68T6.812 0.65q0.281 -0.266 0.68 -0.266 0.413 0 0.68 0.266 0.266 0.253 0.266 0.666t-0.266 0.68q-0.266 0.253 -0.68 0.253M3.158 9.719q-0.6 0 -0.96 -0.36 -0.347 -0.36 -0.347 -0.96v-4.095H0.038V3.144h1.813V0.971h1.374v2.173h1.96v1.16H3.225V8.157q0 0.4 0.374 0.4H4.972V9.717zm58.588 -6.721q0.768 0 1.356 0.312 0.6 0.3 0.936 0.756v-0.961h1.38v6.72q0 0.912 -0.385 1.621 -0.385 0.719 -1.116 1.128 -0.719 0.407 -1.728 0.407 -1.343 0 -2.232 -0.636 -0.888 -0.624 -1.009 -1.704h1.356q0.156 0.516 0.66 0.828 0.516 0.324 1.224 0.324 0.828 0 1.331 -0.504 0.516 -0.504 0.516 -1.465V8.72q-0.348 0.468 -0.948 0.792 -0.588 0.312 -1.343 0.312 -0.863 0 -1.584 -0.432 -0.707 -0.444 -1.128 -1.224 -0.407 -0.792 -0.407 -1.789t0.407 -1.764q0.42 -0.768 1.128 -1.187 0.719 -0.432 1.584 -0.432m2.292 3.408q0 -0.685 -0.288 -1.187 -0.276 -0.504 -0.732 -0.768t-0.984 -0.264 -0.984 0.264q-0.456 0.251 -0.744 0.756 -0.276 0.492 -0.276 1.175t0.276 1.2q0.288 0.516 0.744 0.792 0.468 0.264 0.984 0.264 0.529 0 0.984 -0.264t0.732 -0.768q0.288 -0.516 0.288 -1.2m-9.654 -3.406q0.78 0 1.392 0.324 0.624 0.324 0.972 0.96t0.348 1.536v3.9h-1.356V6.021q0 -0.888 -0.444 -1.356 -0.444 -0.48 -1.212 -0.48t-1.224 0.48q-0.444 0.468 -0.444 1.356V9.717h-1.368V3.105h1.368v0.756q0.336 -0.407 0.853 -0.636 0.529 -0.229 1.116 -0.229m-13.743 1.081q0.348 -0.456 0.948 -0.768t1.356 -0.312q0.863 0 1.572 0.432 0.719 0.42 1.128 1.187t0.407 1.764 -0.407 1.789q-0.407 0.78 -1.128 1.224 -0.707 0.432 -1.572 0.432 -0.756 0 -1.343 -0.3 -0.588 -0.312 -0.96 -0.768v4.104h-1.368V3.105h1.368zm4.02 2.304q0 -0.685 -0.288 -1.175 -0.276 -0.504 -0.744 -0.756 -0.456 -0.264 -0.984 -0.264 -0.516 0 -0.984 0.264 -0.456 0.264 -0.744 0.768 -0.276 0.504 -0.276 1.187t0.276 1.2q0.288 0.504 0.744 0.768 0.468 0.264 0.984 0.264 0.529 0 0.984 -0.264 0.468 -0.276 0.744 -0.792 0.288 -0.516 0.288 -1.2m2.981 3.337V3.144h1.374V9.717zm0.693 -7.467q-0.4 0 -0.68 -0.253 -0.266 -0.266 -0.266 -0.68t0.266 -0.666q0.281 -0.266 0.68 -0.266 0.413 0 0.68 0.266 0.266 0.253 0.266 0.666t-0.266 0.68q-0.266 0.253 -0.68 0.253" fill="currentColor"/></svg>
             </a>
           </div>
         </div>
@@ -82,6 +83,7 @@ export class ChatWindow {
             </button>
             <div class="ticketping-tab-heading">
               <span>Messages</span>
+              <span class="ticketping-status-dot ${this.getAvailabilityStatusClass()}"></span>
             </div>
             <button class="ticketping-close-btn-2" aria-label="Close chat">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -126,6 +128,10 @@ export class ChatWindow {
                   <span></span>
                   <span></span>
                 </div>
+              </div>
+
+              <div class="ticketping-availability-bar" id="availabilityBar">
+                ${this.getAvailabilityHtml()}
               </div>
 
               <div class="ticketping-message-input-container">
@@ -791,6 +797,102 @@ export class ChatWindow {
 
     // Default chat icon SVG
     return '<svg width="40" height="40" viewBox="0 0 1.2 1.2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.1 0.25a0.15 0.15 0 1 1 -0.3 0 0.15 0.15 0 0 1 0.3 0" fill="#4CB782"/><path opacity=".5" d="M0.762 0.127A0.5 0.5 0 0 0 0.6 0.1C0.324 0.1 0.1 0.324 0.1 0.6c0 0.08 0.019 0.156 0.052 0.223 0.009 0.018 0.012 0.038 0.007 0.057l-0.03 0.111a0.065 0.065 0 0 0 0.08 0.08l0.111 -0.03a0.082 0.082 0 0 1 0.057 0.007A0.498 0.498 0 0 0 0.6 1.1c0.276 0 0.5 -0.224 0.5 -0.5 0 -0.057 -0.009 -0.111 -0.027 -0.162a0.225 0.225 0 0 1 -0.312 -0.312" fill="#1C274C"/></svg>';
+  }
+
+  getWelcomeTitle() {
+    return 'Hi there 👋';
+  }
+
+  getWelcomeMessage() {
+    const teamSettings = this.options.teamSettings;
+    // Use widgetWelcomeMessage if available, otherwise fallback
+    if (teamSettings?.widgetWelcomeMessage) {
+      return this.escapeHtml(teamSettings.widgetWelcomeMessage);
+    }
+    return 'How can we help you?';
+  }
+
+  getAvailabilityHtml() {
+    const teamSettings = this.options.teamSettings;
+
+    if (!teamSettings) {
+      return '';
+    }
+
+    const { isAvailable, nextAvailable, workHoursDisplay } = teamSettings;
+
+    // If available, don't show anything (status dot in header is enough)
+    if (isAvailable) {
+      return '';
+    }
+
+    const moonIcon = '<svg class="ticketping-availability-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 18 18"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.54419 1.47446C8.70875 1.73227 8.70028 2.06417 8.52278 2.31324C7.88003 3.21522 7.5 4.31129 7.5 5.49999C7.5 8.53778 9.96222 11 13 11C14.0509 11 15.029 10.7009 15.8667 10.1868C16.1275 10.0267 16.4594 10.0412 16.7053 10.2233C16.9513 10.4054 17.0619 10.7186 16.9848 11.0148C16.0904 14.4535 12.9735 17 9.25 17C4.83179 17 1.25 13.4182 1.25 8.99999C1.25 5.08453 4.06262 1.83365 7.77437 1.14073C8.07502 1.0846 8.37963 1.21666 8.54419 1.47446Z" fill="currentColor"></path></svg>';
+
+    const subtitle = '<div class="ticketping-availability-subtitle">Leave a message and we\'ll pick it up first thing.</div>';
+
+    // If not available, show when they're next available
+    if (nextAvailable) {
+      return `
+        <div class="ticketping-availability ticketping-availability--offline">
+          ${moonIcon}
+          <div class="ticketping-availability-content">
+            <div class="ticketping-availability-title">Offline right now — back ${nextAvailable.dayName} at ${nextAvailable.timeFormatted} ${nextAvailable.timezoneAbbr}</div>
+            ${subtitle}
+          </div>
+        </div>
+      `;
+    }
+
+    // Fallback: show working hours if available
+    if (workHoursDisplay?.full) {
+      return `
+        <div class="ticketping-availability ticketping-availability--offline">
+          ${moonIcon}
+          <div class="ticketping-availability-content">
+            <div class="ticketping-availability-title">Offline right now — Hours: ${this.escapeHtml(workHoursDisplay.full)}</div>
+            ${subtitle}
+          </div>
+        </div>
+      `;
+    }
+
+    // Generic offline message
+    return `
+      <div class="ticketping-availability ticketping-availability--offline">
+        ${moonIcon}
+        <div class="ticketping-availability-content">
+          <div class="ticketping-availability-title">Offline right now</div>
+          ${subtitle}
+        </div>
+      </div>
+    `;
+  }
+
+  getAvailabilityStatusClass() {
+    const teamSettings = this.options.teamSettings;
+    if (!teamSettings) {
+      return 'online'; // Default to online if no settings
+    }
+    return teamSettings.isAvailable ? 'online' : 'offline';
+  }
+
+  getResponseTimeText() {
+    const teamSettings = this.options.teamSettings;
+
+    if (!teamSettings) {
+      return 'Typically replies within minutes';
+    }
+
+    if (teamSettings.isAvailable) {
+      return 'Typically replies within minutes';
+    }
+
+    // Show next available time when offline
+    if (teamSettings.nextAvailable) {
+      return `We'll respond on ${teamSettings.nextAvailable.dayName} at ${teamSettings.nextAvailable.timeFormatted}`;
+    }
+
+    return 'Typically replies within minutes';
   }
 
   isImageFile(filename) {

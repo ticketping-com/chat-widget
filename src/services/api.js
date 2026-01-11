@@ -366,6 +366,11 @@ export class ApiService {
     }
   }
 
+  // Team widget settings
+  async getTeamWidgetSettings() {
+    return await this.request(`${API_ENDPOINTS.teamWidgetSettings}${this.config.teamSlug}/`);
+  }
+
   // Convenience methods for HTTP requests
   async get(endpoint, options = {}) {
     return await this.request(endpoint, {

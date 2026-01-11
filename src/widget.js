@@ -35,6 +35,9 @@ class TicketpingChat {
     this.unreadCount = 0; // Track total unread messages when widget is closed
     this.unreadConversations = new Set(); // Track which conversations have unread messages
 
+    // Team settings (fetched from server)
+    this.teamSettings = null;
+
     this.init();
   }
 
@@ -51,14 +54,27 @@ class TicketpingChat {
         throw new Error(`Invalid configuration: ${validation.errors.join(', ')}`);
       }
 
+      // Fetch team settings from server
+      await this.fetchTeamSettings();
+
       // Create widget container
       this.createWidgetContainer();
+
+      // Apply widget position from team settings
+      this.applyWidgetPosition();
 
       // Initialize components
       this.chatBubble = new ChatBubble(this.widgetContainer, {
         onClick: () => this.toggle(),
         iconColor: this.getIconColor(),
       });
+
+      // Check if bubble should be visible
+      if (!this.shouldShowBubble()) {
+        // Hide the bubble but keep components initialized for programmatic access
+        this.chatBubble.hide();
+        this.track('widget_bubble_hidden_by_settings');
+      }
 
       this.chatWindow = new ChatWindow(this.widgetContainer, {
         onClose: () => this.close(),
@@ -67,7 +83,8 @@ class TicketpingChat {
         onFileUpload: (file) => this.handleFileUpload(file),
         onConversationSelect: (sessionId) => this.loadConversation(sessionId),
         onBackButtonClick: () => this.backToList(),
-        teamLogoIcon: this.config.teamLogoIcon,
+        teamLogoIcon: this.getTeamLogoIcon(),
+        teamSettings: this.teamSettings,
       });
 
       // Load stored conversations
@@ -87,6 +104,64 @@ class TicketpingChat {
     } catch (error) {
       console.error('Failed to initialize TicketpingChat:', error);
       this.track('widget_init_error', { error: error.message });
+    }
+  }
+
+  /**
+   * Fetch team widget settings from server
+   */
+  async fetchTeamSettings() {
+    try {
+      this.teamSettings = await this.api.getTeamWidgetSettings();
+      this.track('team_settings_loaded', {
+        teamSlug: this.teamSettings?.teamSlug,
+        isAvailable: this.teamSettings?.isAvailable
+      });
+    } catch (error) {
+      console.warn('Failed to fetch team settings, using defaults:', error);
+      this.teamSettings = null;
+    }
+  }
+
+  /**
+   * Get team logo icon from team settings or config
+   */
+  getTeamLogoIcon() {
+    // Prefer team settings logo, fallback to config
+    return this.config.teamLogoIcon || this.teamSettings?.logoUrl || null;
+  }
+
+  /**
+   * Check if widget bubble should be shown based on team settings
+   */
+  shouldShowBubble() {
+    // Default to true if no team settings or widgetBubbleVisible not set
+    if (!this.teamSettings || this.teamSettings.widgetBubbleVisible === undefined) {
+      return true;
+    }
+    return this.teamSettings.widgetBubbleVisible;
+  }
+
+  /**
+   * Apply widget position from team settings
+   */
+  applyWidgetPosition() {
+    if (!this.widgetContainer) {
+      return;
+    }
+
+    // Get position from team settings (default to 'right')
+    const position = this.teamSettings?.widgetPosition || this.config.position || 'bottom-right';
+
+    // Normalize position value
+    const normalizedPosition = position === 'left' ? 'bottom-left' : 'bottom-right';
+
+    // Remove existing position classes
+    this.widgetContainer.classList.remove('position-bottom-left', 'position-bottom-right');
+
+    // Apply position class
+    if (normalizedPosition === 'bottom-left') {
+      this.widgetContainer.classList.add('position-bottom-left');
     }
   }
 

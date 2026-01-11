@@ -139,7 +139,8 @@ export const API_ENDPOINTS = {
   conversations: '/api/v1/chat-sessions/',
   messages: '/messages',
   fileUpload: '/api/v1/chat-session/file-upload/',
-  analytics: '/analytics'
+  analytics: '/analytics',
+  teamWidgetSettings: '/api/v1/team/widget/'
 };
 
 export const WEBSOCKET_EVENTS = {

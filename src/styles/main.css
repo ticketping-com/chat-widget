@@ -16,7 +16,7 @@
   --tp-border-light: #f3f3f3;
   --tp-notification-bg: #ff4757;
   --tp-success-color: #4caf50;
-  --tp-offline-color: #9e9e9e;
+  --tp-offline-color: #adb5bd;
   --tp-error-bg: #ffebee;
   --tp-error-text: #c62828;
   --tp-error-border: #f44336;
@@ -33,6 +33,7 @@
   --tp-shadow-send-btn: 0px 0px 25px 0px rgba(9, 14, 21, 0.06), 0px 0px 25px 0px rgba(9, 14, 21, 0.06);
   --tp-border-radius: 16px;
   --tp-border-radius-small: 8px;
+  --tp-border-radius-medium: 12px;
   --tp-border-radius-large: 16px;
   --tp-spacing-xs: 4px;
   --tp-spacing-sm: 8px;
@@ -90,6 +91,13 @@
 .ticketping-widget.position-bottom-left {
   left: var(--tp-spacing-xl);
   right: auto;
+}
+
+/* Chat window positioning for bottom-left */
+.ticketping-widget.position-bottom-left .ticketping-chat-window {
+  right: auto;
+  left: 0;
+  transform-origin: bottom left;
 }
 
 /* Chat bubble button */
@@ -214,6 +222,14 @@
     left: 0;
     border-radius: 0;
     box-shadow: none;
+    transform-origin: bottom center;
+  }
+
+  /* Reset left positioning on mobile for bottom-left */
+  .ticketping-widget.position-bottom-left .ticketping-chat-window {
+    right: 0;
+    left: 0;
+    transform-origin: bottom center;
   }
 
   /* Prevent body scrolling when widget is open on mobile */
@@ -243,9 +259,28 @@
 }
 
 .ticketping-tab-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--tp-spacing-sm);
   font-size: var(--tp-font-size-lg);
   font-weight: var(--tp-font-weight-semibold);
   color: var(--tp-text-primary);
+}
+
+/* Status dot in Messages header */
+.ticketping-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ticketping-status-dot.online {
+  background: var(--tp-success-color);
+}
+
+.ticketping-status-dot.offline {
+  background: var(--tp-offline-color);
 }
 
 .ticketping-workspace-logo img {
@@ -346,33 +381,6 @@
   width: 16px;
   height: 16px;
   fill: currentColor;
-}
-
-/* Agent status indicator */
-.agent-status {
-  display: flex;
-  align-items: center;
-  gap: var(--tp-spacing-sm);
-  font-size: var(--tp-font-size-sm);
-  opacity: 0.9;
-}
-
-.agent-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--tp-success-color);
-  animation: tp-pulse-dot 2s infinite;
-}
-
-.agent-status-dot.offline {
-  background: var(--tp-offline-color);
-  animation: none;
-}
-
-@keyframes tp-pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
 }
 
 /* Tabs */
@@ -496,8 +504,87 @@
   font-size: var(--tp-font-size-2xl);
   font-weight: var(--tp-font-weight-semibold);
   color: var(--tp-text-secondary);
-  margin-bottom: var(--tp-spacing-xxl);
+  margin-bottom: var(--tp-spacing-lg);
   line-height: 1.5;
+}
+
+/* Availability status */
+.ticketping-availability {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tp-spacing-sm);
+  padding: var(--tp-spacing-sm) var(--tp-spacing-md);
+  border-radius: 20px;
+  font-size: var(--tp-font-size-sm);
+  font-weight: var(--tp-font-weight-medium);
+  margin-top: var(--tp-spacing-sm);
+}
+
+.ticketping-availability--offline {
+  background: var(--tp-background-secondary);
+  color: var(--tp-text-secondary);
+}
+
+/* Availability bar in conversation window (only shows when offline) */
+.ticketping-availability-bar {
+  display: none;
+}
+
+.ticketping-availability-bar:has(.ticketping-availability) {
+  display: block;
+  animation: availabilitySlideIn 0.6s ease-out;
+}
+
+@keyframes availabilitySlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ticketping-availability-bar .ticketping-availability {
+  margin: 0;
+  padding: var(--tp-spacing-sm) var(--tp-spacing-lg);
+  border-radius: 0;
+  font-size: var(--tp-font-size-sm);
+  justify-content: center;
+  text-align: center;
+}
+
+.ticketping-availability-bar .ticketping-availability--offline {
+  display: flex;
+  align-items: center;
+  gap: var(--tp-spacing-md);
+  background: #5a51d5;
+  color: #ffffff;
+  text-align: left;
+  border-radius: var(--tp-border-radius-medium) var(--tp-border-radius-medium) 0 0;
+}
+
+.ticketping-availability-icon {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.ticketping-availability-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ticketping-availability-title {
+  font-weight: var(--tp-font-weight-medium);
+  color: #ffffff;
+  margin-bottom: 1px;
+  font-size: var(--tp-font-size-sm);
+}
+
+.ticketping-availability-subtitle {
+  font-size: var(--tp-font-size-xs);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .ticketping-actions-container {
@@ -590,6 +677,10 @@
 }
 
 .ticketping-plug a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tp-spacing-xs);
   text-decoration: none;
   font-size: var(--tp-font-size-sm);
   color: var(--tp-text-muted);
@@ -796,23 +887,6 @@
 .ticketping-conversation-time {
   font-size: var(--tp-font-size-sm);
   color: var(--tp-text-muted);
-}
-
-.ticketping-conversation-unread {
-  position: absolute;
-  right: var(--tp-spacing-lg);
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--tp-primary-color);
-  color: white;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--tp-font-size-xs);
-  font-weight: var(--tp-font-weight-semibold);
 }
 
 /* Empty state */
@@ -1291,27 +1365,6 @@
 
 .ticketping-send-btn:disabled svg {
   fill: var(--tp-text-muted);
-}
-
-/* Error states */
-.error-message {
-  background: var(--tp-error-bg);
-  color: var(--tp-error-text);
-  padding: var(--tp-spacing-sm) var(--tp-spacing-md);
-  border-radius: var(--tp-border-radius-small);
-  font-size: var(--tp-font-size-sm);
-  margin: var(--tp-spacing-sm) var(--tp-spacing-lg);
-  border-left: 3px solid var(--tp-error-border);
-}
-
-.retry-btn {
-  background: none;
-  border: none;
-  color: var(--tp-primary-color);
-  cursor: pointer;
-  font-size: var(--tp-font-size-sm);
-  text-decoration: underline;
-  margin-left: var(--tp-spacing-sm);
 }
 
 /* Loading states */

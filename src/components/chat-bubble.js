@@ -126,6 +126,10 @@ export class ChatBubble {
   setOpen(isOpen) {
     this.isOpen = isOpen;
 
+    if (!this.element) {
+      return;
+    }
+
     if (isOpen) {
       this.element.classList.add(CSS_CLASSES.OPEN);
       this.element.setAttribute('aria-expanded', 'true');
@@ -152,6 +156,10 @@ export class ChatBubble {
   }
 
   showNotificationBadge(count = 1) {
+    if (!this.element) {
+      return;
+    }
+
     if (!this.notificationBadge) {
       this.createNotificationBadge();
     }
@@ -183,19 +191,38 @@ export class ChatBubble {
   }
 
   setTheme(theme) {
-    this.element.setAttribute('data-theme', theme);
+    if (this.element) {
+      this.element.setAttribute('data-theme', theme);
+    }
   }
 
   setPosition(position) {
     // Position will be handled by parent container
-    this.element.setAttribute('data-position', position);
+    if (this.element) {
+      this.element.setAttribute('data-position', position);
+    }
   }
 
   bounce() {
+    if (!this.element) {
+      return;
+    }
     this.element.style.animation = 'tp-bounce 0.6s ease-in-out';
     setTimeout(() => {
       this.element.style.animation = '';
     }, 600);
+  }
+
+  hide() {
+    if (this.element) {
+      this.element.style.display = 'none';
+    }
+  }
+
+  show() {
+    if (this.element) {
+      this.element.style.display = '';
+    }
   }
 
   // Accessibility
@@ -204,22 +231,30 @@ export class ChatBubble {
   }
 
   focus() {
-    this.element.focus();
+    if (this.element) {
+      this.element.focus();
+    }
   }
 
   blur() {
-    this.element.blur();
+    if (this.element) {
+      this.element.blur();
+    }
   }
 
   // State management
   disable() {
-    this.element.disabled = true;
-    this.element.setAttribute('aria-disabled', 'true');
+    if (this.element) {
+      this.element.disabled = true;
+      this.element.setAttribute('aria-disabled', 'true');
+    }
   }
 
   enable() {
-    this.element.disabled = false;
-    this.element.setAttribute('aria-disabled', 'false');
+    if (this.element) {
+      this.element.disabled = false;
+      this.element.setAttribute('aria-disabled', 'false');
+    }
   }
 
   // Cleanup
