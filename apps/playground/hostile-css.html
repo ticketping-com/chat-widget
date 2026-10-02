@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hostile CSS host</title>
+    <!-- Styles a careless (or aggressive) host page might ship. The launcher must look identical. -->
+    <style>
+      * {
+        box-sizing: content-box !important;
+        font-family: 'Comic Sans MS', cursive !important;
+        transition: all 2s !important;
+      }
+      html {
+        font-size: 30px;
+        line-height: 3;
+        color: magenta;
+        direction: rtl;
+        text-align: right;
+      }
+      button {
+        width: 10px !important;
+        height: 10px !important;
+        background: red !important;
+        border: 8px dashed lime !important;
+        border-radius: 0 !important;
+      }
+      svg {
+        display: none !important;
+      }
+      :root {
+        --tp-accent: red;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hostile host CSS</h1>
+    <p>Global !important rules on button, svg, and *, plus a leaked --tp-accent on :root.</p>
+    <script>
+      window.Ticketping =
+        window.Ticketping ||
+        function () {
+          ;(Ticketping.q = Ticketping.q || []).push(arguments)
+        }
+      Ticketping('init', { publishableKey: 'pk_playground00000000000000' })
+    </script>
+    <script type="module" src="./boot.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ticketping widget playground</title>
+    <style>
+      body {
+        max-width: 640px;
+        margin: 48px auto;
+        padding: 0 16px;
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      #log {
+        min-height: 120px;
+        padding: 12px;
+        background: #f4f4f2;
+        font:
+          13px/1.5 ui-monospace,
+          monospace;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Widget playground</h1>
+    <p>Other pages: <a href="/hostile-css.html">hostile host CSS</a></p>
+
+    <div class="controls">
+      <button data-call="open">open()</button>
+      <button data-call="close">close()</button>
+      <button data-call="toggle">toggle()</button>
+      <button data-call="hideLauncher">hideLauncher()</button>
+      <button data-call="showLauncher">showLauncher()</button>
+      <button data-call="destroy">destroy()</button>
+    </div>
+
+    <h2>Events</h2>
+    <div id="log"></div>
+
+    <!-- The one-line stub from the docs: lets the page queue calls before the widget loads. -->
+    <script>
+      window.Ticketping =
+        window.Ticketping ||
+        function () {
+          ;(Ticketping.q = Ticketping.q || []).push(arguments)
+        }
+      Ticketping('init', { publishableKey: 'pk_playground00000000000000' })
+      for (const name of ['ready', 'open', 'close', 'error']) {
+        Ticketping('on', name, (payload) => {
+          const line = `${new Date().toLocaleTimeString()}  ${name} ${payload ? JSON.stringify(payload) : ''}`
+          document.getElementById('log').textContent += line + '\n'
+        })
+      }
+      document.querySelector('.controls').addEventListener('click', (event) => {
+        const method = event.target.dataset?.call
+        if (method) Ticketping(method)
+      })
+    </script>
+    <script type="module" src="./boot.ts"></script>
+  </body>
+</html>

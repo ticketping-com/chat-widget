@@ -1,0 +1,54 @@
+{
+  "name": "@ticketping/chat-widget",
+  "version": "2.0.0-alpha.0",
+  "description": "Ticketping chat widget: answer your customers from Slack.",
+  "type": "module",
+  "sideEffects": [
+    "./src/cdn.ts",
+    "./src/loader.ts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/npm/index.d.ts",
+      "import": "./dist/npm/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/npm",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && vite build --mode loader && vite build --mode cdn && vite build --mode npm && rolldown -c rolldown.dts.config.ts",
+    "typecheck": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings"
+  },
+  "devDependencies": {
+    "@ticketping/core": "*",
+    "@ticketping/ui": "*",
+    "rolldown-plugin-dts": "^0.28.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ticketping-com/chat-widget.git",
+    "directory": "packages/widget"
+  },
+  "homepage": "https://ticketping.com",
+  "bugs": {
+    "url": "https://github.com/ticketping-com/chat-widget/issues"
+  },
+  "author": "Ticketping Team <ravi@ticketping.com>",
+  "license": "MIT",
+  "keywords": [
+    "chat-widget",
+    "customer-support",
+    "live-chat",
+    "slack",
+    "ticketping"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "tag": "next"
+  }
+}

@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [master, v2]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Lint and format
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test
+      - name: Token test vectors are up to date
+        run: npm run spec:vectors && git diff --exit-code spec/token-test-vectors.json
+      - name: Build and size budgets
+        run: npm run size
