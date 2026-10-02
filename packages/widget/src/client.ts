@@ -1,6 +1,7 @@
 import {
   createEmitter,
   createStore,
+  resolveConfig,
   type InitOptions,
   type WidgetEvents,
   type WidgetState
@@ -62,9 +63,16 @@ export function createClient(version: string): TicketpingApi {
         return
       }
       options = next
+      // Until boot exists (M3), code options resolve against the built-in defaults.
+      const { appearance, ignoredFeatureOverrides } = resolveConfig(undefined, next)
+      if (ignoredFeatureOverrides.length > 0) {
+        console.warn(
+          `[ticketping] ${ignoredFeatureOverrides.join(', ')} can only be switched on in the dashboard; ignoring.`
+        )
+      }
       store.set({
-        position: next.position ?? 'bottom-right',
-        colorMode: next.colorMode ?? 'auto',
+        position: appearance.position,
+        colorMode: appearance.colorMode,
         launcherVisible: !next.hideLauncher
       })
       if ((next.consent ?? 'granted') === 'granted') start()

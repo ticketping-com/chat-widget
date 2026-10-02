@@ -31,7 +31,7 @@ Related: `FEATURES.md` (v1 inventory), `COMPETITIVE_GAP_PLAN.md` (gaps vs Interc
 | Unverified identify     | Allowed in a "getting started" mode: flagged to agents, never reveals history. Teams switch on "require verified identity" before going live                                                                                                                                                             |
 | History                 | Identified (verified) users get server history across devices. Anonymous visitors see this browser's conversations only                                                                                                                                                                                  |
 | Email capture           | Asked only when the host hasn't identified the visitor, and used only for reply notifications                                                                                                                                                                                                            |
-| Config source           | Dashboard is the source of truth; code may override locale, launcher visibility, position and color mode                                                                                                                                                                                                 |
+| Config source           | Code beats the dashboard, which beats built-in defaults. Appearance and texts are fully overridable; features can only be switched off from code; security, branding, Slack routing and domains are dashboard-only. See protocol 3.1.1                                                                   |
 | Consent                 | `init({ consent: 'pending' })` stores nothing and opens no socket until consent                                                                                                                                                                                                                          |
 | Launch integrations     | HTML script tag, Next.js, React (Vite), TanStack Start/Router, SvelteKit, Vue/Nuxt, React Router v7, Astro, Google Tag Manager                                                                                                                                                                           |
 | Server token signing    | No server packages. The token is a standard HS256 JWT, so teams sign it with the JWT library they already use. We ship per-stack docs (copy-paste route code) and a "copy prompt for your AI coding agent" for each, verified by the dashboard token validator. **Django docs come first** (SpendCrypto) |
@@ -256,7 +256,8 @@ The adapters expose a reactive `unreadCount`, `isOpen`, `open()` and `showNewMes
 The same surface everywhere: queued `Ticketping('method', ...args)`, direct `Ticketping.method()` after load, and adapter hooks.
 
 ```
-init({ publishableKey, locale?, colorMode?, position?, hideLauncher?, consent? })
+init({ publishableKey, locale?, hideLauncher?, consent?,
+       appearance?, texts?, features? })    # code beats the dashboard; features can only be turned off
 consent('granted' | 'denied')
 identify({ userId?, email?, name?, company?, attributes?, getToken? })
 update({ attributes?, page? })        # SPA route changes, attribute changes
@@ -277,9 +278,21 @@ getUnreadCount() / isOpen() / destroy()
 - Typing in both directions. Ticket status in the list and thread.
 - Inline email form (only when not identified). Page context capture and `setContext()`.
 - Markdown; multiple attachments with drag-drop, paste and progress.
+- GIFs (GIPHY) in both directions: widget, dashboard, Slack and email. See section 5.1.
+- Emoji picker and `:` suggestions in the widget and dashboard composers; Slack shortcodes converted to Unicode (protocol 7.2).
 - Accessibility (dialog, focus, Esc, live regions, IME-safe Enter); mobile polish.
 - i18n: English only, but every string goes through the catalog and the layout supports RTL.
 - Dashboard-driven appearance with live preview; light/dark/auto mode.
+
+### 5.1 GIFs
+
+GIFs work in every direction: widget, dashboard composer, Slack and email (protocol 3.5, 4.6.1 and 7.1).
+
+- **Provider: GIPHY.** Tenor's API shut down on June 30, 2026. KLIPY is the fallback; `provider` is in every payload so a second provider is additive.
+- **The backend proxies search** so the API key stays server-side, caches results, rate-limits per visitor and enforces the widget config's content rating (`g` by default).
+- **Clients only send a GIPHY ID.** The server resolves it and stores the media URLs, so a visitor can't inject arbitrary image URLs into Slack, email or the dashboard.
+- **Widget picker:** a lazy-loaded chunk (not in the 45 KB main budget) opened from a composer button. It has trending on open, debounced search, a keyboard-navigable grid, "Powered by GIPHY", and plays MP4 instead of GIF to save bandwidth. Reduced motion shows stills.
+- **Off by default** for new widgets, because GIF media loads from GIPHY's CDN and exposes the visitor's IP to GIPHY. The dashboard toggle explains this in one sentence.
 
 Deferred to v2.x (the protocol is designed for them now): help space, AI v2 (retrieval, streaming, citations), interactive messages, CSAT, screenshot and technical context capture, analytics.
 
@@ -317,12 +330,17 @@ Everything is new under `v2`, alongside v1. v1 is removed after the SpendCrypto 
 - `post_ticket_to_slack` uses the widget config's channel when set. Tickets already store `slack_channel_id`, so threaded replies keep working.
 - The ticket sidebar shows visitor context, attributes and the verified/unverified badge.
 - Install-check events are pushed to the dashboard wizard over the existing team notification socket.
+- GIFs: `GIPHY_API_KEY` setting; `ChatAttachment` gains `kind` and a `gif` JSON field; a GIPHY client with caching (widget and team-authenticated search endpoints); Slack outbound posts an `image` block; Slack inbound maps GIPHY app attachments and GIPHY links to `gif` attachments (uploaded `.gif` files keep going through `save_slack_files`); email notifications render `<img>`.
+- Emoji: convert standard Slack shortcodes (including skin tones) to Unicode on inbound Slack messages, using a pinned shortcode map; leave custom workspace emoji as text.
 
 **Dashboard (ticketping.com)**
 
-- Widgets list and editor (appearance, texts, AI, Slack channel, security toggles, domains with "allow" suggestions).
-- Keys and identity secrets (rotate, revoke).
+Every widget v2 feature that needs a dashboard surface is tracked in `ticketping.com/plans/003-chat-widget-v2-dashboard.md`. Add to that plan whenever a widget feature is added here. In short:
+
+- Widgets list and editor (appearance, texts, AI, GIFs, Slack channel, security toggles, domains with "allow" suggestions), with a live preview that shows dashboard values.
+- Keys and the identity secret (rotate, revoke).
 - Setup wizard, token validator, go-live checklist.
+- Inbox: TEST, verified and unverified badges, visitor context, AI sender, GIF picker in the composer and GIF rendering in threads.
 
 ---
 

@@ -47,6 +47,7 @@ Every non-2xx REST response, and every socket error frame, carries:
 | 403  | `origin_not_allowed`         | Request from an origin that isn't allowed (2.3)                                |
 | 403  | `verified_identity_required` | Config requires a signed token for this action                                 |
 | 403  | `identified_only`            | Config only serves identified users; anonymous actions refused                 |
+| 403  | `feature_disabled`           | The dashboard has this feature off (for example `gifs`). `details.feature`     |
 | 404  | `not_found`                  | Resource doesn't exist **or** isn't visible to this caller (never distinguish) |
 | 413  | `payload_too_large`          | Upload or body over the limit                                                  |
 | 429  | `rate_limited`               | `Retry-After` header (seconds) is always set                                   |
@@ -132,14 +133,34 @@ Cookies are not used: from a customer's site, a cookie on `api.ticketping.com` i
     "greetingBody": "Ask us anything. We reply here and by email.",
     "composerPlaceholder": "Write a message..."
   },
-  "features": { "ai": true, "attachments": true, "emailCapture": true },
+  "features": {
+    "ai": true,
+    "attachments": true,
+    "emailCapture": true,
+    "emoji": true,
+    "gifs": true
+  },
   "security": { "requireVerifiedIdentity": false, "identifiedOnly": false, "loginUrl": null },
   "branding": { "poweredBy": true },
   "socket": { "url": "wss://api.ticketping.com/ws/v2/widget/", "heartbeatSeconds": 25 }
 }
 ```
 
-`isTest` is `true` when this page's origin is a local or test origin (2.2); the widget then shows a small "Test" tag. `texts` holds only the English catalog at launch. Keys the dashboard doesn't override fall back to the widget's built-in catalog. `branding.poweredBy` is always `true` except on Enterprise plans.
+`isTest` is `true` when this page's origin is a local or test origin (2.2); the widget then shows a small "Test" tag. `texts` holds only the English catalog at launch. `branding.poweredBy` is always `true` except on Enterprise plans.
+
+### 3.1.1 Code overrides the dashboard
+
+The dashboard sets defaults; anything the host passes in code wins. The widget resolves each setting as **`init()` options, then the `boot` config, then the widget's built-in defaults**, and re-resolves when the host calls `update()` with new options. It's done client-side, so `boot` always returns the dashboard values unchanged, and the dashboard's live preview shows those values.
+
+| Setting                                                                      | From code                                                                                                                                                 |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `appearance.*` (accent color, color mode, position, launcher icon and label) | Overrides                                                                                                                                                 |
+| `texts.*`                                                                    | Overrides, per key. Unset keys fall through to the dashboard, then the built-in catalog                                                                   |
+| `locale`, `hideLauncher`                                                     | Code only (no dashboard equivalent)                                                                                                                       |
+| `features.*` (`ai`, `attachments`, `emailCapture`, `emoji`, `gifs`)          | Can switch a feature **off**, not on. The server enforces the dashboard value, because anything code can switch on, a visitor can switch on from devtools |
+| `security.*`, `branding.*`, Slack routing, allowed domains                   | Not settable from code. They protect the team or depend on the plan                                                                                       |
+
+The widget warns in the console (once) when code tries to switch on a feature the dashboard has off, so the mismatch is easy to spot during setup.
 
 ### 3.2 `Identity`
 
@@ -215,6 +236,7 @@ A conversation exists only once the visitor has sent a message (no empty convers
 ```json
 {
   "id": "ca_1q2w3e",
+  "kind": "file",
   "name": "screenshot.png",
   "size": 48213,
   "contentType": "image/png",
@@ -225,6 +247,31 @@ A conversation exists only once the visitor has sent a message (no empty convers
 ```
 
 `url` is a signed download URL valid for 1 hour. It's re-issued whenever the message is fetched again. Only `image/png`, `image/jpeg`, `image/gif` and `image/webp` have `isImage: true` and may be shown inline. Everything else, including SVG and HTML, is served with `Content-Disposition: attachment`.
+
+Uploaded files have `"kind": "file"` (the shape above). A GIF picked from GIPHY, by anyone (visitor, agent in the dashboard, agent in Slack), is an attachment with `"kind": "gif"`:
+
+```json
+{
+  "id": "ca_7u8i9o",
+  "kind": "gif",
+  "gif": {
+    "provider": "giphy",
+    "id": "3o7TKSjRrfIPjeiVyM",
+    "title": "Thumbs up",
+    "width": 480,
+    "height": 270,
+    "mp4Url": "https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.mp4",
+    "webpUrl": "https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.webp",
+    "gifUrl": "https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.gif",
+    "stillUrl": "https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy_s.gif"
+  }
+}
+```
+
+- The server fills every URL from the GIPHY API by `id`. It never stores a URL a client sent, and only stores URLs on `media*.giphy.com`.
+- The widget plays `mp4Url` in a muted, looping, inline `<video>` (much smaller than the GIF), with `title` as its accessible name. Under `prefers-reduced-motion: reduce`, it shows `stillUrl` with a play button instead.
+- GIPHY URLs are public and don't expire, so `urlExpiresAt` is absent.
+- Unknown `kind` values: show `name` (or "Attachment") as a plain link if `url` is present, otherwise skip.
 
 ---
 
@@ -327,6 +374,32 @@ Auth: visitor or access token. Response `{ "messages": [...], "hasMore": true }`
 ### 4.6 `POST /api/v2/widget/uploads`
 
 Auth: visitor or access token. `multipart/form-data` with one `file` field. Response `201 { "attachment": {...} }`. The ID is then referenced in `message.send`. Limits: 10 MB per file, 5 files per message; types are images, PDF, plain text, CSV, and common office documents. The server checks the size, and checks the content type by sniffing the file, not trusting the header. Uploads not referenced by a message within 24 hours are deleted.
+
+### 4.6.1 `GET /api/v2/widget/gifs/trending?offset=0` and `GET /api/v2/widget/gifs/search?q=<query>&offset=0`
+
+Auth: visitor or access token. Only when `features.gifs` is on (otherwise `403 feature_disabled`). The backend proxies GIPHY, so the GIPHY API key never reaches the browser.
+
+```json
+{
+  "results": [
+    {
+      "provider": "giphy",
+      "id": "...",
+      "title": "...",
+      "width": 200,
+      "height": 113,
+      "previewUrl": "https://media.giphy.com/.../200w.webp",
+      "stillUrl": "..."
+    }
+  ],
+  "nextOffset": 24
+}
+```
+
+- 24 results per page; `nextOffset` is `null` on the last page. `q` is 1 to 50 characters.
+- The server always sends the config's content rating to GIPHY (`g` by default; the dashboard can pick `pg` or `pg-13`, never `r`).
+- Responses are cached per `(rating, q, offset)`: trending for 10 minutes, searches for 1 hour.
+- The picker shows "Powered by GIPHY", as GIPHY's terms require.
 
 ### 4.7 `POST /api/v2/widget/session/refresh`
 
@@ -436,16 +509,16 @@ Every frame is `{ "v": 1, "type": "<name>", "id"?: "<client frame id>", "data": 
 
 **Client to server**
 
-| Type                   | `data`                                                                                     | Notes                                                                                    |
-| ---------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| `auth`                 | see 6.1                                                                                    | First frame only                                                                         |
-| `auth.refresh`         | `{ "accessToken" }`                                                                        | Swap in a new access token without reconnecting (6.6)                                    |
-| `ping`                 | `{}`                                                                                       | Every `heartbeatSeconds`                                                                 |
-| `message.send`         | `{ "clientId", "conversationId": "... or null", "body": { "text" }, "attachmentIds": [] }` | `conversationId: null` starts a new conversation. Text 1 to 10,000 characters            |
-| `conversation.handoff` | `{ "conversationId" }`                                                                     | "Talk to a person"                                                                       |
-| `conversation.read`    | `{ "conversationId", "upToMessageId" }`                                                    | Clears unread up to and including that message                                           |
-| `typing`               | `{ "conversationId", "isTyping" }`                                                         | At most one per 2 seconds; the server ignores extras                                     |
-| `visitor.context`      | `{ "page": { "url", "title" }, "attributes"?: {...} }`                                     | SPA navigation and `update()`. Attributes are refused when verified identity is required |
+| Type                   | `data`                                                                                                                            | Notes                                                                                                                                                                                                                                                                                           |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `auth`                 | see 6.1                                                                                                                           | First frame only                                                                                                                                                                                                                                                                                |
+| `auth.refresh`         | `{ "accessToken" }`                                                                                                               | Swap in a new access token without reconnecting (6.6)                                                                                                                                                                                                                                           |
+| `ping`                 | `{}`                                                                                                                              | Every `heartbeatSeconds`                                                                                                                                                                                                                                                                        |
+| `message.send`         | `{ "clientId", "conversationId": "... or null", "body": { "text" }, "attachmentIds": [], "gif"?: { "provider": "giphy", "id" } }` | `conversationId: null` starts a new conversation. Text up to 10,000 characters; it may be empty only when there are attachments or a GIF. At most one GIF per message; it's checked against the config's rating and resolved by ID (3.5). Unknown or over-rated IDs fail with `invalid_request` |
+| `conversation.handoff` | `{ "conversationId" }`                                                                                                            | "Talk to a person"                                                                                                                                                                                                                                                                              |
+| `conversation.read`    | `{ "conversationId", "upToMessageId" }`                                                                                           | Clears unread up to and including that message                                                                                                                                                                                                                                                  |
+| `typing`               | `{ "conversationId", "isTyping" }`                                                                                                | At most one per 2 seconds; the server ignores extras                                                                                                                                                                                                                                            |
+| `visitor.context`      | `{ "page": { "url", "title" }, "attributes"?: {...} }`                                                                            | SPA navigation and `update()`. Attributes are refused when verified identity is required                                                                                                                                                                                                        |
 
 **Server to client**
 
@@ -528,6 +601,27 @@ phase "team"
 - `identifiedOnly` configs refuse `message.send` from anonymous visitors with `identified_only`. The widget shows a "Log in to chat" button linking to `security.loginUrl` instead of the composer.
 - Slack: the widget config's channel, else the team's first connected channel, else no Slack post. Test conversations are prefixed `[TEST]`.
 
+### 7.1 GIFs across channels
+
+| Direction                 | Behavior                                                                                                                                                                                                                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Widget to Slack           | Posted in the ticket thread as an `image` block using `gifUrl` (Slack doesn't play MP4 in blocks), alt text from `title`, with any text as a section above it                                                                                                                  |
+| Slack to widget           | A GIF from Slack's GIPHY app (`/giphy`), or a pasted `giphy.com` / `media*.giphy.com` link, is turned into a `gif` attachment by extracting the GIPHY ID and resolving it. A `.gif` file uploaded in Slack stays a normal `file` attachment (already handled by the file sync) |
+| Dashboard to widget       | The reply composer has the same picker, served by a team-authenticated copy of 4.6.1. Agents' GIFs aren't rating-filtered when pasted from Slack, but the dashboard picker uses the config's rating too                                                                        |
+| Email reply notifications | The GIF is an `<img src="gifUrl">` with `alt` from `title`. Plain-text parts say `[GIF: title]`                                                                                                                                                                                |
+| Previews and push text    | Conversation previews, Slack notification text and unread toasts use `GIF` (or `GIF: title`) when the message has no text                                                                                                                                                      |
+
+GIF media loads straight from GIPHY in the visitor's browser, so GIPHY sees the visitor's IP address and user agent. The privacy docs say so, and `features.gifs` is off by default for new widgets. Host pages with a CSP need `img-src` and `media-src` to allow `https://media.giphy.com https://*.giphy.com`.
+
+### 7.2 Emoji
+
+Emoji are plain Unicode in `body` text everywhere. They're never images or attachments, and the server always stores Unicode.
+
+- **Widget:** a composer button opens the picker, a lazy-loaded chunk. Its emoji data is served from `widget.ticketping.com`, so the picker makes no third-party requests. It has search, categories, recently used and a remembered skin tone (both kept in `localStorage` under the widget's key prefix). Typing `:` plus 2 characters suggests matches (`:thu` offers 👍). Emoji render with the system font.
+- **`features.emoji` off:** hides the button and the `:` suggestions. Typed or pasted emoji are still just text.
+- **Slack to widget:** Slack sends emoji as shortcodes in `text` (`:white_check_mark:`, `:+1::skin-tone-3:`). The server converts standard shortcodes to Unicode before storing, so the widget, dashboard and email see ✅ and 👍🏼. Custom workspace emoji (`:partyparrot:`) have no Unicode form and stay as text.
+- **Widget or dashboard to Slack, and email:** Unicode is sent as is; Slack and mail clients render it.
+
 ---
 
 ## 8. Limits
@@ -538,6 +632,7 @@ phase "team"
 | `identify`             | 10 per minute per visitor                                                                                                           |
 | `message.send`         | 20 per minute and 300 per hour per visitor                                                                                          |
 | Uploads                | 10 per minute per visitor; 10 MB per file; 5 per message                                                                            |
+| GIF search             | 30 requests per minute per visitor; 1 GIF per message                                                                               |
 | New anonymous visitors | 60 per hour per IP per config; beyond that, Cloudflare Turnstile is required (a future extension; returns `429 challenge_required`) |
 | Message text           | 10,000 characters                                                                                                                   |
 | Socket connections     | 5 per visitor (one per tab); the oldest is closed with `1000` beyond that                                                           |
@@ -551,4 +646,5 @@ These aren't in v2.0. The names are reserved so v2.0 clients ignore them safely:
 - `message.delta` for streamed AI replies, plus `body.citations`.
 - `body.format: "blocks"` for interactive messages (buttons, forms), always with `fallbackText`.
 - Event types `csat_requested` and `csat_submitted`.
+- Emoji reactions on messages (`message.react`, `reactions` on `Message`), synced with Slack reactions.
 - `/api/v2/widget/help/*` for the help space.
