@@ -215,12 +215,12 @@ export function emptyThread(loaded: boolean = false): ThreadState {
 export const isLocal = (message: Message): boolean => message.id.startsWith('local:')
 
 /** A conversation still counts as the one to reopen for a day after its last message. */
-export const RECENT_CONVERSATION_MS = 24 * 60 * 60 * 1000
+export const RECENT_CONVERSATION_MS: number = 24 * 60 * 60 * 1000
 
 /** Newest conversation updated within the last day. `list` is newest-first. */
 export function recentConversation(
   list: Conversation[],
-  now = Date.now()
+  now: number = Date.now()
 ): Conversation | null {
   const latest = list[0]
   if (!latest) return null
