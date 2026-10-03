@@ -202,7 +202,8 @@
     if (!features.attachments || !area) return
     const root = area.getRootNode()
     if (!(root instanceof ShadowRoot)) return
-    const onPaste = (event: ClipboardEvent) => {
+    const onPaste = (event: Event) => {
+      if (!(event instanceof ClipboardEvent)) return
       const files = filesFromPaste(event.clipboardData)
       if (!files.length) return
       event.preventDefault()

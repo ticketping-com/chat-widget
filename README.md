@@ -6,17 +6,17 @@ The chat widget for [Ticketping](https://ticketping.com): customers chat on your
 
 ## Layout
 
-| Path              | What it is                                                                                                    |
-| ----------------- | ------------------------------------------------------------------------------------------------------------- |
-| `packages/core`   | Internal. State, transport, API client, sessions, outbox and i18n. No DOM, no framework                       |
-| `packages/ui`     | Internal. Svelte 5 UI rendered inside a Shadow DOM                                                            |
-| `packages/widget` | Published as `@ticketping/chat-widget`. CDN loader, CDN bundle, npm entry, and React, Vue and Svelte adapters |
-| `apps/playground` | Dev harness with an in-memory mock API, plus a hostile-CSS host page                                          |
-| `e2e`             | Playwright smoke test: open the playground and send a message against the mock                                |
-| `spec`            | Protocol spec, host token rules, generated token test vectors and a reference verifier                        |
-| `docs`            | Planning documents                                                                                            |
-| `deploy/cdn`           | Cloudflare Worker that serves published CDN bundles                                              |
-| `deploy/PUBLISHING.md` | How to publish npm locally, then tag the same commit for the CDN                                 |
+| Path                   | What it is                                                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `packages/core`        | Internal. State, transport, API client, sessions, outbox and i18n. No DOM, no framework                       |
+| `packages/ui`          | Internal. Svelte 5 UI rendered inside a Shadow DOM                                                            |
+| `packages/widget`      | Published as `@ticketping/chat-widget`. CDN loader, CDN bundle, npm entry, and React, Vue and Svelte adapters |
+| `apps/playground`      | Dev harness with an in-memory mock API, plus a hostile-CSS host page                                          |
+| `e2e`                  | Playwright smoke test: open the playground and send a message against the mock                                |
+| `spec`                 | Protocol spec, host token rules, generated token test vectors and a reference verifier                        |
+| `docs`                 | Planning documents                                                                                            |
+| `deploy/cdn`           | Cloudflare Worker that serves published CDN bundles                                                           |
+| `deploy/PUBLISHING.md` | How to publish npm locally, then tag the same commit for the CDN                                              |
 
 ## Development
 
