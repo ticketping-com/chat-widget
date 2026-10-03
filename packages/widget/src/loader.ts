@@ -8,7 +8,14 @@ interface Stub {
   version?: string
 }
 
-const EAGER: string[] = ['open', 'toggle', 'showNewMessage', 'showConversation', 'showSpace']
+const EAGER: string[] = [
+  'open',
+  'toggle',
+  'showNewMessage',
+  'showConversation',
+  'showSpace',
+  'preview'
+]
 
 ;(() => {
   const w = window as unknown as { Ticketping?: Stub }
@@ -23,6 +30,7 @@ const EAGER: string[] = ['open', 'toggle', 'showNewMessage', 'showConversation',
     requested = true
     const el = document.createElement('script')
     el.src = new URL(`${__VERSION__}/widget.js`, base).href
+    el.type = 'module'
     el.async = true
     document.head.append(el)
   }

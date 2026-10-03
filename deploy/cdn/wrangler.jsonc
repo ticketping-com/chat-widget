@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "ticketping-widget-cdn",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-02",
+  "workers_dev": false,
+  "routes": [{ "pattern": "widget.ticketping.com", "custom_domain": true }],
+  "r2_buckets": [{ "binding": "BUNDLES", "bucket_name": "ticketping-widget" }],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 0.05,
+    "traces": { "enabled": true, "head_sampling_rate": 0.01 }
+  }
+}

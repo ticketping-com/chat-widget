@@ -18,10 +18,11 @@ export function createGlobal(api: TicketpingApi): TicketpingGlobal {
   return Object.assign(call, api) as TicketpingGlobal
 }
 
-// Event subscriptions replay first so handlers see `ready` and early errors from init,
-// then init, then everything else in the order the page queued it.
-const priority = (method: unknown) =>
-  method === 'on' || method === 'off' ? 0 : method === 'init' ? 1 : 2
+// Event subscriptions replay first so handlers see `ready` and early errors from init.
+// Then init, preview and consent in their queued order (a `consent('pending')` queued before
+// init must stop the boot), then everything else in the order the page queued it.
+const PRIORITY: Record<string, number> = { on: 0, off: 0, init: 1, preview: 1, consent: 1 }
+const priority = (method: unknown) => PRIORITY[method as string] ?? 2
 
 export function replayQueue(global: TicketpingGlobal, stub: QueueStub | undefined): void {
   const calls = Array.from(stub?.q ?? [], (args) => Array.from(args) as [string, ...unknown[]])

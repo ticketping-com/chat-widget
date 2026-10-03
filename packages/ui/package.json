@@ -10,6 +10,8 @@
     "typecheck": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings"
   },
   "dependencies": {
-    "@ticketping/core": "*"
+    "@ticketping/core": "*",
+    "dompurify": "^3.4.16",
+    "emojibase-data": "^17.0.0"
   }
 }

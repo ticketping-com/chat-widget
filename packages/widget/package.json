@@ -1,6 +1,6 @@
 {
   "name": "@ticketping/chat-widget",
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.0-beta.1",
   "description": "Ticketping chat widget: answer your customers from Slack.",
   "type": "module",
   "sideEffects": [
@@ -11,6 +11,19 @@
     ".": {
       "types": "./dist/npm/index.d.ts",
       "import": "./dist/npm/index.js"
+    },
+    "./react": {
+      "types": "./dist/npm/react.d.ts",
+      "import": "./dist/npm/react.js"
+    },
+    "./vue": {
+      "types": "./dist/npm/vue.d.ts",
+      "import": "./dist/npm/vue.js"
+    },
+    "./svelte": {
+      "types": "./dist/npm/svelte.d.ts",
+      "svelte": "./dist/npm/svelte.js",
+      "import": "./dist/npm/svelte.js"
     },
     "./package.json": "./package.json"
   },
@@ -27,7 +40,28 @@
   "devDependencies": {
     "@ticketping/core": "*",
     "@ticketping/ui": "*",
-    "rolldown-plugin-dts": "^0.28.6"
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "rolldown-plugin-dts": "^0.28.6",
+    "vue": "^3.5.43"
+  },
+  "peerDependencies": {
+    "react": "^18 || ^19",
+    "svelte": "^5",
+    "vue": "^3.5"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "svelte": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
   },
   "repository": {
     "type": "git",

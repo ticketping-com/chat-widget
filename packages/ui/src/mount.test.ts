@@ -1,63 +1,125 @@
-import { createStore, type WidgetState } from '@ticketping/core'
+import { createWidgetController, type WidgetController } from '@ticketping/core'
 import { flushSync } from 'svelte'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
+import { onAccent } from './color.ts'
 import { HOST_TAG, mountWidget, type MountedWidget } from './mount.ts'
 
-const initial: WidgetState = {
-  open: false,
-  launcherVisible: true,
-  unreadCount: 0,
-  position: 'bottom-right',
-  colorMode: 'light'
-}
-
 let widget: MountedWidget | undefined
+let controller: WidgetController
+
+function setup(): { shadow: ShadowRoot; launcher: () => HTMLButtonElement | null } {
+  controller = createWidgetController({ version: 'test' })
+  controller.preview({ config: { team: { name: 'Acme' }, appearance: { accentColor: '#000000' } } })
+  controller.close()
+  widget = mountWidget({ controller })
+  flushSync()
+  const shadow = widget.host.shadowRoot as ShadowRoot
+  return { shadow, launcher: () => shadow.querySelector<HTMLButtonElement>('button.launcher') }
+}
 
 afterEach(() => {
   widget?.destroy()
   widget = undefined
+  controller.destroy()
 })
 
 describe('mountWidget', () => {
-  it('renders the launcher inside an open shadow root, not in the host document', () => {
-    widget = mountWidget({ store: createStore(initial), onLauncherClick: () => {} })
-
-    const host = document.querySelector(HOST_TAG)
-    expect(host).toBe(widget.host)
+  it('renders inside an open shadow root, not in the host document', () => {
+    const { shadow } = setup()
+    expect(document.querySelector(HOST_TAG)).toBe(widget?.host)
     expect(document.querySelector('button')).toBeNull()
-    expect(host?.shadowRoot?.querySelector('button.launcher')).not.toBeNull()
+    expect(shadow.querySelector('button.launcher')).not.toBeNull()
     expect(document.head.querySelector('style')).toBeNull()
   })
 
-  it('reflects store state and forwards clicks', () => {
-    const store = createStore(initial)
-    const onLauncherClick = vi.fn()
-    widget = mountWidget({ store, onLauncherClick })
-    const button = () => widget!.host.shadowRoot!.querySelector('button')!
-
-    button().click()
-    expect(onLauncherClick).toHaveBeenCalledOnce()
-
-    store.set({ open: true, position: 'bottom-left' })
+  it('renders nothing until the widget is ready', () => {
+    controller = createWidgetController({ version: 'test' })
+    widget = mountWidget({ controller })
     flushSync()
-    expect(button().getAttribute('aria-expanded')).toBe('true')
-    expect(button().getAttribute('aria-label')).toBe('Close chat')
-    expect(widget.host.dataset.position).toBe('bottom-left')
+    expect(widget.host.shadowRoot?.querySelector('.tp-root')).toBeNull()
+  })
 
-    store.set({ open: false, unreadCount: 3 })
+  it('toggles the panel from the launcher and closes it with Escape', () => {
+    const { shadow, launcher } = setup()
+    launcher()?.click()
     flushSync()
-    expect(button().getAttribute('aria-label')).toBe('Open chat, 3 unread messages')
-    expect(button().querySelector('.badge')?.textContent).toBe('3')
+    expect(controller.getState().open).toBe(true)
+    expect(launcher()?.getAttribute('aria-expanded')).toBe('true')
+    expect(launcher()?.getAttribute('aria-label')).toBe('Close chat')
+    const dialog = shadow.querySelector('[role="dialog"]')
+    expect(dialog?.getAttribute('aria-label')).toBe('Chat with Acme')
+    expect(shadow.activeElement).toBe(dialog)
 
-    store.set({ launcherVisible: false })
+    dialog?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
     flushSync()
-    expect(widget.host.shadowRoot!.querySelector('button')).toBeNull()
+    expect(controller.getState().open).toBe(false)
+    expect(shadow.querySelector('[role="dialog"]')?.getAttribute('data-open')).toBe('false')
+  })
+
+  it('reflects config, unread count, launcher visibility and direction', () => {
+    const { shadow, launcher } = setup()
+    const host = widget?.host as HTMLElement
+    expect(host.dataset.position).toBe('bottom-right')
+    expect(host.style.getPropertyValue('--tp-accent')).toBe('#000000')
+    expect(host.style.getPropertyValue('--tp-on-accent')).toBe('#fff')
+
+    controller.update({ appearance: { position: 'bottom-left', colorMode: 'dark' } })
+    flushSync()
+    expect(host.dataset.position).toBe('bottom-left')
+    expect(host.dataset.colorMode).toBe('dark')
+
+    controller.setLocale('ar')
+    flushSync()
+    expect(shadow.querySelector('.tp-root')?.getAttribute('dir')).toBe('rtl')
+
+    controller.hideLauncher()
+    flushSync()
+    expect(launcher()).toBeNull()
+    expect(host.hidden).toBe(true)
+    controller.showLauncher()
+    flushSync()
+    expect(host.hidden).toBe(false)
+  })
+
+  it('renders the home greeting and a preview thread without flicker state', () => {
+    const { shadow, launcher } = setup()
+    launcher()?.click()
+    flushSync()
+    expect(shadow.textContent).toContain('Hi there 👋')
+    expect(shadow.textContent).toContain('How can we help you?')
+    expect(shadow.querySelector('textarea')).toBeNull()
+
+    controller.showNewMessage()
+    flushSync()
+    expect(shadow.querySelector('textarea')?.getAttribute('placeholder')).toBe('Type a message...')
+    expect(shadow.textContent).toContain('Hi, how can I help you today?')
+    expect(shadow.textContent).toContain('Acme')
+
+    controller.preview({
+      config: { team: { name: 'Acme' }, appearance: { accentColor: '#000000' } },
+      view: 'thread'
+    })
+    flushSync()
+    expect(shadow.querySelector('[data-view="thread"]')).not.toBeNull()
+    expect(shadow.textContent).toContain("I can't find where to export")
+    expect(shadow.textContent).toContain('Handed over to the team')
   })
 
   it('removes everything on destroy', () => {
-    widget = mountWidget({ store: createStore(initial), onLauncherClick: () => {} })
-    widget.destroy()
+    setup()
+    widget?.destroy()
     widget = undefined
     expect(document.querySelector(HOST_TAG)).toBeNull()
+  })
+})
+
+describe('onAccent', () => {
+  it('picks readable text for the accent', () => {
+    expect(onAccent('#ffffff')).not.toBe('#fff')
+    expect(onAccent('#a3e635')).not.toBe('#fff')
+    expect(onAccent('#1e3a8a')).toBe('#fff')
+    expect(onAccent('#3B82F6')).toBe('#fff')
+    expect(onAccent('#000')).toBe('#fff')
+    expect(onAccent('red')).not.toBe('#fff')
   })
 })

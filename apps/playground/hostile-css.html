@@ -42,7 +42,12 @@
         function () {
           ;(Ticketping.q = Ticketping.q || []).push(arguments)
         }
-      Ticketping('init', { publishableKey: 'pk_playground00000000000000' })
+      const params = new URLSearchParams(location.search)
+      Ticketping('init', {
+        publishableKey: params.get('key') || 'pk_playground00000000000000',
+        apiUrl: params.get('api') || location.origin,
+        appearance: { accentColor: '#101828' }
+      })
     </script>
     <script type="module" src="./boot.ts"></script>
   </body>

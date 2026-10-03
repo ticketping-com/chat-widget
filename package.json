@@ -12,13 +12,15 @@
   "scripts": {
     "dev": "npm run dev -w @ticketping/playground",
     "build": "npm run build -w @ticketping/chat-widget",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present && tsc -p e2e/tsconfig.json",
     "lint": "eslint . && prettier --check .",
+    "test:e2e": "playwright test",
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
     "size": "npm run build && size-limit",
     "spec:vectors": "node spec/reference/generate-vectors.ts",
+    "examples:check": "node examples/token-routes/check.ts",
     "changeset": "changeset"
   },
   "size-limit": [
@@ -41,6 +43,7 @@
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "@size-limit/file": "^14.1.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@types/node": "^26.6.4",

@@ -18,7 +18,7 @@ describe('resolveConfig', () => {
     const config = resolveConfig(dashboard)
     expect(config.appearance).toEqual(dashboard.appearance)
     expect(config.texts.greetingTitle).toBe('Hey from Acme')
-    expect(config.texts.composerPlaceholder).toBe('Write a message...')
+    expect(config.texts.composerPlaceholder).toBe('Type a message...')
   })
 
   it('lets code override appearance and texts, key by key', () => {

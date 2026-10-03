@@ -1,14 +1,16 @@
+import { en } from './catalog.ts'
 import type { ConfigOverrides, FeatureName, OverridableConfig } from './types.ts'
 
 export const DEFAULT_TEXTS: Readonly<Record<string, string>> = {
-  greetingTitle: 'Hi there',
-  greetingBody: 'Ask us anything. We reply here and by email.',
-  composerPlaceholder: 'Write a message...'
+  greetingTitle: en.greetingTitle,
+  greetingBody: en.greetingBody,
+  composerPlaceholder: en.composerPlaceholder,
+  conversationStarter: en.conversationStarter
 }
 
 export const DEFAULT_CONFIG: OverridableConfig = {
   appearance: {
-    accentColor: '#7BC043',
+    accentColor: '#101828',
     colorMode: 'auto',
     position: 'bottom-right',
     launcher: { icon: 'chat', label: null }

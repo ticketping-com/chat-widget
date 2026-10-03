@@ -1,0 +1,15 @@
+{
+  "name": "@ticketping/example-token-routes",
+  "private": true,
+  "type": "module",
+  "description": "The token routes from the docs, as runnable files checked against spec/token-test-vectors.json.",
+  "scripts": {
+    "check": "node check.ts"
+  },
+  "dependencies": {
+    "jose": "^6.2.12"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

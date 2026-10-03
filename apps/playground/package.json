@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json"
   },
   "devDependencies": {
-    "@ticketping/chat-widget": "*"
+    "@ticketping/chat-widget": "*",
+    "@types/ws": "^8.18.2",
+    "ws": "^8.22.0"
   }
 }

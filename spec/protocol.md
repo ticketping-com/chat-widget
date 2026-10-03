@@ -51,7 +51,10 @@ Every non-2xx REST response, and every socket error frame, carries:
 | 404  | `not_found`                  | Resource doesn't exist **or** isn't visible to this caller (never distinguish) |
 | 413  | `payload_too_large`          | Upload or body over the limit                                                  |
 | 429  | `rate_limited`               | `Retry-After` header (seconds) is always set                                   |
+| 503  | `gifs_unavailable`           | GIPHY can't be reached. The message wasn't stored; retry later                 |
 | 5xx  | `server_error`               | Retry with backoff                                                             |
+
+On the socket, `retryAfter` (seconds) sits next to `code` instead of the header.
 
 ---
 
@@ -74,7 +77,7 @@ The server stores only SHA-256 hashes of visitor, access and refresh tokens. Ide
 
 ### 2.2 Local development
 
-- `http://localhost`, `http://127.0.0.1` and `http://[::1]`, on any port, are always accepted, so the snippet works locally with no setup. A config can switch this off ("Allow localhost").
+- `localhost`, `127.0.0.1` and `[::1]`, over `http` or `https` and on any port, are always accepted, so the snippet works locally with no setup. A config can switch this off ("Allow localhost").
 - Conversations started from those origins are flagged `isTest`: TEST badge in the dashboard, `[TEST]` prefix in Slack (same routing as real ones), excluded from reports, deleted after 30 days, and listed only on local origins, so they never show up in a real user's history.
 - A team can also mark an allowed domain as a test domain (e.g. `staging.acme.com`), with the same effect.
 
@@ -120,18 +123,24 @@ Cookies are not used: from a customer's site, a cookie on `api.ticketping.com` i
   "team": {
     "name": "Acme",
     "avatars": ["https://.../a.png"],
-    "replyTimeHint": "Usually replies within a few hours"
+    "replyTimeHint": "Usually replies within a few hours",
+    "availability": {
+      "state": "online",
+      "next": null,
+      "hours": null
+    }
   },
   "appearance": {
-    "accentColor": "#7BC043",
+    "accentColor": "#101828",
     "colorMode": "auto",
     "position": "bottom-right",
     "launcher": { "icon": "chat", "label": null }
   },
   "texts": {
-    "greetingTitle": "Hi there",
-    "greetingBody": "Ask us anything. We reply here and by email.",
-    "composerPlaceholder": "Write a message..."
+    "greetingTitle": "Hi there 👋",
+    "greetingBody": "How can we help you?",
+    "composerPlaceholder": "Type a message...",
+    "conversationStarter": "Hi, how can I help you today?"
   },
   "features": {
     "ai": true,
@@ -146,7 +155,7 @@ Cookies are not used: from a customer's site, a cookie on `api.ticketping.com` i
 }
 ```
 
-`isTest` is `true` when this page's origin is a local or test origin (2.2); the widget then shows a small "Test" tag. `texts` holds only the English catalog at launch. `branding.poweredBy` is always `true` except on Enterprise plans.
+`isTest` is `true` when this page's origin is a local or test origin (2.2); the widget then shows a small "Test" tag on Home and History. `team.availability.state` is `online` unless the team's working hours are enabled and the current time is outside them. When `offline`, `next` is the next opening (`day`, `time`, `timezone`) and `hours` is a readable schedule if there isn't one. `texts` holds only the English catalog at launch. `branding.poweredBy` is always `true` except on Enterprise plans.
 
 ### 3.1.1 Code overrides the dashboard
 
@@ -161,6 +170,19 @@ The dashboard sets defaults; anything the host passes in code wins. The widget r
 | `security.*`, `branding.*`, Slack routing, allowed domains                   | Not settable from code. They protect the team or depend on the plan                                                                                       |
 
 The widget warns in the console (once) when code tries to switch on a feature the dashboard has off, so the mismatch is easy to spot during setup.
+
+### 3.1.2 Preview mode
+
+The dashboard's live preview runs the real widget bundle with no network and no storage:
+
+```js
+Ticketping('preview', { config: WidgetConfig, view: 'launcher' | 'home' | 'thread' })
+```
+
+- `config` uses the 3.1 shape; missing fields fall back to the built-in defaults.
+- `view: 'thread'` shows a fixed sample conversation (visitor, AI, handoff, agent reply), so every sender type and the composer are visible.
+- Calling `preview` again re-renders with the new config, with no flicker. No `boot`, socket or `localStorage` access happens, and `init` is ignored while a preview is mounted.
+- The dashboard hosts it in a sandboxed iframe and passes unsaved settings with `postMessage`.
 
 ### 3.2 `Identity`
 
@@ -231,6 +253,8 @@ A conversation exists only once the visitor has sent a message (no empty convers
 | `body.format` | `text` (visitor messages; render as text with links detected), `markdown` (agents and AI; safe subset: emphasis, links, lists, code, quotes), `html` (email replies only; sanitized by the server with an allowlist and sanitized **again** by the widget with DOMPurify). Unknown formats: render `body.fallbackText` |
 | `event`       | Set when `kind` is `event`: `{ "type": "handoff" }`, `{ "type": "contact_requested" }`, `{ "type": "contact_saved" }`, `{ "type": "ticket_created", "ticketId": "..." }`, `{ "type": "status_changed", "status": {...} }`                                                                                              |
 
+Event messages have `sender.type` `SYSTEM`. Their `body` is a short English text (for example "Ticket #42 created" or "Status changed to Resolved"). Use it when the widget doesn't know the event type.
+
 ### 3.5 `Attachment`
 
 ```json
@@ -246,7 +270,7 @@ A conversation exists only once the visitor has sent a message (no empty convers
 }
 ```
 
-`url` is a signed download URL valid for 1 hour. It's re-issued whenever the message is fetched again. Only `image/png`, `image/jpeg`, `image/gif` and `image/webp` have `isImage: true` and may be shown inline. Everything else, including SVG and HTML, is served with `Content-Disposition: attachment`.
+`url` is a signed download URL valid for 1 hour. It's re-issued whenever the message is fetched again. It looks like `/api/v2/widget/attachments/{id}?exp=...&sig=...` and needs no other credential. After it expires it returns `404`. Only `image/png`, `image/jpeg`, `image/gif` and `image/webp` have `isImage: true` and may be shown inline. Everything else, including SVG and HTML, is served with `Content-Disposition: attachment`.
 
 Uploaded files have `"kind": "file"` (the shape above). A GIF picked from GIPHY, by anyone (visitor, agent in the dashboard, agent in Slack), is an attachment with `"kind": "gif"`:
 
@@ -269,6 +293,7 @@ Uploaded files have `"kind": "file"` (the shape above). A GIF picked from GIPHY,
 ```
 
 - The server fills every URL from the GIPHY API by `id`. It never stores a URL a client sent, and only stores URLs on `media*.giphy.com`.
+- `mp4Url`, `webpUrl`, `width` and `height` come from GIPHY's original rendition, `stillUrl` from its still. `gifUrl` is the downsized rendition (under 5 MB) when GIPHY has one, because Slack and email load it. `webpUrl` can be `null`.
 - The widget plays `mp4Url` in a muted, looping, inline `<video>` (much smaller than the GIF), with `title` as its accessible name. Under `prefers-reduced-motion: reduce`, it shows `stillUrl` with a play button instead.
 - GIPHY URLs are public and don't expire, so `urlExpiresAt` is absent.
 - Unknown `kind` values: show `name` (or "Attachment") as a plain link if `url` is present, otherwise skip.
@@ -361,7 +386,7 @@ History scope: a verified customer sees their conversations from every widget co
 
 ### 4.3 `POST /api/v2/widget/visitor/contact`
 
-Auth: visitor or access token. Body `{ "email": "ada@acme.com" }`. Saves the email the team will use to notify an anonymous visitor of replies; it doesn't change `identity.state`. Moves any conversation in `needs_contact` to `team`, which creates its ticket. The server adds a `contact_saved` event message. Response `200 { "identity": {...} }`.
+Auth: visitor or access token. Body `{ "email": "ada@acme.com" }`. Saves the email the team will use to notify an anonymous visitor of replies; it doesn't change `identity.state`. Moves any conversation in `needs_contact` to `team`, which creates its ticket. The server adds a `contact_saved` event message. Response `200 { "identity": {...} }`. Errors: `400 invalid_request` for a bad address, `403 feature_disabled` (`emailCapture`) when email capture is off, and `429` after 10 calls a minute.
 
 ### 4.4 `GET /api/v2/widget/conversations?before=<cursor>&limit=20`
 
@@ -374,6 +399,10 @@ Auth: visitor or access token. Response `{ "messages": [...], "hasMore": true }`
 ### 4.6 `POST /api/v2/widget/uploads`
 
 Auth: visitor or access token. `multipart/form-data` with one `file` field. Response `201 { "attachment": {...} }`. The ID is then referenced in `message.send`. Limits: 10 MB per file, 5 files per message; types are images, PDF, plain text, CSV, and common office documents. The server checks the size, and checks the content type by sniffing the file, not trusting the header. Uploads not referenced by a message within 24 hours are deleted.
+
+- An upload can be sent only once, and only by the visitor (browser) that uploaded it. A verified customer on another device uploads again.
+- Over 10 MB: `413 payload_too_large`. Wrong type: `400 invalid_request` with `details.fields.file` set to `unsupported_type`. Attachments off: `403 feature_disabled`.
+- The server strips EXIF from JPEGs and refuses PDFs that contain scripts.
 
 ### 4.6.1 `GET /api/v2/widget/gifs/trending?offset=0` and `GET /api/v2/widget/gifs/search?q=<query>&offset=0`
 
@@ -396,7 +425,9 @@ Auth: visitor or access token. Only when `features.gifs` is on (otherwise `403 f
 }
 ```
 
-- 24 results per page; `nextOffset` is `null` on the last page. `q` is 1 to 50 characters.
+- 24 results per page; `nextOffset` is `null` on the last page. `q` is 1 to 50 characters. `offset` is 0 to 4999 (GIPHY's maximum). A page can hold fewer than 24 results, because results above the rating are dropped.
+- `previewUrl`, `width` and `height` are GIPHY's 200-pixel-wide rendition (WebP when available), `stillUrl` its still.
+- `identifiedOnly` configs refuse anonymous visitors with `403 identified_only`. When GIPHY isn't configured or doesn't answer: `503 gifs_unavailable`.
 - The server always sends the config's content rating to GIPHY (`g` by default; the dashboard can pick `pg` or `pg-13`, never `r`).
 - Responses are cached per `(rating, q, offset)`: trending for 10 minutes, searches for 1 hour.
 - The picker shows "Powered by GIPHY", as GIPHY's terms require.
@@ -522,17 +553,17 @@ Every frame is `{ "v": 1, "type": "<name>", "id"?: "<client frame id>", "data": 
 
 **Server to client**
 
-| Type                   | `data`                                                           | Notes                                                                                   |
-| ---------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `auth.ok`              | `{ "visitorId", "identity", "cursor" }`                          |                                                                                         |
-| `pong`                 | `{}`                                                             |                                                                                         |
-| `ack`                  | `{ "clientId", "message", "conversation"? }`                     | Reply to `message.send`. `conversation` is present when one was just created            |
-| `error`                | `{ "error": { "code", "message" }, "clientId"? }`                | Reply to a failed frame (e.g. `rate_limited`, `not_found`, `invalid_request`)           |
-| `message.created`      | `{ "message" }` + `cursor`                                       | Any new message in a visible conversation, including the visitor's own from another tab |
-| `conversation.updated` | `{ "conversation" }` + `cursor`                                  | Phase, ticket status, assignee or unread changed                                        |
-| `typing`               | `{ "conversationId", "sender": { "type", "name" }, "isTyping" }` | Treat as `false` after 6 s without an update                                            |
-| `unread.updated`       | `{ "total" }`                                                    | Total across conversations, for the launcher badge                                      |
-| `sync.reset`           | `{}`                                                             | Resume isn't possible; refetch with REST (4.4, 4.5)                                     |
+| Type                   | `data`                                                                       | Notes                                                                                   |
+| ---------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `auth.ok`              | `{ "visitorId", "identity", "cursor" }`                                      |                                                                                         |
+| `pong`                 | `{}`                                                                         |                                                                                         |
+| `ack`                  | `{ "clientId", "message", "conversation"? }`                                 | Reply to `message.send`. `conversation` is present when one was just created            |
+| `error`                | `{ "error": { "code", "message", "details"?, "retryAfter"? }, "clientId"? }` | Reply to a failed frame (e.g. `rate_limited`, `not_found`, `invalid_request`)           |
+| `message.created`      | `{ "message" }` + `cursor`                                                   | Any new message in a visible conversation, including the visitor's own from another tab |
+| `conversation.updated` | `{ "conversation" }` + `cursor`                                              | Phase, ticket status, assignee or unread changed                                        |
+| `typing`               | `{ "conversationId", "sender": { "type", "name" }, "isTyping" }`             | Treat as `false` after 6 s without an update. `name` is `null` for `AI`                 |
+| `unread.updated`       | `{ "total" }`                                                                | Total across conversations, for the launcher badge                                      |
+| `sync.reset`           | `{}`                                                                         | Resume isn't possible; refetch with REST (4.4, 4.5)                                     |
 
 ### 6.3 Sending messages
 
@@ -597,8 +628,10 @@ phase "team"
   status changes -> conversation.updated + "status_changed" event
 ```
 
-- AI replies are produced off the request path; the visitor sees `typing` from `{ type: "AI" }` meanwhile.
-- `identifiedOnly` configs refuse `message.send` from anonymous visitors with `identified_only`. The widget shows a "Log in to chat" button linking to `security.loginUrl` instead of the composer.
+- AI replies are produced off the request path; the visitor sees `typing` from `{ type: "AI" }` meanwhile. If the AI fails or isn't set up, the conversation is handed off.
+- With `features.emailCapture` off, there's no `needs_contact` phase. An anonymous visitor's ticket is created without an email, so the team can answer only in the widget.
+- `identifiedOnly` configs refuse `message.send` from anonymous visitors with `identified_only` and `details.loginUrl`. An unverified profile counts as identified. The widget shows a "Log in to chat" button linking to `security.loginUrl` instead of the composer.
+- Agent `typing` comes from the dashboard composer. The visitor's `typing` is shown to agents on the dashboard ticket page.
 - Slack: the widget config's channel, else the team's first connected channel, else no Slack post. Test conversations are prefixed `[TEST]`.
 
 ### 7.1 GIFs across channels

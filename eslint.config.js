@@ -4,7 +4,16 @@ import globals from 'globals'
 import ts from 'typescript-eslint'
 
 export default ts.config(
-  { ignores: ['**/dist/', '**/node_modules/', 'coverage/', '.changeset/'] },
+  {
+    ignores: [
+      '**/dist/',
+      '**/node_modules/',
+      'coverage/',
+      '.changeset/',
+      'playwright-report/',
+      'test-results/'
+    ]
+  },
   js.configs.recommended,
   ...ts.configs.strict,
   ...svelte.configs.recommended,
@@ -16,7 +25,13 @@ export default ts.config(
     languageOptions: { parserOptions: { parser: ts.parser } }
   },
   {
-    files: ['spec/**', '**/*.config.{js,ts}', '**/scripts/**'],
+    files: [
+      'spec/**',
+      '**/*.config.{js,ts}',
+      '**/scripts/**',
+      'apps/playground/mock-api.ts',
+      'e2e/**'
+    ],
     languageOptions: { globals: { ...globals.node } }
   },
   {

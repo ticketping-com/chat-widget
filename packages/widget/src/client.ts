@@ -1,112 +1,112 @@
 import {
-  createEmitter,
-  createStore,
-  resolveConfig,
-  type InitOptions,
-  type WidgetEvents,
+  createWidgetController,
+  type Platform,
+  type WidgetController,
+  type WidgetEventName,
   type WidgetState
 } from '@ticketping/core'
 import { mountWidget, type MountedWidget } from '@ticketping/ui'
-import type { TicketpingApi } from './api.ts'
+import type { EventHandler, TicketpingApi } from './api.ts'
 
-const KEY_PATTERN = /^pk_[A-Za-z0-9]{24}$/
+export interface ClientOptions {
+  version: string
+  /** `script`, `npm`, `react`, `vue` or `svelte`; sent in `X-Ticketping-Client`. */
+  integration: string
+  /** Browser globals; tests pass fakes. */
+  platform?: Platform
+}
 
-export function createClient(version: string): TicketpingApi {
-  const events = createEmitter<WidgetEvents>()
-  const store = createStore<WidgetState>({
-    open: false,
-    launcherVisible: true,
-    unreadCount: 0,
-    position: 'bottom-right',
-    colorMode: 'auto'
-  })
+/** The public API plus the controller, for adapters and the playground. */
+export interface TicketpingClient extends TicketpingApi {
+  readonly controller: WidgetController
+}
 
-  let options: InitOptions | undefined
+const rendered = (state: WidgetState) => state.status === 'ready' || state.status === 'preview'
+
+/** Safe to call during SSR: nothing touches `window` or the DOM until `init()` or `preview()`. */
+export function createClient({ version, integration, platform }: ClientOptions): TicketpingClient {
+  const controller = createWidgetController(
+    platform ? { version, integration, platform } : { version, integration }
+  )
   let mounted: MountedWidget | undefined
+  let unsubscribe: (() => void) | undefined
+  let ready = false
 
-  function start() {
-    if (mounted || typeof document === 'undefined') return
-    mounted = mountWidget({ store, onLauncherClick: () => api.toggle() })
-    events.emit('ready', undefined)
+  function watch() {
+    if (unsubscribe || typeof document === 'undefined') return
+    // The host element only exists while there is something to show: never before consent or after a failed boot.
+    unsubscribe = controller.subscribe((state) => {
+      if (rendered(state) && !mounted) mounted = mountWidget({ controller })
+      else if (!rendered(state) && mounted) unmount()
+    })
   }
 
-  function teardown() {
+  function unmount() {
     mounted?.destroy()
     mounted = undefined
-    store.set({ open: false })
   }
 
-  function fail(code: string, message: string) {
-    console.error(`[Ticketping] ${message}`)
-    events.emit('error', { code, message })
+  function trackReady() {
+    controller.events.on('ready', () => (ready = true))
   }
-
-  function setOpen(open: boolean) {
-    if (!options || store.get().open === open) return
-    store.set({ open })
-    events.emit(open ? 'open' : 'close', undefined)
-  }
+  trackReady()
 
   const api: TicketpingApi = {
     version,
 
-    init(next) {
-      if (options) {
-        console.warn('[Ticketping] init() was already called; ignoring the second call.')
-        return
-      }
-      if (!next || !KEY_PATTERN.test(next.publishableKey ?? '')) {
-        fail(
-          'invalid_publishable_key',
-          'init() needs the publishableKey ("pk_...") shown in the dashboard.'
-        )
-        return
-      }
-      options = next
-      // Until boot exists (M3), code options resolve against the built-in defaults.
-      const { appearance, ignoredFeatureOverrides } = resolveConfig(undefined, next)
-      if (ignoredFeatureOverrides.length > 0) {
-        console.warn(
-          `[ticketping] ${ignoredFeatureOverrides.join(', ')} can only be switched on in the dashboard; ignoring.`
-        )
-      }
-      store.set({
-        position: appearance.position,
-        colorMode: appearance.colorMode,
-        launcherVisible: !next.hideLauncher
-      })
-      if ((next.consent ?? 'granted') === 'granted') start()
+    init(options) {
+      watch()
+      controller.init(options)
+    },
+    consent: (state) => controller.consent(state),
+    identify: (options) => controller.identify(options),
+    update: (options) => controller.update(options),
+    logout: () => controller.logout(),
+
+    open: () => controller.open(),
+    close: () => controller.close(),
+    toggle: () => controller.toggle(),
+    showLauncher: () => controller.showLauncher(),
+    hideLauncher: () => controller.hideLauncher(),
+    showNewMessage: (prefill) => controller.showNewMessage(prefill),
+    showConversation: (id) => controller.showConversation(id),
+    showSpace(space) {
+      if (space === 'messages') controller.showMessages()
+      else controller.showHome()
     },
 
-    consent(state) {
-      if (!options) return
-      if (state === 'granted') start()
-      else teardown()
-    },
+    setLocale: (locale) => controller.setLocale(locale),
+    setContext: (attributes) => controller.setContext(attributes),
+    trackEvent: (name, meta) => controller.trackEvent(name, meta),
 
-    open: () => setOpen(true),
-    close: () => setOpen(false),
-    toggle: () => setOpen(!store.get().open),
-    showLauncher: () => store.set({ launcherVisible: true }),
-    hideLauncher: () => store.set({ launcherVisible: false }),
-    isOpen: () => store.get().open,
-    getUnreadCount: () => store.get().unreadCount,
-    on(event, handler) {
-      const off = events.on(event, handler)
+    on<K extends WidgetEventName>(event: K, handler: EventHandler<K>) {
+      const off = controller.events.on(event, handler)
       // `ready` is a state, not just a moment: late subscribers still get it once.
-      if (event === 'ready' && mounted) {
+      if (event === 'ready' && ready) {
         queueMicrotask(() => (handler as () => void)())
       }
       return off
     },
-    off: (event, handler) => events.off(event, handler),
+    off: (event, handler) => controller.events.off(event, handler),
+
+    getUnreadCount: () => controller.getState().unreadCount,
+    isOpen: () => controller.getState().open,
+
+    preview(options) {
+      watch()
+      controller.preview(options)
+    },
 
     destroy() {
-      teardown()
-      options = undefined
-      events.clear()
+      unsubscribe?.()
+      unsubscribe = undefined
+      unmount()
+      controller.destroy()
+      ready = false
+      trackReady()
     }
   }
 
-  return api
+  // Not enumerable, so `createGlobal` does not copy it onto `window.Ticketping`.
+  return Object.defineProperty(api, 'controller', { value: controller }) as TicketpingClient
 }

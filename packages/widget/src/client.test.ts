@@ -1,23 +1,46 @@
+import { PK, createFakeEnv, flush, installBackend, type FakeEnv } from '@ticketping/core/testing'
 import { HOST_TAG } from '@ticketping/ui'
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { TicketpingApi } from './api.ts'
-import { createClient } from './client.ts'
+import { flushSync } from 'svelte'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createClient, type TicketpingClient } from './client.ts'
 
-const KEY = 'pk_0123456789abcdefghijklmn'
-let client: TicketpingApi
+let env: FakeEnv
+let client: TicketpingClient
 
-afterEach(() => client?.destroy())
+async function settle() {
+  await flush()
+  await flush()
+  flushSync()
+}
+
+const host = () => document.querySelector(HOST_TAG)
+
+beforeEach(() => {
+  env = createFakeEnv()
+  installBackend(env)
+  client = createClient({ version: 'test', integration: 'script', platform: env.platform })
+})
+
+afterEach(() => {
+  client.destroy()
+  vi.restoreAllMocks()
+})
 
 describe('createClient', () => {
-  it('mounts on init and toggles open state with events', () => {
-    client = createClient('test')
+  it('mounts once booted and toggles open state with events', async () => {
     const onOpen = vi.fn()
     const onClose = vi.fn()
+    const onReady = vi.fn()
     client.on('open', onOpen)
     client.on('close', onClose)
+    client.on('ready', onReady)
 
-    client.init({ publishableKey: KEY })
-    expect(document.querySelector(HOST_TAG)).not.toBeNull()
+    client.init({ publishableKey: PK, apiUrl: 'http://api.test' })
+    expect(host()).toBeNull()
+    await settle()
+    expect(host()).not.toBeNull()
+    expect(onReady).toHaveBeenCalledOnce()
+    expect(env.requests[0]?.headers['X-Ticketping-Client']).toBe('widget/test (script)')
 
     client.open()
     client.open()
@@ -29,47 +52,87 @@ describe('createClient', () => {
     expect(onClose).toHaveBeenCalledOnce()
   })
 
-  it('rejects a malformed key with an error event and renders nothing', () => {
-    client = createClient('test')
+  it('rejects a malformed key with an error event and renders nothing', async () => {
     const onError = vi.fn()
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
     client.on('error', onError)
-
     client.init({ publishableKey: 'tp_abc' })
-
+    await settle()
     expect(onError).toHaveBeenCalledWith(
       expect.objectContaining({ code: 'invalid_publishable_key' })
     )
-    expect(document.querySelector(HOST_TAG)).toBeNull()
-    consoleSpy.mockRestore()
+    expect(host()).toBeNull()
+    expect(env.requests).toHaveLength(0)
   })
 
-  it('renders nothing until consent is granted', () => {
-    client = createClient('test')
-    client.init({ publishableKey: KEY, consent: 'pending' })
-    expect(document.querySelector(HOST_TAG)).toBeNull()
+  it('renders nothing until consent is granted, and removes itself when it is denied', async () => {
+    client.init({ publishableKey: PK, apiUrl: 'http://api.test', consent: 'pending' })
+    await settle()
+    expect(host()).toBeNull()
+    expect(env.requests).toHaveLength(0)
 
     client.consent('granted')
-    expect(document.querySelector(HOST_TAG)).not.toBeNull()
+    await settle()
+    expect(host()).not.toBeNull()
 
     client.consent('denied')
-    expect(document.querySelector(HOST_TAG)).toBeNull()
+    await settle()
+    expect(host()).toBeNull()
+    expect(env.storage.length).toBe(0)
   })
 
   it('calls late ready subscribers once', async () => {
-    client = createClient('test')
-    client.init({ publishableKey: KEY })
+    client.init({ publishableKey: PK, apiUrl: 'http://api.test' })
+    await settle()
     const onReady = vi.fn()
-
     client.on('ready', onReady)
     await Promise.resolve()
-
     expect(onReady).toHaveBeenCalledOnce()
   })
 
   it('ignores open() before init', () => {
-    client = createClient('test')
     client.open()
     expect(client.isOpen()).toBe(false)
+  })
+
+  it('opens spaces, conversations and a prefilled new message', async () => {
+    client.init({ publishableKey: PK, apiUrl: 'http://api.test' })
+    await settle()
+    client.showSpace('messages')
+    expect(client.controller.getState().view).toEqual({ name: 'messages' })
+    expect(client.isOpen()).toBe(true)
+    client.showConversation('cs_1')
+    expect(client.controller.getState().view).toEqual({ name: 'thread', conversationId: 'cs_1' })
+    client.showNewMessage('I need help with billing')
+    expect(client.controller.getState().prefill).toBe('I need help with billing')
+    client.showSpace('home')
+    expect(client.controller.getState().view).toEqual({ name: 'home' })
+  })
+
+  it('previews without network or storage', async () => {
+    client.preview({ config: { team: { name: 'Preview Co' } } })
+    await settle()
+    expect(host()).not.toBeNull()
+    expect(client.isOpen()).toBe(true)
+    expect(env.requests).toHaveLength(0)
+    expect(env.storage.length).toBe(0)
+  })
+
+  it('can be destroyed and initialised again', async () => {
+    client.init({ publishableKey: PK, apiUrl: 'http://api.test' })
+    await settle()
+    client.destroy()
+    expect(host()).toBeNull()
+    const onReady = vi.fn()
+    client.on('ready', onReady)
+    client.init({ publishableKey: PK, apiUrl: 'http://api.test' })
+    await settle()
+    expect(host()).not.toBeNull()
+    expect(onReady).toHaveBeenCalledOnce()
+  })
+
+  it('keeps the controller off the enumerable API', () => {
+    expect(Object.keys(client)).not.toContain('controller')
+    expect(client.controller).toBeDefined()
   })
 })

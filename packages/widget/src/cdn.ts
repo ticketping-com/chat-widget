@@ -12,7 +12,7 @@ const existing = window.Ticketping
 if (existing && 'version' in existing) {
   console.warn('[Ticketping] The widget was loaded twice; keeping the first copy.')
 } else {
-  const global = createGlobal(createClient(__VERSION__))
+  const global = createGlobal(createClient({ version: __VERSION__, integration: 'script' }))
   window.Ticketping = global
   replayQueue(global, existing)
 }

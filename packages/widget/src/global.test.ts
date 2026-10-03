@@ -55,4 +55,16 @@ describe('replayQueue', () => {
       'close:[]'
     ])
   })
+
+  it('keeps consent in its queued order relative to init', () => {
+    const { api, calls } = fakeApi()
+    Object.assign(api, { consent: (s: string) => calls.push(`consent:${s}`) })
+    const stub = Object.assign(() => {}, {
+      q: [['open'], ['consent', 'pending'], ['init', {}], ['consent', 'granted']]
+    }) as QueueStub
+
+    replayQueue(createGlobal(api), stub)
+
+    expect(calls).toEqual(['consent:pending', 'init:[{}]', 'consent:granted', 'open:[]'])
+  })
 })

@@ -125,6 +125,15 @@ Today nothing is deleted. v1 also creates a chat session when "Send us a message
 
 The 12-month window can become a per-team setting later if customers ask for it, for example for GDPR policies.
 
+How the job (`apps/widget/retention.py`, `WidgetRetentionCron`, daily at 03:30 UTC) applies these rules:
+
+- "Anonymous" means the conversation has no customer. "Activity" is the later of the conversation's last update and its last message.
+- Only v2 conversations are touched: ones with a phase, a widget config or a visitor. v1 chat sessions are left alone.
+- An idle visitor's record is deleted. Its idle anonymous conversations go too; a verified customer's conversations stay with the customer, with no visitor.
+- Test conversations are deleted 30 days after they were created. A ticket created from a test conversation is deleted with it, including its replies.
+- Session rows go 30 days after they were revoked or their refresh token expired.
+- Uploads that no message references are deleted by `apps.widget.messaging.delete_orphan_uploads()` in the same run.
+
 ---
 
 ## 3. Repo strategy and layout

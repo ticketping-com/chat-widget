@@ -7,6 +7,7 @@ const { version } = JSON.parse(readFileSync(new URL('./package.json', import.met
 const shared: UserConfig = {
   plugins: [svelte({ configFile: '../ui/svelte.config.js' })],
   define: { __VERSION__: JSON.stringify(version) },
+  base: './',
   build: { emptyOutDir: false, target: 'es2022', minify: true, sourcemap: true }
 }
 
@@ -29,15 +30,32 @@ const targets: Record<string, UserConfig['build']> = {
     outDir: `dist/cdn/${version}`,
     lib: {
       entry: 'src/cdn.ts',
-      formats: ['iife'],
-      name: 'TicketpingWidget',
+      formats: ['es'],
       fileName: () => 'widget.js'
+    },
+    modulePreload: { polyfill: false },
+    rollupOptions: {
+      output: {
+        chunkFileNames: '[name]-[hash].js'
+      }
     }
   },
   npm: {
     outDir: 'dist/npm',
     minify: false,
-    lib: { entry: 'src/index.ts', formats: ['es'], fileName: () => 'index.js' }
+    lib: {
+      entry: {
+        index: 'src/index.ts',
+        react: 'src/react.ts',
+        vue: 'src/vue.ts',
+        svelte: 'src/svelte.ts'
+      },
+      formats: ['es'],
+      fileName: (_format, name) => `${name}.js`
+    },
+    rollupOptions: {
+      external: ['react', 'vue', 'svelte', /^svelte\//]
+    }
   }
 }
 

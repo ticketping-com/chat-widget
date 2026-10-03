@@ -31,6 +31,10 @@
   </head>
   <body>
     <h1>Widget playground</h1>
+    <p>
+      Talks to the in-memory mock on this origin. Point at a real API with
+      <code>?api=http://localhost:7800&amp;key=pk_...</code>
+    </p>
     <p>Other pages: <a href="/hostile-css.html">hostile host CSS</a></p>
 
     <div class="controls">
@@ -52,7 +56,12 @@
         function () {
           ;(Ticketping.q = Ticketping.q || []).push(arguments)
         }
-      Ticketping('init', { publishableKey: 'pk_playground00000000000000' })
+      const params = new URLSearchParams(location.search)
+      Ticketping('init', {
+        publishableKey: params.get('key') || 'pk_playground00000000000000',
+        apiUrl: params.get('api') || location.origin,
+        appearance: { accentColor: '#101828' }
+      })
       for (const name of ['ready', 'open', 'close', 'error']) {
         Ticketping('on', name, (payload) => {
           const line = `${new Date().toLocaleTimeString()}  ${name} ${payload ? JSON.stringify(payload) : ''}`
