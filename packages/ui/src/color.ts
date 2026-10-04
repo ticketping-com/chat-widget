@@ -11,9 +11,12 @@ function channels(color: string): [number, number, number] | null {
   return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) / 255) as [number, number, number]
 }
 
-function luminance(rgb: [number, number, number]): number {
-  const linear = rgb.map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
-  return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+function linearize(channel: number): number {
+  return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+}
+
+function luminance([r, g, b]: [number, number, number]): number {
+  return 0.2126 * linearize(r) + 0.7152 * linearize(g) + 0.0722 * linearize(b)
 }
 
 function contrast(a: number, b: number): number {
