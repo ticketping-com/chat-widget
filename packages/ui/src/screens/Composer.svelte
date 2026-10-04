@@ -82,8 +82,9 @@
     }
     if (!area || focusedNew) return
     focusedNew = true
+    const input = area
     queueMicrotask(() => {
-      area.focus({ preventScroll: true })
+      input.focus({ preventScroll: true })
     })
   })
 

@@ -978,12 +978,13 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
     const threads = omit(state.threads, NEW_CONVERSATION)
     const existing = threads[conversationId] ?? emptyThread(true)
     const moved = pending.messages.map((m) => ({ ...m, conversationId }))
-    threads[conversationId] = {
+    const adopted: ThreadState = {
       ...existing,
-      greeting: pending.greeting || existing.greeting,
       loaded: true,
       messages: mergeMessages([...existing.messages, ...moved], [])
     }
+    if (pending.greeting === true || existing.greeting === true) adopted.greeting = true
+    threads[conversationId] = adopted
     const view: ViewState =
       state.view.name === 'thread' && state.view.conversationId === null
         ? { name: 'thread', conversationId }
@@ -1556,15 +1557,18 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
         event: null,
         delivery: state.preview ? 'sent' : 'sending'
       }
-      patchThread(key, (t) => ({
-        ...t,
-        greeting: input.conversationId === null ? true : t.greeting,
-        loaded: t.loaded || input.conversationId === null,
-        messages: [
-          ...t.messages,
-          state.preview ? { ...message, id: `preview:${clientId}` } : message
-        ]
-      }))
+      patchThread(key, (t) => {
+        const next: ThreadState = {
+          ...t,
+          loaded: t.loaded || input.conversationId === null,
+          messages: [
+            ...t.messages,
+            state.preview ? { ...message, id: `preview:${clientId}` } : message
+          ]
+        }
+        if (input.conversationId === null) next.greeting = true
+        return next
+      })
       if (state.preview) return clientId
 
       const l = live
