@@ -264,6 +264,42 @@ describe('sending (protocol 6.3)', () => {
     expect(widget.getState().threads.cs_new!.messages).toHaveLength(2)
   })
 
+  it('shows an AI reply that arrives before the send is acked', async () => {
+    const socket = await start()
+    widget.showNewMessage()
+    const clientId = widget.send({ conversationId: null, text: 'Hello' })
+    const reply = message('cm_ai', {
+      conversationId: 'cs_new',
+      sender: { type: 'AI', name: null },
+      createdAt: '2026-05-01T10:00:01.000Z',
+      body: { format: 'markdown', content: 'Happy to help.' }
+    })
+
+    socket.push('message.created', { message: reply })
+
+    expect(widget.getState().view).toEqual({ name: 'thread', conversationId: 'cs_new' })
+    expect(widget.getState().threads.cs_new!.messages.map((m) => m.id)).toEqual([
+      'cm_ai',
+      `local:${clientId}`
+    ])
+
+    const sent = message('cm_1', {
+      clientId,
+      conversationId: 'cs_new',
+      sender: { type: 'USER' },
+      createdAt: '2026-05-01T10:00:00.000Z'
+    })
+    socket.push('ack', {
+      clientId,
+      message: sent,
+      conversation: conversation('cs_new', {
+        updatedAt: '2026-05-01T10:00:01.000Z',
+        lastMessage: reply
+      })
+    })
+    expect(widget.getState().threads.cs_new!.messages.map((m) => m.id)).toEqual(['cm_1', 'cm_ai'])
+  })
+
   it('reconnects after an ack timeout, re-sends, then fails after 3 attempts and retries on demand', async () => {
     backend.conversations = [conversation('cs_1')]
     await start()

@@ -40,12 +40,6 @@
       return i18n.t('availability.offlineHours', { hours: availability.hours })
     return i18n.t('availability.offline')
   })
-  const typingText = $derived.by(() => {
-    if (!typing) return ''
-    if (typing.sender.type === 'AI') return i18n.t('thread.aiThinking')
-    if (typing.sender.name) return i18n.t('thread.typing', { name: typing.sender.name })
-    return i18n.t('thread.typingSomeone')
-  })
 
   let scroller: HTMLElement | undefined = $state()
   let pinned = $state(true)
@@ -75,6 +69,7 @@
   $effect(() => {
     const count = messages.length
     const last = messages[count - 1]
+    void typing
     if (count > lastCount && last && last.sender.type !== 'USER' && !pinned) {
       unseen += count - lastCount
       announced = i18n.t('a11y.newMessage', {
@@ -202,11 +197,13 @@
       {/if}
     {/each}
 
-    {#if typingText}
-      <p class="typing">
-        {typingText}
-        <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
-      </p>
+    {#if typing}
+      <article class="typing" role="status">
+        <div class="bubble">
+          <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
+        </div>
+        <span class="tp-sr">{i18n.t('thread.typingSomeone')}</span>
+      </article>
     {/if}
   </div>
 
@@ -331,31 +328,39 @@
     font-weight: 700;
   }
 
-  .state,
-  .typing {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    align-self: flex-start;
+  .state {
     margin: 8px 0;
-    padding: 8px 12px;
-    border-radius: 16px;
-    border-end-start-radius: 4px;
-    background: var(--tp-fill);
     color: var(--tp-muted);
     font-size: 13px;
   }
 
+  .typing {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 86%;
+  }
+
+  .typing .bubble {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 18px;
+    background: var(--tp-bubble);
+  }
+
   .dots {
     display: inline-flex;
-    gap: 2px;
+    gap: 4px;
+    align-items: center;
+    height: 1.4em;
   }
 
   .dots span {
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: currentColor;
+    background: var(--tp-muted);
     animation: tp-typing 1.4s infinite;
   }
 

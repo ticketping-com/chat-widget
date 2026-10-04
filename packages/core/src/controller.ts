@@ -925,7 +925,13 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
         return
       case 'conversation.updated':
         if (isConversation(data.conversation)) {
-          set({ conversations: upsertConversation(get().conversations, data.conversation) })
+          const conversation = data.conversation
+          set({ conversations: upsertConversation(get().conversations, conversation) })
+          const last = conversation.lastMessage
+          const thread = last && get().threads[last.conversationId]
+          if (isMessage(last) && !thread?.messages.some((m) => m.id === last.id)) {
+            onMessage(l, last)
+          }
           autoMarkRead()
         }
         return
@@ -966,16 +972,14 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
 
   function addServerMessage(message: ThreadMessage): void {
     const state = get()
-    const thread = state.threads[message.conversationId]
-    const threads = thread
-      ? {
-          ...state.threads,
-          [message.conversationId]: {
-            ...thread,
-            messages: mergeMessages(thread.messages, [message])
-          }
-        }
-      : state.threads
+    const thread = state.threads[message.conversationId] ?? emptyThread(false)
+    const threads = {
+      ...state.threads,
+      [message.conversationId]: {
+        ...thread,
+        messages: mergeMessages(thread.messages, [message])
+      }
+    }
     const conversations = touchConversation(state.conversations, message)
     set(conversations ? { threads, conversations } : { threads })
     if (!conversations && live) scheduleListRefresh(live)
@@ -983,12 +987,19 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
 
   function onMessage(l: Live, message: Message): void {
     const state = get()
-    if (
-      message.clientId &&
-      state.threads[NEW_CONVERSATION]?.messages.some((m) => m.clientId === message.clientId)
-    ) {
-      adoptNewConversation(message.conversationId)
-    }
+    const pending = state.threads[NEW_CONVERSATION]
+    const echoesPending =
+      !!message.clientId && !!pending?.messages.some((m) => m.clientId === message.clientId)
+    const knownConversation =
+      state.conversations.some((c) => c.id === message.conversationId) ||
+      !!state.threads[message.conversationId]
+    const replyWhileStarting =
+      state.view.name === 'thread' &&
+      state.view.conversationId === null &&
+      !!pending &&
+      message.sender.type !== 'USER' &&
+      !knownConversation
+    if (echoesPending || replyWhileStarting) adoptNewConversation(message.conversationId)
     const seen =
       get().threads[message.conversationId]?.messages.some((m) => m.id === message.id) ||
       state.conversations.find((c) => c.id === message.conversationId)?.lastMessage?.id ===
