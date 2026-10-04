@@ -10,7 +10,7 @@ export const DEFAULT_TEXTS: Readonly<Record<string, string>> = {
 
 export const DEFAULT_CONFIG: OverridableConfig = {
   appearance: {
-    accentColor: '#101828',
+    accentColor: '#171717',
     colorMode: 'auto',
     position: 'bottom-right',
     launcher: { icon: 'chat', label: null }

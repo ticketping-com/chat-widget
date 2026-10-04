@@ -131,7 +131,7 @@ Cookies are not used: from a customer's site, a cookie on `api.ticketping.com` i
     }
   },
   "appearance": {
-    "accentColor": "#101828",
+    "accentColor": "#171717",
     "colorMode": "auto",
     "position": "bottom-right",
     "launcher": { "icon": "chat", "label": null }

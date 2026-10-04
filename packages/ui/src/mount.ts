@@ -2,7 +2,7 @@ import type { WidgetController, WidgetState } from '@ticketping/core'
 import { mount, unmount } from 'svelte'
 import App from './App.svelte'
 import { baseStyles } from './base-styles.ts'
-import { onAccent } from './color.ts'
+import { paintAccent } from './color.ts'
 import { applyMobileFrame, watchMobileFrame } from './lib/viewport.ts'
 
 export const HOST_TAG = 'ticketping-widget'
@@ -30,10 +30,12 @@ export function mountWidget({ controller, container }: MountOptions): MountedWid
   const apply = (state: WidgetState) => {
     const { appearance } = state.config
     host.dataset.position = appearance.position
-    host.dataset.colorMode = resolveColorMode(appearance.colorMode, dark?.matches ?? false)
+    const colorMode = resolveColorMode(appearance.colorMode, dark?.matches ?? false)
+    const ink = paintAccent(appearance.accentColor, colorMode)
+    host.dataset.colorMode = colorMode
     host.dataset.open = String(state.open)
-    host.style.setProperty('--tp-accent', appearance.accentColor)
-    host.style.setProperty('--tp-on-accent', onAccent(appearance.accentColor))
+    host.style.setProperty('--tp-accent', ink.accent)
+    host.style.setProperty('--tp-on-accent', ink.onAccent)
     host.hidden = !state.launcherVisible && !state.open
     applyMobileFrame(host, state.open)
   }

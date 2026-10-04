@@ -1,7 +1,7 @@
 import { createWidgetController, type WidgetController } from '@ticketping/core'
 import { flushSync } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
-import { onAccent } from './color.ts'
+import { onAccent, paintAccent } from './color.ts'
 import { HOST_TAG, mountWidget, type MountedWidget } from './mount.ts'
 
 let widget: MountedWidget | undefined
@@ -67,6 +67,8 @@ describe('mountWidget', () => {
     flushSync()
     expect(host.dataset.position).toBe('bottom-left')
     expect(host.dataset.colorMode).toBe('dark')
+    expect(host.style.getPropertyValue('--tp-accent')).toBe('#fff')
+    expect(host.style.getPropertyValue('--tp-on-accent')).toBe('#171717')
 
     controller.setLocale('ar')
     flushSync()
@@ -110,6 +112,19 @@ describe('mountWidget', () => {
     widget?.destroy()
     widget = undefined
     expect(document.querySelector(HOST_TAG)).toBeNull()
+  })
+})
+
+describe('paintAccent', () => {
+  it('keeps a neutral starter black in light and white in dark', () => {
+    expect(paintAccent('#171717', 'light')).toEqual({ accent: '#171717', onAccent: '#fff' })
+    expect(paintAccent('#000000', 'dark')).toEqual({ accent: '#fff', onAccent: '#171717' })
+    expect(paintAccent('#ffffff', 'light').accent).toBe('#171717')
+  })
+
+  it('leaves a brand color that still contrasts', () => {
+    expect(paintAccent('#3B82F6', 'dark').accent).toBe('#3B82F6')
+    expect(paintAccent('#3B82F6', 'light').accent).toBe('#3B82F6')
   })
 })
 

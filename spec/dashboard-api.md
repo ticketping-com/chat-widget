@@ -31,7 +31,7 @@ Body `{ "name": "Product app", "slackChannelId"?: "C123", "aiEnabled"?: bool }`.
   "name": "Product app",
   "createdAt": "...",
   "appearance": {
-    "accentColor": "#101828",
+    "accentColor": "#171717",
     "colorMode": "auto",
     "position": "bottom-right",
     "launcher": { "icon": "chat", "label": null }
