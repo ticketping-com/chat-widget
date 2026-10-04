@@ -292,7 +292,7 @@ function searchParam(url: string | undefined, name: string): string | null {
 function slowAckMs(req: IncomingMessage): number {
   const raw =
     searchParam(req.headers.referer, 'slowAck') ?? cookieValue(req.headers.cookie, 'tp_slow_ack')
-  if (raw == null || raw === '') return 0
+  if (!raw) return 0
   const n = Number(raw)
   if (!Number.isFinite(n) || n <= 0) return 0
   return Math.min(n, MAX_ACK_DELAY_MS)
