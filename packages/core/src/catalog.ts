@@ -54,6 +54,8 @@ export const en = {
   'list.newConversation': 'Start a new chat',
   'list.unread': { one: '{count} unread', other: '{count} unread' },
   'list.youPrefix': 'You: {text}',
+  'list.ticket': 'Ticket #{number}',
+  'list.untitled': 'Support Chat',
 
   // Previews (list, toasts, tab title)
   'title.newMessages': { one: 'New message', other: '{count} new messages' },
@@ -87,10 +89,6 @@ export const en = {
   'sender.system': '{team}',
   'sender.avatarAlt': '{name}',
 
-  // Ticket status
-  'status.label': 'Status: {status}',
-  'status.ticket': 'Ticket {id}',
-
   // AI and handoff (protocol 7)
   'availability.online': 'Online',
   'availability.offline': 'Offline right now',
@@ -103,7 +101,7 @@ export const en = {
   'handoff.done': 'The team has been notified and will reply here.',
 
   // Event messages (protocol 3.4 `event`)
-  'event.handoff': 'Handed over to the team',
+  'event.handoff': 'A teammate will take it from here',
   'event.contact_requested': 'Leave your email so the team can reach you',
   'event.contact_saved': "We'll reply by email too",
   'event.ticket_created': 'The team has your message',
@@ -138,8 +136,8 @@ export const en = {
   'connection.failed': "Chat isn't available right now",
 
   // Email capture (protocol 4.3)
-  'email.title': 'Get notified by email',
-  'email.body': "Leave your email and we'll let you know when the team replies.",
+  'email.title': 'Just in case you leave or we reply later:',
+  'email.body': "What's the best email to reach you?",
   'email.label': 'Email',
   'email.placeholder': 'you@example.com',
   'email.submit': 'Save',

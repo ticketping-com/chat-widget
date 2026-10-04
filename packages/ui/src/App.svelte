@@ -123,6 +123,7 @@
         bind:button={launcher}
         open={widget.open}
         unreadCount={widget.unreadCount}
+        appearance={widget.config.appearance.launcher}
         i18n={widget.i18n}
         onclick={() => controller.toggle()}
       />

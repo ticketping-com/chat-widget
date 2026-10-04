@@ -52,6 +52,7 @@
   let GifPicker = $state<typeof import('../pickers/GifPicker.svelte').default | null>(null)
   let lastKey = $state<string | null>(null)
   let fileSeq = 0
+  let focusedNew = false
 
   const ready = $derived(pending.filter((item) => item.attachment))
   const uploading = $derived(pending.some((item) => !item.attachment && !item.error))
@@ -71,6 +72,19 @@
       const prefill = controller.consumePrefill()
       if (prefill) text = prefill
     }
+  })
+
+  $effect(() => {
+    const isNew = conversationId === null && !offline && !widget.loginRequired
+    if (!isNew) {
+      focusedNew = false
+      return
+    }
+    if (!area || focusedNew) return
+    focusedNew = true
+    queueMicrotask(() => {
+      area.focus({ preventScroll: true })
+    })
   })
 
   $effect(() => {
@@ -179,6 +193,7 @@
       picker = null
       suggestions = []
       onSent?.()
+      area?.focus({ preventScroll: true })
     } catch {
       fileError = i18n.t('error.generic')
     }
@@ -572,8 +587,8 @@
   }
 
   .field:focus-within {
-    border-color: var(--tp-accent);
-    box-shadow: 0 0 0 4px color-mix(in oklab, var(--tp-accent) 24%, transparent);
+    border-color: color-mix(in oklab, var(--tp-accent) 55%, var(--tp-border));
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--tp-accent) 14%, transparent);
   }
 
   .input {
@@ -608,7 +623,7 @@
   .tools {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 0;
     padding-block: 4px 6px;
     padding-inline: 8px 6px;
   }
@@ -633,8 +648,8 @@
   .icon {
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     color: var(--tp-muted);
   }
 

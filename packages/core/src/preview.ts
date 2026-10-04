@@ -73,6 +73,7 @@ export function previewConversation(now: number = Date.now()): {
     assignee: { name: 'Grace', avatarUrl: null },
     ticket: {
       id: 'tk_preview',
+      number: 482,
       status: { slug: 'waiting-for-customer', label: 'Waiting for customer', theme: 'BLUE' }
     },
     lastMessage: messages[messages.length - 1] ?? null

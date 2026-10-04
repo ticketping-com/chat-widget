@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { messagePreview, type WidgetController, type WidgetState } from '@ticketping/core'
+  import { conversationTitle, type WidgetController, type WidgetState } from '@ticketping/core'
   import Greeting from './Greeting.svelte'
   import PoweredBy from './PoweredBy.svelte'
 
@@ -25,7 +25,7 @@
           <span class="kicker">{i18n.t('home.recent')}</span>
           <span class="line">
             <span class="preview">
-              {messagePreview(latest.lastMessage, i18n) || i18n.t('thread.title')}
+              {conversationTitle(latest, i18n)}
             </span>
             {#if latest.isTest}
               <span class="test" title={i18n.t('test.tagTitle')}>{i18n.t('test.tag')}</span>

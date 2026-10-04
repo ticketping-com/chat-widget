@@ -18,7 +18,7 @@ export const baseStyles = `
   --tp-border: #ebebeb;
   --tp-fill: #fafafa;
   --tp-bubble: #f5f5f5;
-  --tp-segment: #f5f5f5;
+  --tp-segment: #ececec;
   --tp-segment-on: #fff;
   --tp-focus: #171717;
   --tp-danger: oklch(57.7% 0.245 27.325); /* red-600 */

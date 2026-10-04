@@ -1,11 +1,11 @@
 <script lang="ts">
   import { NEW_CONVERSATION, type WidgetController, type WidgetState } from '@ticketping/core'
-  import { statusColor } from '../lib/status.ts'
   import Event from '../message/Event.svelte'
   import Bubble from '../message/Bubble.svelte'
   import Composer from './Composer.svelte'
   import EmailForm from './EmailForm.svelte'
   import PoweredBy from './PoweredBy.svelte'
+  import { createStickBottom } from '../lib/stick-bottom.ts'
 
   interface Props {
     controller: WidgetController
@@ -23,7 +23,21 @@
   )
   const thread = $derived(widget.threads[key])
   const messages = $derived(thread?.messages ?? [])
-  const typing = $derived(conversationId ? widget.typing[conversationId] : undefined)
+  const hiddenEvents = $derived.by(() => {
+    const hidden = new Set(['contact_requested', 'ticket_created'])
+    if (!widget.config.features.ai) hidden.add('handoff')
+    return hidden
+  })
+  const visibleMessages = $derived(
+    messages.filter((message) => !message.event || !hiddenEvents.has(message.event.type))
+  )
+  const typing = $derived.by(() => {
+    if (conversationId) return widget.typing[conversationId]
+    const ids = Object.keys(widget.typing)
+    const only = ids.length === 1 ? ids[0] : undefined
+    return only ? widget.typing[only] : undefined
+  })
+  const showTyping = $derived(Boolean(typing) || widget.pendingReply[key] === true)
   const showEmail = $derived.by(() => {
     if (!widget.config.features.emailCapture || !conversation) return false
     if (widget.identity.contactEmail || widget.identity.email) return false
@@ -32,7 +46,9 @@
       messages.some((message) => message.event?.type === 'contact_requested')
     )
   })
-  const showStarter = $derived(conversationId === null && !thread?.error)
+  const showStarter = $derived(
+    !thread?.error && (conversationId === null || thread?.greeting === true)
+  )
   const availability = $derived(widget.config.team.availability)
   const awayTitle = $derived.by(() => {
     if (availability.next) return i18n.t('availability.offlineBack', availability.next)
@@ -42,24 +58,29 @@
   })
 
   let scroller: HTMLElement | undefined = $state()
+  let feed: HTMLElement | undefined = $state()
   let pinned = $state(true)
   let unseen = $state(0)
   let lastCount = $state(0)
   let announced = $state<string | null>(null)
-  let freshId = $state<string | null>(null)
+  let freshKey = $state<string | null>(null)
   let primedKey = ''
   let primedLast = ''
+  let stickKey = ''
+  const stick = createStickBottom()
 
   $effect.pre(() => {
-    const last = messages.at(-1)?.id ?? ''
+    const last = visibleMessages.at(-1)
+    const lastKey = last ? (last.clientId ?? last.id) : ''
     if (primedKey !== key) {
       primedKey = key
-      primedLast = last
-      freshId = null
+      if (lastKey && lastKey === primedLast) return
+      primedLast = lastKey
+      freshKey = null
       return
     }
-    freshId = last && last !== primedLast ? last : null
-    primedLast = last
+    if (last && lastKey !== primedLast) freshKey = lastKey
+    primedLast = lastKey
   })
 
   $effect(() => {
@@ -67,10 +88,30 @@
   })
 
   $effect(() => {
-    const count = messages.length
-    const last = messages[count - 1]
-    void typing
-    if (count > lastCount && last && last.sender.type !== 'USER' && !pinned) {
+    const outer = scroller
+    const inner = feed
+    if (!outer || !inner) return
+    stick.attach(outer, inner)
+    return () => stick.release()
+  })
+
+  $effect(() => {
+    const next = key
+    const prev = stickKey
+    stickKey = next
+    if (prev === NEW_CONVERSATION && next !== NEW_CONVERSATION) return
+    queueMicrotask(() => {
+      unseen = 0
+      pinned = true
+      stick.jump()
+    })
+  })
+
+  $effect(() => {
+    const count = visibleMessages.length
+    const last = visibleMessages[count - 1]
+    void showTyping
+    if (count > lastCount && last && last.sender.type !== 'USER' && !stick.pinned) {
       unseen += count - lastCount
       announced = i18n.t('a11y.newMessage', {
         name: last.sender.name ?? i18n.t('sender.agentFallback')
@@ -78,54 +119,48 @@
     }
     if (last?.delivery === 'failed') announced = i18n.t('a11y.messageFailed')
     lastCount = count
-    if (pinned) queueMicrotask(scrollToEnd)
+    stick.follow()
   })
 
   function scrollToEnd() {
-    if (!scroller) return
-    scroller.scrollTop = scroller.scrollHeight
     unseen = 0
     pinned = true
+    stick.ease()
   }
 
   function onScroll() {
-    if (!scroller) return
-    pinned = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 80
+    pinned = stick.onScroll()
     if (pinned) unseen = 0
   }
 
-  function sameGroup(a: (typeof messages)[number], b: (typeof messages)[number]): boolean {
+  function sameGroup(
+    a: (typeof visibleMessages)[number],
+    b: (typeof visibleMessages)[number]
+  ): boolean {
     if (a.kind === 'event' || b.kind === 'event') return false
     if (a.sender.type !== b.sender.type || a.sender.name !== b.sender.name) return false
     return Math.abs(Date.parse(a.createdAt) - Date.parse(b.createdAt)) <= 5 * 60_000
   }
 
   function showTime(index: number): boolean {
-    const current = messages[index]
-    const next = messages[index + 1]
+    const current = visibleMessages[index]
+    const next = visibleMessages[index + 1]
     if (!current || current.kind === 'event') return false
     if (!next) return true
     return !sameGroup(current, next)
   }
 
   function dayLabel(index: number): string | null {
-    const current = messages[index]
+    const current = visibleMessages[index]
     if (!current) return null
-    const prev = messages[index - 1]
+    const prev = visibleMessages[index - 1]
+    if (!prev && showStarter) return null
     if (prev && i18n.formatDay(prev.createdAt) === i18n.formatDay(current.createdAt)) return null
     return i18n.formatDay(current.createdAt)
   }
 </script>
 
 <div class="thread">
-  {#if conversation?.ticket}
-    <div class="ticket">
-      <span>{i18n.t('status.ticket', { id: conversation.ticket.id })}</span>
-      <span class="status" style:color={statusColor(conversation.ticket.status.theme)}>
-        {i18n.t('status.label', { status: conversation.ticket.status.label })}
-      </span>
-    </div>
-  {/if}
   {#if availability.state === 'offline'}
     <div class="away" role="status">
       <svg class="moon" viewBox="0 0 18 18" aria-hidden="true">
@@ -144,6 +179,7 @@
   {/if}
 
   <div bind:this={scroller} class="history" role="log" aria-live="polite" onscroll={onScroll}>
+    <div bind:this={feed} class="feed">
     {#if thread?.hasMore && conversationId}
       <button
         type="button"
@@ -179,7 +215,7 @@
       </article>
     {/if}
 
-    {#each messages as message, index (message.id)}
+    {#each visibleMessages as message, index (message.clientId ?? message.id)}
       {@const day = dayLabel(index)}
       {#if day}
         <div class="day"><span>{day}</span></div>
@@ -192,12 +228,20 @@
           {i18n}
           {controller}
           showTime={showTime(index)}
-          arrive={message.id === freshId}
+          arrive={(message.clientId ?? message.id) === freshKey}
+          joinPrev={Boolean(
+            !day && visibleMessages[index - 1] && sameGroup(visibleMessages[index - 1]!, message)
+          )}
+          joinNext={Boolean(
+            visibleMessages[index + 1] &&
+              !dayLabel(index + 1) &&
+              sameGroup(message, visibleMessages[index + 1]!)
+          )}
         />
       {/if}
     {/each}
 
-    {#if typing}
+    {#if showTyping}
       <article class="typing" role="status">
         <div class="bubble">
           <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -205,6 +249,7 @@
         <span class="tp-sr">{i18n.t('thread.typingSomeone')}</span>
       </article>
     {/if}
+    </div>
   </div>
 
   {#if unseen > 0}
@@ -215,9 +260,9 @@
 
   {#if showEmail}
     <EmailForm {controller} {i18n} />
+  {:else}
+    <Composer {controller} {widget} {conversationId} />
   {/if}
-
-  <Composer {controller} {widget} {conversationId} />
   {#if widget.config.branding.poweredBy}
     <PoweredBy {i18n} />
   {/if}
@@ -231,22 +276,6 @@
     flex-direction: column;
     height: 100%;
     min-height: 0;
-  }
-
-  .ticket {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--tp-border);
-    color: var(--tp-muted);
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .status {
-    font-weight: 700;
   }
 
   .away {
@@ -284,14 +313,18 @@
   }
 
   .history {
-    display: flex;
     flex: 1;
-    flex-direction: column;
-    gap: 8px;
     min-height: 0;
     overflow: auto;
+    overflow-anchor: none;
     overscroll-behavior: contain;
     padding: 12px 16px;
+  }
+
+  .feed {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .starter {
@@ -339,6 +372,7 @@
     flex-direction: column;
     align-items: flex-start;
     max-width: 86%;
+    animation: tp-arrive 200ms var(--tp-ease-out) both;
   }
 
   .typing .bubble {
@@ -373,9 +407,20 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .typing {
+      animation: none;
+    }
+
     .dots span {
       animation: none;
       opacity: 1;
+    }
+  }
+
+  @keyframes tp-arrive {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
     }
   }
 

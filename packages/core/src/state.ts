@@ -37,6 +37,8 @@ export interface ThreadState {
   /** The first page arrived (or the thread is new and has nothing to load). */
   loaded: boolean
   error: WidgetError | null
+  /** Started from the blank composer. The greeting stays at the top after the server assigns an id. */
+  greeting?: boolean
 }
 
 export interface TypingIndicator {
@@ -90,6 +92,11 @@ export interface WidgetState {
   threads: Readonly<Record<string, ThreadState>>
   /** By conversation ID. Cleared after 6 s without an update (protocol 6.2). */
   typing: Readonly<Record<string, TypingIndicator>>
+  /**
+   * Conversations where the visitor is waiting on an AI reply.
+   * Set about 2 s after send, so a missed server typing frame still shows the dots.
+   */
+  pendingReply: Readonly<Record<string, true>>
   /** Total for the launcher badge (protocol 6.2 `unread.updated`). */
   unreadCount: number
   /** Text for the composer from `showNewMessage(prefill)`. Call `consumePrefill()` once used. */
@@ -200,6 +207,7 @@ export function initialState(locale: string = 'en'): WidgetState {
     conversationsHasMore: false,
     threads: {},
     typing: {},
+    pendingReply: {},
     unreadCount: 0,
     prefill: null,
     loginRequired: false,

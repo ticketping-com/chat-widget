@@ -1,5 +1,5 @@
 import { en, type MessageKey, type PluralEntry } from './catalog.ts'
-import type { Attachment, Message } from './types.ts'
+import type { Attachment, Conversation, Message } from './types.ts'
 
 export type Params = Record<string, string | number>
 export type DateInput = string | number | Date
@@ -165,6 +165,18 @@ export function messagePreview(message: Message | null, i18n: I18n): string {
   const line =
     text || (message.attachments.length > 0 ? attachmentPreview(message.attachments, i18n) : '')
   return message.sender.type === 'USER' && line ? i18n.t('list.youPrefix', { text: line }) : line
+}
+
+/** Title in the conversation list: ticket number, else last message, else a default. */
+export function conversationTitle(
+  conversation: Pick<Conversation, 'ticket' | 'lastMessage'>,
+  i18n: I18n
+): string {
+  const number = conversation.ticket?.number
+  if (typeof number === 'number' && number > 0) {
+    return i18n.t('list.ticket', { number })
+  }
+  return messagePreview(conversation.lastMessage, i18n) || i18n.t('list.untitled')
 }
 
 /** The divider text for `kind: "event"` messages. */

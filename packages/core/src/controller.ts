@@ -70,6 +70,8 @@ export const MAX_MESSAGE_LENGTH = 10_000
 export const MAX_ATTACHMENTS = 5
 export const MAX_UPLOAD_BYTES: number = 10 * 1024 * 1024
 export const TYPING_TTL_MS = 6_000
+/** Quiet period before the typing dots, matching the server's AI reply pause. */
+export const REPLY_WAIT_MS = 2_000
 export const TYPING_THROTTLE_MS = 2_000
 /** While the visitor keeps typing, `isTyping: true` is repeated this often so it doesn't expire. */
 export const TYPING_REPEAT_MS = 3_000
@@ -186,6 +188,11 @@ interface TypingOut {
   idle?: ReturnType<typeof setTimeout>
 }
 
+interface ReplyWait {
+  timer: ReturnType<typeof setTimeout>
+  due: number
+}
+
 /** The pieces that exist while a live (non-preview) widget runs. */
 interface Live {
   pk: string
@@ -203,6 +210,7 @@ interface Live {
   unreadPending: Set<string>
   typingIn: Map<string, ReturnType<typeof setTimeout>>
   typingOut: Map<string, TypingOut>
+  replyWait: Map<string, ReplyWait>
   pendingContext: Record<string, unknown> | null
   pendingHandoffs: Set<string>
   recovering: Promise<void> | null
@@ -416,6 +424,8 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
     }
     l.typingIn.clear()
     l.typingOut.clear()
+    for (const wait of l.replyWait.values()) clearTimeout(wait.timer)
+    l.replyWait.clear()
     l.readSent.clear()
     l.unreadPending.clear()
     l.pendingHandoffs.clear()
@@ -428,6 +438,7 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
       conversationsLoading: false,
       threads: {},
       typing: {},
+      pendingReply: {},
       prefill: null,
       view: view.name === 'thread' ? { name: 'home' } : view
     })
@@ -454,6 +465,7 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
       unreadPending: new Set(),
       typingIn: new Map(),
       typingOut: new Map(),
+      replyWait: new Map(),
       pendingContext: null,
       pendingHandoffs: new Set(),
       recovering: null,
@@ -487,6 +499,13 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
       send: (frame) => l.transport.send(frame),
       onFailed: (clientId, error) => {
         patchLocal(clientId, (m) => ({ ...m, delivery: 'failed', error }))
+        for (const [id, thread] of Object.entries(get().threads)) {
+          if (!thread.messages.some((m) => m.clientId === clientId)) continue
+          const stillWaiting = thread.messages.some(
+            (m) => m.delivery === 'sending' || m.delivery === 'sent'
+          )
+          if (!stillWaiting) clearReplyWait(l, id)
+        }
       },
       onAckTimeout: () => {
         if (l.transport.status === 'open') l.transport.reconnect()
@@ -929,6 +948,7 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
           set({ conversations: upsertConversation(get().conversations, conversation) })
           const last = conversation.lastMessage
           const thread = last && get().threads[last.conversationId]
+          if (conversation.phase !== 'ai') clearReplyWait(l, conversation.id)
           if (isMessage(last) && !thread?.messages.some((m) => m.id === last.id)) {
             onMessage(l, last)
           }
@@ -960,6 +980,7 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
     const moved = pending.messages.map((m) => ({ ...m, conversationId }))
     threads[conversationId] = {
       ...existing,
+      greeting: pending.greeting || existing.greeting,
       loaded: true,
       messages: mergeMessages([...existing.messages, ...moved], [])
     }
@@ -967,7 +988,13 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
       state.view.name === 'thread' && state.view.conversationId === null
         ? { name: 'thread', conversationId }
         : state.view
-    set({ threads, view })
+    const pendingReply = { ...state.pendingReply }
+    if (pendingReply[NEW_CONVERSATION]) {
+      delete pendingReply[NEW_CONVERSATION]
+      pendingReply[conversationId] = true
+    }
+    set({ threads, view, pendingReply })
+    if (live) moveReplyWait(live, NEW_CONVERSATION, conversationId)
   }
 
   function addServerMessage(message: ThreadMessage): void {
@@ -1007,6 +1034,7 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
     addServerMessage(message)
     if (message.sender.type === 'USER') return
     clearTyping(l, message.conversationId)
+    clearReplyWait(l, message.conversationId)
     if (seen) return
     l.unreadPending.add(message.conversationId)
     events.emit('messageReceived', {
@@ -1046,7 +1074,37 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
       l.outbox.reject(clientId, error)
       return
     }
+    console.error(`[ticketping] ${error.code}: ${error.message}`)
     fail(error)
+  }
+
+  function clearReplyWait(l: Live, conversationId: string): void {
+    const existing = l.replyWait.get(conversationId)
+    if (existing) clearTimeout(existing.timer)
+    l.replyWait.delete(conversationId)
+    const pending = get().pendingReply
+    if (!pending[conversationId]) return
+    set({ pendingReply: omit(pending, conversationId) })
+  }
+
+  function armReplyWait(l: Live, conversationId: string, delay: number = REPLY_WAIT_MS): void {
+    const existing = l.replyWait.get(conversationId)
+    if (existing) clearTimeout(existing.timer)
+    const due = Date.now() + delay
+    const timer = setTimeout(() => {
+      l.replyWait.delete(conversationId)
+      if (live !== l) return
+      set({ pendingReply: { ...get().pendingReply, [conversationId]: true } })
+    }, delay)
+    l.replyWait.set(conversationId, { timer, due })
+  }
+
+  function moveReplyWait(l: Live, from: string, to: string): void {
+    const existing = l.replyWait.get(from)
+    if (!existing) return
+    clearTimeout(existing.timer)
+    l.replyWait.delete(from)
+    armReplyWait(l, to, Math.max(0, existing.due - Date.now()))
   }
 
   function clearTyping(l: Live, conversationId: string): void {
@@ -1496,6 +1554,7 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
       }
       patchThread(key, (t) => ({
         ...t,
+        greeting: input.conversationId === null ? true : t.greeting,
         loaded: t.loaded || input.conversationId === null,
         messages: [
           ...t.messages,
@@ -1516,6 +1575,12 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
       l.outbox.flush()
       l.transport.wake()
       if (input.conversationId) controller.setTyping(input.conversationId, false)
+      if (state.config.features.ai) {
+        const phase = input.conversationId
+          ? state.conversations.find((item) => item.id === input.conversationId)?.phase
+          : 'ai'
+        if (!input.conversationId || phase === 'ai') armReplyWait(l, key)
+      }
       return clientId
     },
 

@@ -262,6 +262,51 @@ describe('sending (protocol 6.3)', () => {
     // message.created for the same message (and replays) don't duplicate it.
     socket.push('message.created', { message: sent })
     expect(widget.getState().threads.cs_new!.messages).toHaveLength(2)
+    expect(widget.getState().threads.cs_new!.greeting).toBe(true)
+  })
+
+  it('keeps the typing dots up while an AI reply has not arrived', async () => {
+    const socket = await start()
+    widget.showNewMessage()
+    const clientId = widget.send({ conversationId: null, text: 'Hello' })
+    await vi.advanceTimersByTimeAsync(1_999)
+    expect(widget.getState().pendingReply).toEqual({})
+
+    await vi.advanceTimersByTimeAsync(1)
+    expect(widget.getState().pendingReply).toEqual({ [NEW_CONVERSATION]: true })
+
+    const sent = message('cm_1', {
+      clientId,
+      conversationId: 'cs_new',
+      sender: { type: 'USER' },
+      createdAt: '2026-05-01T10:00:00.000Z'
+    })
+    socket.push('ack', {
+      clientId,
+      message: sent,
+      conversation: conversation('cs_new', { updatedAt: '2026-05-01T10:00:00.000Z', phase: 'ai' })
+    })
+    expect(widget.getState().pendingReply).toEqual({ cs_new: true })
+    expect(widget.getState().threads.cs_new!.greeting).toBe(true)
+
+    socket.push('message.created', {
+      message: message('cm_ai', {
+        conversationId: 'cs_new',
+        sender: { type: 'AI', name: null },
+        createdAt: '2026-05-01T10:00:03.000Z',
+        body: { format: 'markdown', content: 'Happy to help.' }
+      })
+    })
+    expect(widget.getState().pendingReply).toEqual({})
+  })
+
+  it('does not show AI typing dots on a team conversation', async () => {
+    backend.conversations = [conversation('cs_1', { phase: 'team' })]
+    await start()
+    widget.send({ conversationId: 'cs_1', text: 'Hello' })
+    await vi.advanceTimersByTimeAsync(2_000)
+    expect(widget.getState().pendingReply).toEqual({})
+    expect(widget.getState().threads.cs_1!.greeting).toBeUndefined()
   })
 
   it('shows an AI reply that arrives before the send is acked', async () => {
@@ -414,7 +459,7 @@ describe('receiving', () => {
         phase: 'team',
         unreadCount: 1,
         updatedAt: '2026-05-01T10:00:01.000Z',
-        ticket: { id: 'tk_1', status: { slug: 'open', label: 'Open', theme: 'BLUE' } }
+        ticket: { id: 'tk_1', number: 12, status: { slug: 'open', label: 'Open', theme: 'BLUE' } }
       })
     })
 

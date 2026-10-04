@@ -41,8 +41,33 @@
   }
 
   let panel: HTMLElement | undefined = $state()
+  let switchEl: HTMLElement | undefined = $state()
+  let thumb = $state({ x: 0, width: 0 })
+  let thumbReady = $state(false)
   let nav = $state<'forward' | 'back' | 'none'>('none')
   let seen = ''
+  let chromeReady = $state(false)
+
+  const measureThumb = () => {
+    const current = switchEl?.querySelector<HTMLElement>('[aria-current="page"]')
+    if (!current) return
+    thumb = { x: current.offsetLeft, width: current.offsetWidth }
+    if (!thumbReady) requestAnimationFrame(() => (thumbReady = true))
+  }
+
+  $effect(() => {
+    onHome
+    onLive
+    onHistory
+    i18n
+    const el = switchEl
+    if (!el) return
+    measureThumb()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(measureThumb)
+    observer.observe(el)
+    return () => observer.disconnect()
+  })
 
   $effect.pre(() => {
     const name = widget.view.name
@@ -55,6 +80,11 @@
     const rank = (view: string) => (view === 'thread' ? 2 : view === 'messages' ? 1 : 0)
     nav = rank(name) >= rank(seen) ? 'forward' : 'back'
     seen = name
+  })
+
+  $effect(() => {
+    const frame = requestAnimationFrame(() => (chromeReady = true))
+    return () => cancelAnimationFrame(frame)
   })
 
   $effect(() => {
@@ -86,33 +116,47 @@
   tabindex="-1"
   {onkeydown}
 >
-  <header class="header" data-chrome={inThread ? 'thread' : 'tabs'}>
-    {#if inThread}
-      <button type="button" class="icon-button" aria-label={i18n.t('panel.back')} onclick={back}>
-        <svg viewBox="0 0 18 18" aria-hidden="true" class="flip-rtl">
-          <polyline
-            points="11.5 15.25 5.25 9 11.5 2.75"
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1"
-          />
-        </svg>
-      </button>
-      <h2 class="title">
-        {#if online}
-          <span class="dot" title={i18n.t('availability.online')}></span>
-        {/if}
-        <span class="name">{title}</span>
-      </h2>
-      {#if handoffId}
-        <button type="button" class="handoff" onclick={() => controller.handoff(handoffId)}>
-          {i18n.t('handoff.button')}
+  <header class="header" class:ready={chromeReady} data-chrome={inThread ? 'thread' : 'tabs'}>
+    <div class="chrome">
+      <div class="thread-bar" aria-hidden={inThread ? undefined : true} inert={!inThread ? true : undefined}>
+        <button type="button" class="icon-button" aria-label={i18n.t('panel.back')} onclick={back}>
+          <svg viewBox="0 0 18 18" aria-hidden="true" class="flip-rtl">
+            <polyline
+              points="11.5 15.25 5.25 9 11.5 2.75"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1"
+            />
+          </svg>
         </button>
-      {/if}
-    {:else}
-      <nav class="switch" aria-label={i18n.t('panel.labelNoTeam')}>
+        <h2 class="title">
+          {#if online}
+            <span class="dot" title={i18n.t('availability.online')}></span>
+          {/if}
+          <span class="name">{title}</span>
+        </h2>
+        {#if handoffId}
+          <button type="button" class="handoff" onclick={() => controller.handoff(handoffId)}>
+            {i18n.t('handoff.button')}
+          </button>
+        {/if}
+      </div>
+      <nav
+        class="switch"
+        bind:this={switchEl}
+        aria-label={i18n.t('panel.labelNoTeam')}
+        aria-hidden={inThread ? true : undefined}
+        inert={inThread ? true : undefined}
+      >
+        <div
+          class="thumb"
+          class:ready={thumbReady}
+          style:width="{thumb.width}px"
+          style:transform="translateX({thumb.x}px)"
+          aria-hidden="true"
+        ></div>
         <button
           type="button"
           class="pill"
@@ -138,10 +182,10 @@
           {i18n.t('home.nav.messages')}
         </button>
       </nav>
-    {/if}
+    </div>
     <button
       type="button"
-      class="icon-button"
+      class="icon-button close"
       aria-label={i18n.t('panel.close')}
       onclick={() => controller.close()}
     >
@@ -223,31 +267,82 @@
   }
 
   .header {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 8px;
     min-height: 56px;
-    padding: 8px 8px 8px 12px;
+    padding: 8px;
     background: var(--tp-surface);
     color: var(--tp-text);
+    border-bottom: 1px solid transparent;
   }
 
-  .header[data-chrome='tabs'] {
-    position: relative;
-    justify-content: center;
-    padding-inline: 44px;
+  .header.ready {
+    transition: border-color 240ms var(--tp-ease-out);
   }
 
   .header[data-chrome='thread'] {
-    border-bottom: 1px solid var(--tp-border);
+    border-bottom-color: var(--tp-border);
   }
 
-  .header[data-chrome='tabs'] .icon-button {
-    position: absolute;
-    inset-inline-end: 8px;
+  .chrome {
+    position: relative;
+    display: grid;
+    flex: 1;
+    align-items: center;
+    min-width: 0;
+    min-height: 40px;
+    padding-inline-end: 36px;
+  }
+
+  .thread-bar,
+  .switch {
+    grid-area: 1 / 1;
+  }
+
+  .thread-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(calc(-8px * var(--tp-nav, 1)));
   }
 
   .switch {
+    justify-self: center;
+    opacity: 1;
+    transform: none;
+  }
+
+  .header.ready .thread-bar,
+  .header.ready .switch {
+    transition:
+      opacity 240ms var(--tp-ease-out),
+      transform 240ms var(--tp-ease-out);
+  }
+
+  .header[data-chrome='thread'] .thread-bar {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .header[data-chrome='thread'] .switch {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.94);
+  }
+
+  .close {
+    position: absolute;
+    inset-inline-end: 8px;
+    z-index: 2;
+  }
+
+  .switch {
+    position: relative;
     display: flex;
     align-items: center;
     padding: 3px;
@@ -255,7 +350,33 @@
     background: var(--tp-segment);
   }
 
+  .thumb {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 0;
+    border-radius: 999px;
+    background: var(--tp-segment-on);
+    box-shadow:
+      0 1px 1px rgb(0 0 0 / 0.04),
+      0 0 0 1px color-mix(in oklab, var(--tp-text) 8%, transparent);
+    pointer-events: none;
+    box-sizing: border-box;
+  }
+
+  .thumb.ready {
+    transition:
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      width 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  :global(:host([data-color-mode='dark'])) .thumb {
+    box-shadow: 0 0 0 1px color-mix(in oklab, white 6%, transparent);
+  }
+
   .pill {
+    position: relative;
+    z-index: 1;
     height: 28px;
     padding: 0 12px;
     border: 0;
@@ -264,20 +385,14 @@
     color: var(--tp-muted);
     font: inherit;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
-    transition:
-      background-color 180ms var(--tp-ease-out),
-      box-shadow 180ms var(--tp-ease-out),
-      color 180ms var(--tp-ease-out);
+    transition: color 180ms var(--tp-ease-out);
   }
 
   .pill[aria-current='page'] {
-    background: var(--tp-segment-on);
     color: var(--tp-text);
-    box-shadow:
-      0 1px 1px oklch(13% 0.028 261.692 / 0.06),
-      0 2px 6px oklch(13% 0.028 261.692 / 0.1);
+    font-weight: 600;
   }
 
   .pill:hover:not([aria-current='page']) {
@@ -422,7 +537,11 @@
     .screen,
     .icon-button,
     .handoff,
-    .pill {
+    .pill,
+    .thumb.ready,
+    .header.ready,
+    .header.ready .thread-bar,
+    .header.ready .switch {
       transition: none;
       animation: none;
     }

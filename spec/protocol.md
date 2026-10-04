@@ -215,6 +215,7 @@ Ticketping('preview', { config: WidgetConfig, view: 'launcher' | 'home' | 'threa
   "assignee": { "name": "Grace", "avatarUrl": "https://..." },
   "ticket": {
     "id": "tk_9d8f7g",
+    "number": 482,
     "status": { "slug": "waiting-for-customer", "label": "Waiting for customer", "theme": "BLUE" }
   },
   "lastMessage": { "...": "Message (3.4)" }

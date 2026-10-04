@@ -112,7 +112,7 @@ export interface Conversation {
   isTest: boolean
   unreadCount: number
   assignee: { name: string; avatarUrl: string | null } | null
-  ticket: { id: string; status: TicketStatus } | null
+  ticket: { id: string; number: number; status: TicketStatus } | null
   lastMessage: Message | null
 }
 

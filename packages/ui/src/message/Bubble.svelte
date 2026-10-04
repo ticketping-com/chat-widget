@@ -9,9 +9,19 @@
     controller: WidgetController
     showTime?: boolean
     arrive?: boolean
+    joinPrev?: boolean
+    joinNext?: boolean
   }
 
-  const { message, i18n, controller, showTime = false, arrive = false }: Props = $props()
+  const {
+    message,
+    i18n,
+    controller,
+    showTime = false,
+    arrive = false,
+    joinPrev = false,
+    joinNext = false
+  }: Props = $props()
   const mine = $derived(message.sender.type === 'USER')
   const failed = $derived(message.delivery === 'failed')
   const who = $derived.by(() => {
@@ -29,6 +39,8 @@
   class="row"
   class:arrive
   class:mine
+  class:joins-prev={joinPrev}
+  class:joins-next={joinNext}
   data-sender={message.sender.type}
   data-delivery={message.delivery ?? 'stored'}
 >
@@ -78,11 +90,7 @@
   }
 
   .row.arrive {
-    animation: tp-message 220ms var(--tp-ease-out);
-  }
-
-  .row.arrive.mine {
-    animation-name: tp-message-mine;
+    animation: tp-message 200ms var(--tp-ease-out) both;
   }
 
   .byline {
@@ -95,10 +103,32 @@
     line-height: 1.3;
   }
 
+  .row.joins-prev {
+    margin-top: -4px;
+  }
+
   .bubble {
     padding: 10px 14px;
     border-radius: 18px;
     background: var(--tp-bubble);
+  }
+
+  .row.joins-prev .bubble {
+    border-start-start-radius: 6px;
+  }
+
+  .row.joins-next .bubble {
+    border-end-start-radius: 6px;
+  }
+
+  .row.mine.joins-prev .bubble {
+    border-start-start-radius: 18px;
+    border-start-end-radius: 6px;
+  }
+
+  .row.mine.joins-next .bubble {
+    border-end-start-radius: 18px;
+    border-end-end-radius: 6px;
   }
 
   .status {
@@ -126,20 +156,12 @@
   @keyframes tp-message {
     from {
       opacity: 0;
-      transform: translateX(calc(-12px * var(--tp-nav, 1)));
-    }
-  }
-
-  @keyframes tp-message-mine {
-    from {
-      opacity: 0;
-      transform: translateX(calc(12px * var(--tp-nav, 1)));
+      transform: scale(0.98);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .row.arrive,
-    .row.arrive.mine {
+    .row.arrive {
       animation: none;
     }
   }

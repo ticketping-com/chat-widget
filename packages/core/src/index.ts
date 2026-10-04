@@ -19,6 +19,7 @@ export { TicketpingError, isTicketpingError, toWidgetError } from './errors.ts'
 export type { UploadOptions } from './http.ts'
 export {
   createI18n,
+  conversationTitle,
   eventText,
   messagePreview,
   textDirection,

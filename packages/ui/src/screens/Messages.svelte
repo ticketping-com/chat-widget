@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { messagePreview, type WidgetController, type WidgetState } from '@ticketping/core'
+  import { conversationTitle, type WidgetController, type WidgetState } from '@ticketping/core'
 
   interface Props {
     controller: WidgetController
@@ -36,7 +36,7 @@
               <span class="main">
                 <span class="line">
                   <span class="preview">
-                    {messagePreview(conversation.lastMessage, i18n) || i18n.t('thread.title')}
+                    {conversationTitle(conversation, i18n)}
                   </span>
                   {#if conversation.isTest}
                     <span class="test" title={i18n.t('test.tagTitle')}>{i18n.t('test.tag')}</span>

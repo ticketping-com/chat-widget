@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { en } from './catalog.ts'
-import { createI18n, eventText, messagePreview, textDirection } from './i18n.ts'
-import type { Message } from './types.ts'
+import { createI18n, conversationTitle, eventText, messagePreview, textDirection } from './i18n.ts'
+import type { Conversation, Message } from './types.ts'
 
 const message = (patch: Partial<Message>): Message => ({
   id: 'cm_1',
@@ -137,7 +137,7 @@ describe('messagePreview', () => {
       eventText(message({ kind: 'event', event: { type: 'status_changed', status } }), i18n)
     ).toBe('Status changed to Done')
     expect(eventText(message({ kind: 'event', event: { type: 'handoff' } }), i18n)).toBe(
-      'Handed over to the team'
+      'A teammate will take it from here'
     )
     expect(
       messagePreview(
@@ -145,5 +145,39 @@ describe('messagePreview', () => {
         i18n
       )
     ).toBe('Pick an option')
+  })
+})
+
+describe('conversationTitle', () => {
+  const i18n = createI18n({ locale: 'en' })
+  const base: Conversation = {
+    id: 'cs_1',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
+    phase: 'ai',
+    isTest: false,
+    unreadCount: 0,
+    assignee: null,
+    ticket: null,
+    lastMessage: null
+  }
+
+  it('prefers the ticket number, then the last message, then a default', () => {
+    expect(
+      conversationTitle(
+        {
+          ...base,
+          ticket: {
+            id: 'tk_1',
+            number: 482,
+            status: { slug: 'open', label: 'Open', theme: 'BLUE' }
+          },
+          lastMessage: message({ body: { format: 'text', content: 'Hello' } })
+        },
+        i18n
+      )
+    ).toBe('Ticket #482')
+    expect(conversationTitle({ ...base, lastMessage: message({}) }, i18n)).toBe('Hello')
+    expect(conversationTitle(base, i18n)).toBe('Support Chat')
   })
 })
