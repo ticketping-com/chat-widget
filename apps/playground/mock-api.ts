@@ -20,6 +20,7 @@ const SOCKET_PATH = '/ws/v2/widget'
 const PAGE = 20
 const MESSAGE_PAGE = 50
 const MAX_TEXT = 10_000
+const MAX_ACK_DELAY_MS = 30_000
 
 const CORS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
@@ -270,6 +271,33 @@ function hostOf(req: IncomingMessage): string {
   return req.headers.host ?? 'localhost:5180'
 }
 
+function cookieValue(header: string | undefined, name: string): string | null {
+  if (!header) return null
+  for (const part of header.split(';')) {
+    const [key, ...rest] = part.trim().split('=')
+    if (key === name) return decodeURIComponent(rest.join('='))
+  }
+  return null
+}
+
+function searchParam(url: string | undefined, name: string): string | null {
+  if (!url) return null
+  try {
+    return new URL(url).searchParams.get(name)
+  } catch {
+    return null
+  }
+}
+
+function slowAckMs(req: IncomingMessage): number {
+  const raw =
+    searchParam(req.headers.referer, 'slowAck') ?? cookieValue(req.headers.cookie, 'tp_slow_ack')
+  if (raw == null || raw === '') return 0
+  const n = Number(raw)
+  if (!Number.isFinite(n) || n <= 0) return 0
+  return Math.min(n, MAX_ACK_DELAY_MS)
+}
+
 async function route(state: MockState, req: IncomingMessage, res: ServerResponse): Promise<void> {
   const url = new URL(req.url ?? '/', 'http://localhost')
   if (req.method === 'OPTIONS') {
@@ -470,7 +498,7 @@ function mockReply(state: MockState, thread: Conversation): Message {
   return reply
 }
 
-function connectSocket(state: MockState, socket: WebSocket): void {
+function connectSocket(state: MockState, socket: WebSocket, delayMs: number): void {
   let visitor: Visitor | null = null
   socket.on('message', (raw) => {
     const frame = parseFrame(raw)
@@ -506,7 +534,8 @@ function connectSocket(state: MockState, socket: WebSocket): void {
       return
     }
     if (frame.type !== 'message.send') return
-    const result = acceptMessage(state, visitor, frame)
+    const who = visitor
+    const result = acceptMessage(state, who, frame)
     if (result instanceof HttpError) {
       sendFrame(
         socket,
@@ -521,22 +550,26 @@ function connectSocket(state: MockState, socket: WebSocket): void {
       message: result.stored.message
     }
     if (result.stored.conversation) ack.conversation = result.stored.conversation
-    sendFrame(socket, 'ack', ack, frame.id)
-    if (!result.fresh) return
-    const thread =
-      result.stored.conversation ??
-      findConversation(state, visitor, result.stored.message.conversationId)
-    if (!thread) return
-    const reply = mockReply(state, thread)
-    const cursor = nextCursor(state)
-    sendFrame(socket, 'message.created', { message: reply }, undefined, cursor)
-    sendFrame(
-      socket,
-      'conversation.updated',
-      { conversation: thread },
-      undefined,
-      nextCursor(state)
-    )
+    const finish = () => {
+      sendFrame(socket, 'ack', ack, frame.id)
+      if (!result.fresh) return
+      const thread =
+        result.stored.conversation ??
+        findConversation(state, who, result.stored.message.conversationId)
+      if (!thread) return
+      const reply = mockReply(state, thread)
+      const cursor = nextCursor(state)
+      sendFrame(socket, 'message.created', { message: reply }, undefined, cursor)
+      sendFrame(
+        socket,
+        'conversation.updated',
+        { conversation: thread },
+        undefined,
+        nextCursor(state)
+      )
+    }
+    if (delayMs > 0) setTimeout(finish, delayMs)
+    else finish()
   })
   socket.on('error', () => socket.close())
 }
@@ -573,7 +606,9 @@ export function playgroundMock(): Plugin {
       const wss = new WebSocketServer({ noServer: true })
       server.httpServer?.on('upgrade', (req, socket, head) => {
         if (!isWidgetSocket(req.url)) return
-        wss.handleUpgrade(req, socket as Duplex, head, (ws) => connectSocket(state, ws))
+        wss.handleUpgrade(req, socket as Duplex, head, (ws) =>
+          connectSocket(state, ws, slowAckMs(req))
+        )
       })
       server.httpServer?.on('close', () => wss.close())
     }

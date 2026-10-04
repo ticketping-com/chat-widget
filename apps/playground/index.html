@@ -34,6 +34,7 @@
     <p>
       Talks to the in-memory mock on this origin. Point at a real API with
       <code>?api=http://localhost:7800&amp;key=pk_...</code>
+      Hold the mock ack with <code>?slowAck=1500</code> so Sending stays visible.
     </p>
     <p>Other pages: <a href="/hostile-css.html">hostile host CSS</a></p>
 
@@ -57,6 +58,10 @@
           ;(Ticketping.q = Ticketping.q || []).push(arguments)
         }
       const params = new URLSearchParams(location.search)
+      const slowAck = params.get('slowAck')
+      document.cookie = slowAck
+        ? `tp_slow_ack=${encodeURIComponent(slowAck)}; path=/; SameSite=Lax`
+        : 'tp_slow_ack=; Max-Age=0; path=/'
       Ticketping('init', {
         publishableKey: params.get('key') || 'pk_playground00000000000000',
         apiUrl: params.get('api') || location.origin,

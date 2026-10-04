@@ -23,7 +23,14 @@
     joinNext = false
   }: Props = $props()
   const mine = $derived(message.sender.type === 'USER')
+  const sending = $derived(message.delivery === 'sending')
   const failed = $derived(message.delivery === 'failed')
+  const showByline = $derived(showTime || sending)
+  let holdSending = $state(false)
+  $effect.pre(() => {
+    if (sending) holdSending = true
+  })
+  const swapSending = $derived(mine && holdSending)
   const who = $derived.by(() => {
     if (mine) return ''
     if (message.sender.type === 'AI') {
@@ -50,18 +57,25 @@
       <Attachments attachments={message.attachments} {i18n} />
     {/if}
   </div>
-  {#if showTime}
+  {#if showByline}
     <p class="byline">
       {#if who}
         <span>{who}</span>
         <span class="sep" aria-hidden="true">·</span>
       {/if}
-      <time datetime={message.createdAt}>{i18n.formatRelative(message.createdAt)}</time>
+      {#if swapSending}
+        <span class="swap" class:is-sending={sending}>
+          <span class="swap-sending" aria-hidden={!sending}>{i18n.t('delivery.sending')}</span>
+          <time class="swap-time" datetime={message.createdAt} aria-hidden={sending}>
+            {i18n.formatRelative(message.createdAt)}
+          </time>
+        </span>
+      {:else}
+        <time datetime={message.createdAt}>{i18n.formatRelative(message.createdAt)}</time>
+      {/if}
     </p>
   {/if}
-  {#if message.delivery === 'sending'}
-    <p class="status">{i18n.t('delivery.sending')}</p>
-  {:else if failed}
+  {#if failed}
     <p class="status fail" role="alert">
       {message.error?.code === 'rate_limited'
         ? i18n.t('delivery.rateLimited')
@@ -101,6 +115,28 @@
     color: var(--tp-muted);
     font-size: 12px;
     line-height: 1.3;
+  }
+
+  .swap {
+    display: inline-grid;
+    justify-items: end;
+  }
+
+  .swap > * {
+    grid-area: 1 / 1;
+    transition: opacity 180ms var(--tp-ease-out);
+  }
+
+  .swap-sending {
+    opacity: 0;
+  }
+
+  .swap.is-sending .swap-sending {
+    opacity: 1;
+  }
+
+  .swap.is-sending .swap-time {
+    opacity: 0;
   }
 
   .row.joins-prev {
@@ -163,6 +199,10 @@
   @media (prefers-reduced-motion: reduce) {
     .row.arrive {
       animation: none;
+    }
+
+    .swap > * {
+      transition: none;
     }
   }
 

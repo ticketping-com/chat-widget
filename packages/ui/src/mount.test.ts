@@ -259,6 +259,7 @@ describe('mountWidget', () => {
     const outgoing = shadow.querySelector('[data-sender="USER"]')
     expect(outgoing?.classList.contains('arrive')).toBe(true)
     expect(outgoing?.getAttribute('data-delivery')).toBe('sending')
+    expect(outgoing?.querySelector('.swap')?.classList.contains('is-sending')).toBe(true)
 
     socket.push('ack', {
       clientId,
@@ -277,6 +278,8 @@ describe('mountWidget', () => {
     expect(acked?.classList.contains('arrive')).toBe(true)
     expect(acked?.getAttribute('data-delivery')).toBe('sent')
     expect(acked?.textContent).toContain('Hello')
+    expect(acked?.querySelector('.swap')?.classList.contains('is-sending')).toBe(false)
+    expect(acked?.querySelector('.byline time')).not.toBeNull()
   })
 
   it('removes everything on destroy', () => {

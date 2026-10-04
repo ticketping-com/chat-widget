@@ -39,7 +39,7 @@ npm run spec:vectors # regenerate spec/token-test-vectors.json
 
 The playground boots the widget from source (`apps/playground/boot.ts` loads `packages/widget/src/cdn.ts`) and, by default, sets `apiUrl` to the page origin. The Vite dev server answers the widget protocol in memory: `POST /api/v2/widget/boot`, identify, conversations, messages, session refresh and logout, plus the socket at `/ws/v2/widget/`. Nothing is persisted. GIF search returns an empty page, and uploads are refused.
 
-Open `http://127.0.0.1:5180/?api=http://localhost:7800&key=pk_...` to talk to a real backend instead. `hostile-css.html` uses the same `apiUrl` rule, so the launcher still mounts under hostile host CSS.
+Open `http://127.0.0.1:5180/?api=http://localhost:7800&key=pk_...` to talk to a real backend instead. `hostile-css.html` uses the same `apiUrl` rule, so the launcher still mounts under hostile host CSS. Add `?slowAck=1500` to delay the mock ack (milliseconds) so outgoing delivery states stay on screen.
 
 ### Package entry points
 
