@@ -1,5 +1,12 @@
 import { createWidgetController, type WidgetController } from '@ticketping/core'
-import { PK, conversation, createFakeEnv, flush, installBackend, message } from '@ticketping/core/testing'
+import {
+  PK,
+  conversation,
+  createFakeEnv,
+  flush,
+  installBackend,
+  message
+} from '@ticketping/core/testing'
 import { flushSync } from 'svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { onAccent, paintAccent } from './color.ts'

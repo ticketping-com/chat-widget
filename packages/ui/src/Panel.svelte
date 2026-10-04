@@ -56,10 +56,10 @@
   }
 
   $effect(() => {
-    onHome
-    onLive
-    onHistory
-    i18n
+    void onHome
+    void onLive
+    void onHistory
+    void i18n
     const el = switchEl
     if (!el) return
     measureThumb()
@@ -118,7 +118,11 @@
 >
   <header class="header" class:ready={chromeReady} data-chrome={inThread ? 'thread' : 'tabs'}>
     <div class="chrome">
-      <div class="thread-bar" aria-hidden={inThread ? undefined : true} inert={!inThread ? true : undefined}>
+      <div
+        class="thread-bar"
+        aria-hidden={inThread ? undefined : true}
+        inert={!inThread ? true : undefined}
+      >
         <button type="button" class="icon-button" aria-label={i18n.t('panel.back')} onclick={back}>
           <svg viewBox="0 0 18 18" aria-hidden="true" class="flip-rtl">
             <polyline

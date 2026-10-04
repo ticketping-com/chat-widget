@@ -23,13 +23,13 @@
   )
   const thread = $derived(widget.threads[key])
   const messages = $derived(thread?.messages ?? [])
-  const hiddenEvents = $derived.by(() => {
-    const hidden = new Set(['contact_requested', 'ticket_created'])
-    if (!widget.config.features.ai) hidden.add('handoff')
-    return hidden
-  })
+  const hiddenEvents = $derived(
+    widget.config.features.ai
+      ? ['contact_requested', 'ticket_created']
+      : ['contact_requested', 'ticket_created', 'handoff']
+  )
   const visibleMessages = $derived(
-    messages.filter((message) => !message.event || !hiddenEvents.has(message.event.type))
+    messages.filter((message) => !message.event || !hiddenEvents.includes(message.event.type))
   )
   const typing = $derived.by(() => {
     if (conversationId) return widget.typing[conversationId]
@@ -180,75 +180,71 @@
 
   <div bind:this={scroller} class="history" role="log" aria-live="polite" onscroll={onScroll}>
     <div bind:this={feed} class="feed">
-    {#if thread?.hasMore && conversationId}
-      <button
-        type="button"
-        class="older"
-        disabled={thread.loading}
-        onclick={() => void controller.loadOlder(conversationId)}
-      >
-        {thread.loading ? i18n.t('thread.loading') : i18n.t('thread.loadOlder')}
-      </button>
-    {/if}
-
-    {#if thread?.loading && !thread.loaded}
-      <p class="state">{i18n.t('thread.loading')}</p>
-    {:else if thread?.error && !messages.length}
-      <div class="state">
-        <p>{i18n.t('thread.error')}</p>
+      {#if thread?.hasMore && conversationId}
         <button
           type="button"
           class="older"
-          onclick={() => void controller.loadMessages(conversationId ?? '')}
+          disabled={thread.loading}
+          onclick={() => void controller.loadOlder(conversationId)}
         >
-          {i18n.t('thread.retryLoad')}
+          {thread.loading ? i18n.t('thread.loading') : i18n.t('thread.loadOlder')}
         </button>
-      </div>
-    {:else if conversationId && thread?.loaded && !conversation && !messages.length}
-      <p class="state">{i18n.t('thread.notFound')}</p>
-    {/if}
-
-    {#if showStarter}
-      <article class="starter">
-        <div class="bubble">{i18n.t('conversationStarter')}</div>
-        <p class="byline">{widget.config.team.name || i18n.t('sender.agentFallback')}</p>
-      </article>
-    {/if}
-
-    {#each visibleMessages as message, index (message.clientId ?? message.id)}
-      {@const day = dayLabel(index)}
-      {#if day}
-        <div class="day"><span>{day}</span></div>
       {/if}
-      {#if message.kind === 'event'}
-        <Event {message} {i18n} />
-      {:else}
-        <Bubble
-          {message}
-          {i18n}
-          {controller}
-          showTime={showTime(index)}
-          arrive={(message.clientId ?? message.id) === freshKey}
-          joinPrev={Boolean(
-            !day && visibleMessages[index - 1] && sameGroup(visibleMessages[index - 1]!, message)
-          )}
-          joinNext={Boolean(
-            visibleMessages[index + 1] &&
-              !dayLabel(index + 1) &&
-              sameGroup(message, visibleMessages[index + 1]!)
-          )}
-        />
-      {/if}
-    {/each}
 
-    {#if showTyping}
-      <article class="typing" role="status">
-        <div class="bubble">
-          <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
+      {#if thread?.loading && !thread.loaded}
+        <p class="state">{i18n.t('thread.loading')}</p>
+      {:else if thread?.error && !messages.length}
+        <div class="state">
+          <p>{i18n.t('thread.error')}</p>
+          <button
+            type="button"
+            class="older"
+            onclick={() => void controller.loadMessages(conversationId ?? '')}
+          >
+            {i18n.t('thread.retryLoad')}
+          </button>
         </div>
-        <span class="tp-sr">{i18n.t('thread.typingSomeone')}</span>
-      </article>
-    {/if}
+      {:else if conversationId && thread?.loaded && !conversation && !messages.length}
+        <p class="state">{i18n.t('thread.notFound')}</p>
+      {/if}
+
+      {#if showStarter}
+        <article class="starter">
+          <div class="bubble">{i18n.t('conversationStarter')}</div>
+          <p class="byline">{widget.config.team.name || i18n.t('sender.agentFallback')}</p>
+        </article>
+      {/if}
+
+      {#each visibleMessages as message, index (message.clientId ?? message.id)}
+        {@const day = dayLabel(index)}
+        {@const prev = visibleMessages[index - 1]}
+        {@const next = visibleMessages[index + 1]}
+        {#if day}
+          <div class="day"><span>{day}</span></div>
+        {/if}
+        {#if message.kind === 'event'}
+          <Event {message} {i18n} />
+        {:else}
+          <Bubble
+            {message}
+            {i18n}
+            {controller}
+            showTime={showTime(index)}
+            arrive={(message.clientId ?? message.id) === freshKey}
+            joinPrev={Boolean(!day && prev && sameGroup(prev, message))}
+            joinNext={Boolean(next && !dayLabel(index + 1) && sameGroup(message, next))}
+          />
+        {/if}
+      {/each}
+
+      {#if showTyping}
+        <article class="typing" role="status">
+          <div class="bubble">
+            <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
+          </div>
+          <span class="tp-sr">{i18n.t('thread.typingSomeone')}</span>
+        </article>
+      {/if}
     </div>
   </div>
 

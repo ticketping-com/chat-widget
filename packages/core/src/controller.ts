@@ -990,10 +990,14 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
         : state.view
     const pendingReply = { ...state.pendingReply }
     if (pendingReply[NEW_CONVERSATION]) {
-      delete pendingReply[NEW_CONVERSATION]
-      pendingReply[conversationId] = true
+      set({
+        threads,
+        view,
+        pendingReply: { ...omit(pendingReply, NEW_CONVERSATION), [conversationId]: true }
+      })
+    } else {
+      set({ threads, view, pendingReply })
     }
-    set({ threads, view, pendingReply })
     if (live) moveReplyWait(live, NEW_CONVERSATION, conversationId)
   }
 
