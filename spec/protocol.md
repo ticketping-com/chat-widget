@@ -161,13 +161,13 @@ Cookies are not used: from a customer's site, a cookie on `api.ticketping.com` i
 
 The dashboard sets defaults; anything the host passes in code wins. The widget resolves each setting as **`init()` options, then the `boot` config, then the widget's built-in defaults**, and re-resolves when the host calls `update()` with new options. It's done client-side, so `boot` always returns the dashboard values unchanged, and the dashboard's live preview shows those values.
 
-| Setting                                                                      | From code                                                                                                                                                 |
-| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Setting                                                                                                | From code                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `appearance.*` (accent color, color mode, position, launcher icon, label, and `launcher.hideWhenOpen`) | Overrides                                                                                                                                                 |
-| `texts.*`                                                                    | Overrides, per key. Unset keys fall through to the dashboard, then the built-in catalog                                                                   |
-| `locale`, `hideLauncher`                                                     | Code only (no dashboard equivalent)                                                                                                                       |
-| `features.*` (`ai`, `attachments`, `emailCapture`, `emoji`, `gifs`)          | Can switch a feature **off**, not on. The server enforces the dashboard value, because anything code can switch on, a visitor can switch on from devtools |
-| `security.*`, `branding.*`, Slack routing, allowed domains                   | Not settable from code. They protect the team or depend on the plan                                                                                       |
+| `texts.*`                                                                                              | Overrides, per key. Unset keys fall through to the dashboard, then the built-in catalog                                                                   |
+| `locale`, `hideLauncher`                                                                               | Code only (no dashboard equivalent)                                                                                                                       |
+| `features.*` (`ai`, `attachments`, `emailCapture`, `emoji`, `gifs`)                                    | Can switch a feature **off**, not on. The server enforces the dashboard value, because anything code can switch on, a visitor can switch on from devtools |
+| `security.*`, `branding.*`, Slack routing, allowed domains                                             | Not settable from code. They protect the team or depend on the plan                                                                                       |
 
 The widget warns in the console (once) when code tries to switch on a feature the dashboard has off, so the mismatch is easy to spot during setup.
 

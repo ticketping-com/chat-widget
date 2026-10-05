@@ -6,13 +6,13 @@ SpendCrypto does not send `userJWT`. Most of their widget threads are the anonym
 
 ## Records
 
-| Model | Role |
-| --- | --- |
-| `Customer` | A person for one team. `email` is required. `external_id` is optional and unique per team. Email is not unique. |
+| Model         | Role                                                                                                                                   |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `Customer`    | A person for one team. `email` is required. `external_id` is optional and unique per team. Email is not unique.                        |
 | `ChatSession` | One widget conversation. Optional `customer` FK. Optional `email`. Optional one-to-one `ticket`. `phase` is empty on every v1 session. |
-| `ChatMessage` | Messages before a ticket exists, plus the greeting and the “ticket created” line. |
-| `Ticket` | The thread after handoff. Optional `customer` FK. Optional `email`. `created_via` is `CHAT_WIDGET` for widget tickets. |
-| `TicketReply` | Messages after the ticket exists. Public replies are what the visitor sees. `is_private` replies are internal. |
+| `ChatMessage` | Messages before a ticket exists, plus the greeting and the “ticket created” line.                                                      |
+| `Ticket`      | The thread after handoff. Optional `customer` FK. Optional `email`. `created_via` is `CHAT_WIDGET` for widget tickets.                 |
+| `TicketReply` | Messages after the ticket exists. Public replies are what the visitor sees. `is_private` replies are internal.                         |
 
 `Customer.team` scopes every row. A person on two teams is two customers.
 

@@ -12,10 +12,10 @@ Use **npm `@next`** on the Svelte 5 app, because that is how v1 is installed tod
 
 Pinned CDN is the fallback if they want a script tag and SRI instead of a package bump. Same `pk_` and the same Django route either way.
 
-| Channel | What to do |
-| --- | --- |
-| SpendCrypto app / site | Cut over to v2 (this doc) |
-| `support.spendcrypto.com` | Leave on v1 |
+| Channel                       | What to do                |
+| ----------------------------- | ------------------------- |
+| SpendCrypto app / site        | Cut over to v2 (this doc) |
+| `support.spendcrypto.com`     | Leave on v1               |
 | ticketping.com dashboard chat | Already on `2.0.0-beta.5` |
 
 ## 1. Dashboard (Ticketping, SpendCrypto team)
