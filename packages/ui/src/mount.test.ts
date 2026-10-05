@@ -95,6 +95,7 @@ describe('mountWidget', () => {
   })
 
   it('hides the launcher while open when hideWhenOpen is set', () => {
+    vi.useFakeTimers()
     const { launcher } = setup()
     const host = widget?.host as HTMLElement
     controller.update({ appearance: { launcher: { hideWhenOpen: true } } })
@@ -109,6 +110,9 @@ describe('mountWidget', () => {
 
     controller.close()
     flushSync()
+    // Hold through the exit animation so the panel does not jump onto the launcher.
+    expect(host.dataset.hideLauncher).toBe('true')
+    vi.advanceTimersByTime(300)
     expect(host.dataset.hideLauncher).toBeUndefined()
   })
 

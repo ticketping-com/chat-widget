@@ -96,7 +96,8 @@ export function setPageScrollLocked(lock: boolean): void {
   window.scrollTo(0, scrollY)
 }
 
-const CLOSE_HOLD_MS = 300
+/** Hold open-only layout (mobile frame, hide-launcher) until the panel exit finishes. */
+export const CLOSE_HOLD_MS = 300
 
 let releaseTimer = 0
 
