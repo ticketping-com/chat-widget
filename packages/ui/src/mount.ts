@@ -34,6 +34,8 @@ export function mountWidget({ controller, container }: MountOptions): MountedWid
     const ink = paintAccent(appearance.accentColor, colorMode)
     host.dataset.colorMode = colorMode
     host.dataset.open = String(state.open)
+    if (appearance.launcher.hideWhenOpen && state.open) host.dataset.hideLauncher = 'true'
+    else delete host.dataset.hideLauncher
     host.style.setProperty('--tp-accent', ink.accent)
     host.style.setProperty('--tp-on-accent', ink.onAccent)
     host.hidden = !state.launcherVisible && !state.open

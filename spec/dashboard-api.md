@@ -34,7 +34,7 @@ Body `{ "name": "Product app", "slackChannelId"?: "C123", "aiEnabled"?: bool }`.
     "accentColor": "#171717",
     "colorMode": "auto",
     "position": "bottom-right",
-    "launcher": { "icon": "chat", "label": null }
+    "launcher": { "icon": "chat", "label": null, "hideWhenOpen": false }
   },
   "texts": {
     "greetingTitle": "...",
@@ -72,7 +72,7 @@ Body `{ "name": "Product app", "slackChannelId"?: "C123", "aiEnabled"?: bool }`.
 - `id` is the config's opaque `sid` (no `wc_` prefix).
 - `appearance` and `texts` are the **effective** values (stored overrides merged over the defaults in `apps/widget/serializers.py`). `PATCH` accepts partial objects and stores only keys that differ from the defaults. `null` (or an empty text) resets a key to its default. `texts.replyTimeHint` defaults to `null`; the widget gets it as `team.replyTimeHint`.
 - `PATCH` accepts `name`, `appearance`, `texts`, `features`, `gifRating`, `security`, `allowLocalhost`, `domainsLocked` and `slackChannelId`, and ignores other top-level fields. Unknown keys inside `appearance`, `texts`, `features` or `security` are `400`.
-- Validation: `name` is 1 to 128 characters; `accentColor` is `#RRGGBB` (stored upper-case); `colorMode` is `auto`, `light` or `dark`; `position` is `bottom-right` or `bottom-left`; `launcher.icon` is `chat`, `help` or `none`; `launcher.label` is at most 64 characters or `null`; each text is at most 256 characters; feature and security flags are booleans; `gifRating` is `g`, `pg` or `pg-13`; `loginUrl` is `https://` (or `http://localhost`), at most 512 characters, or `null`; `slackChannelId` is a Slack channel ID (upper-case letters and digits) or `null`.
+- Validation: `name` is 1 to 128 characters; `accentColor` is `#RRGGBB` (stored upper-case); `colorMode` is `auto`, `light` or `dark`; `position` is `bottom-right` or `bottom-left`; `launcher.icon` is `chat`, `help` or `none`; `launcher.label` is at most 64 characters or `null`; `launcher.hideWhenOpen` is a boolean (default `false`; when `true` the panel opens in the corner and the launcher is hidden until it closes); each text is at most 256 characters; feature and security flags are booleans; `gifRating` is `g`, `pg` or `pg-13`; `loginUrl` is `https://` (or `http://localhost`), at most 512 characters, or `null`; `slackChannelId` is a Slack channel ID (upper-case letters and digits) or `null`.
 - `keys` lists active keys only (an old key during its 24-hour rotation grace has `expiresAt`). Keys are publishable, so they're returned in full.
 - `originSightings`: the 20 most recent origins not on the allowed list.
 - `install` fields are `null` until the widget first boots.

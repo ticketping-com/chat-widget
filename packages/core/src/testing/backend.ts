@@ -19,7 +19,7 @@ export function config(patch: Partial<WidgetConfig> = {}): WidgetConfig {
       accentColor: '#112233',
       colorMode: 'light',
       position: 'bottom-right',
-      launcher: { icon: 'chat', label: null }
+      launcher: { icon: 'chat', label: null, hideWhenOpen: false }
     },
     texts: {},
     features: { ai: true, attachments: true, emailCapture: true, emoji: true, gifs: true },

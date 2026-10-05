@@ -94,6 +94,24 @@ describe('mountWidget', () => {
     expect(host.hidden).toBe(false)
   })
 
+  it('hides the launcher while open when hideWhenOpen is set', () => {
+    const { launcher } = setup()
+    const host = widget?.host as HTMLElement
+    controller.update({ appearance: { launcher: { hideWhenOpen: true } } })
+    flushSync()
+    expect(host.dataset.hideLauncher).toBeUndefined()
+
+    launcher()?.click()
+    flushSync()
+    expect(controller.getState().open).toBe(true)
+    expect(host.dataset.hideLauncher).toBe('true')
+    expect(launcher()).not.toBeNull()
+
+    controller.close()
+    flushSync()
+    expect(host.dataset.hideLauncher).toBeUndefined()
+  })
+
   it('renders the dashboard launcher icon and label', () => {
     const { launcher } = setup()
     expect(launcher()?.dataset.icon).toBe('chat')

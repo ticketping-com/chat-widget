@@ -7,7 +7,7 @@ const dashboard: OverridableConfig = {
     accentColor: '#112233',
     colorMode: 'dark',
     position: 'bottom-left',
-    launcher: { icon: 'help', label: 'Support' }
+    launcher: { icon: 'help', label: 'Support', hideWhenOpen: false }
   },
   texts: { greetingTitle: 'Hey from Acme' },
   features: { ai: true, attachments: true, emailCapture: true, emoji: true, gifs: false }
@@ -30,7 +30,7 @@ describe('resolveConfig', () => {
       accentColor: '#ff0000',
       colorMode: 'dark',
       position: 'bottom-left',
-      launcher: { icon: 'help', label: 'Chat' }
+      launcher: { icon: 'help', label: 'Chat', hideWhenOpen: false }
     })
     expect(config.texts.greetingTitle).toBe('Hey from Acme')
     expect(config.texts.greetingBody).toBe('Code wins')

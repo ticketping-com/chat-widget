@@ -108,7 +108,7 @@ describe('normalizeConfig', () => {
       availability: { state: 'online', next: null, hours: null }
     })
     expect(config.appearance.accentColor).toBe('#000')
-    expect(config.appearance.launcher).toEqual({ icon: 'chat', label: 'Help' })
+    expect(config.appearance.launcher).toEqual({ icon: 'chat', label: 'Help', hideWhenOpen: false })
     expect(config.texts).toEqual({ greetingTitle: 'Yo' })
     expect(config.socket).toEqual({
       url: 'wss://api.ticketping.com/ws/v2/widget/',

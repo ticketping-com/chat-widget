@@ -191,29 +191,28 @@
 
   .badge {
     position: absolute;
-    top: -4px;
-    inset-inline-end: -4px;
+    top: -2px;
+    inset-inline-end: -2px;
+    display: grid;
+    place-items: center;
     min-width: 20px;
     height: 20px;
-    padding: 0 6px;
-    border-radius: 10px;
-    background: oklch(0.58 0.22 17);
+    padding-inline: 5px;
+    border-radius: 999px;
+    background: var(--tp-danger);
     color: #fff;
     font-size: 12px;
     font-weight: 600;
-    line-height: 20px;
-    text-align: center;
-    border: 2px solid #fff;
-    animation: tp-badge 1.5s ease-in-out infinite;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 0 0 2px var(--tp-surface);
+    animation: tp-badge-in 280ms var(--tp-ease-out) both;
   }
 
-  @keyframes tp-badge {
-    0%,
-    100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
+  @keyframes tp-badge-in {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
     }
   }
 

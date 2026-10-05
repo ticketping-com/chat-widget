@@ -6,7 +6,7 @@ export interface Appearance {
   accentColor: string
   colorMode: ColorMode
   position: Position
-  launcher: { icon: 'chat' | 'help' | 'none'; label: string | null }
+  launcher: { icon: 'chat' | 'help' | 'none'; label: string | null; hideWhenOpen: boolean }
 }
 
 export type FeatureName = 'ai' | 'attachments' | 'emailCapture' | 'emoji' | 'gifs'

@@ -134,7 +134,7 @@ Cookies are not used: from a customer's site, a cookie on `api.ticketping.com` i
     "accentColor": "#171717",
     "colorMode": "auto",
     "position": "bottom-right",
-    "launcher": { "icon": "chat", "label": null }
+    "launcher": { "icon": "chat", "label": null, "hideWhenOpen": false }
   },
   "texts": {
     "greetingTitle": "Hi there 👋",
@@ -163,7 +163,7 @@ The dashboard sets defaults; anything the host passes in code wins. The widget r
 
 | Setting                                                                      | From code                                                                                                                                                 |
 | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `appearance.*` (accent color, color mode, position, launcher icon and label) | Overrides                                                                                                                                                 |
+| `appearance.*` (accent color, color mode, position, launcher icon, label, and `launcher.hideWhenOpen`) | Overrides                                                                                                                                                 |
 | `texts.*`                                                                    | Overrides, per key. Unset keys fall through to the dashboard, then the built-in catalog                                                                   |
 | `locale`, `hideLauncher`                                                     | Code only (no dashboard equivalent)                                                                                                                       |
 | `features.*` (`ai`, `attachments`, `emailCapture`, `emoji`, `gifs`)          | Can switch a feature **off**, not on. The server enforces the dashboard value, because anything code can switch on, a visitor can switch on from devtools |
@@ -360,7 +360,7 @@ Auth: visitor token. Body is one of:
 1. Find or create the customer by `(team, externalId = sub)`. Never match by email or a null ID.
 2. Update the customer's profile from the signed claims. Signed claims always beat unsigned ones.
 3. If this visitor is already linked to a **different** customer, refuse with `409 visitor_bound_to_other_user`. The widget handles user switches itself (6.5), so this only fires on misuse.
-4. Link the visitor to the customer, and attach this visitor's own anonymous conversations to the customer. No other conversations are merged.
+4. Link the visitor to the customer, and attach this visitor's own anonymous conversations to the customer. A ticket already opened on one of those conversations is linked too, including the visitor's replies on it. No other conversations are merged, including ones that merely share an email.
 5. Issue a session.
 
 Response `200`:

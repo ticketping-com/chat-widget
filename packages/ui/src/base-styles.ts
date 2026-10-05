@@ -49,6 +49,16 @@ export const baseStyles = `
 :host([data-mobile='true']) .launcher {
   display: none;
 }
+/* Launcher stays out of the corner while the panel is open (appearance.launcher.hideWhenOpen). */
+@media (min-width: 481px) {
+  :host([data-hide-launcher='true']) .launcher {
+    display: none;
+  }
+  :host([data-hide-launcher='true']) .panel {
+    height: min(640px, calc(100vh - 40px));
+    margin-block-end: 0;
+  }
+}
 :host([data-color-mode='dark']) {
   color-scheme: dark;
   --tp-accent: #fff;

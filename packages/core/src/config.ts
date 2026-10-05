@@ -13,7 +13,7 @@ export const DEFAULT_CONFIG: OverridableConfig = {
     accentColor: '#171717',
     colorMode: 'auto',
     position: 'bottom-right',
-    launcher: { icon: 'chat', label: null }
+    launcher: { icon: 'chat', label: null, hideWhenOpen: false }
   },
   texts: {},
   features: { ai: false, attachments: true, emailCapture: true, emoji: true, gifs: false }
