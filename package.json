@@ -65,5 +65,9 @@
     "typescript": "^6.0.3",
     "vite": "^8.3.2",
     "vitest": "^5.0.3"
+  },
+  "allowScripts": {
+    "simple-git-hooks@2.14.0": true,
+    "fsevents@2.3.3": true
   }
 }
