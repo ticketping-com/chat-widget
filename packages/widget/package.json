@@ -1,6 +1,6 @@
 {
   "name": "@ticketping/chat-widget",
-  "version": "2.0.0-beta.6",
+  "version": "2.0.0-beta.7",
   "description": "Ticketping chat widget: answer your customers from Slack.",
   "type": "module",
   "sideEffects": [
