@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "useTabs": false,
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "none",
+  "printWidth": 100,
+  "sortPackageJson": false,
+  "svelte": {},
+  "ignorePatterns": [
+    "dist",
+    "coverage",
+    "playwright-report",
+    "test-results",
+    "package-lock.json",
+    "CHANGELOG.md",
+    ".changeset/*.md",
+    "spec/token-test-vectors.json"
+  ]
+}

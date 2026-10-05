@@ -54,7 +54,8 @@ interface Case {
   token: string
   seen?: string[]
   expect:
-    { valid: true; claims: VerifiedClaims } | { valid: false; error: ErrorCode; claim?: string }
+    | { valid: true; claims: VerifiedClaims }
+    | { valid: false; error: ErrorCode; claim?: string }
 }
 
 const cases: Case[] = []

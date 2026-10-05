@@ -3,7 +3,8 @@ import { renderMarkdown } from './markdown.ts'
 import type { MessageBody } from '@ticketping/core'
 
 export type RenderedBody =
-  { mode: 'html'; raw: string; fallback: string } | { mode: 'safe'; html: string }
+  | { mode: 'html'; raw: string; fallback: string }
+  | { mode: 'safe'; html: string }
 
 /** Turn a message body into safe HTML. `html` format is sanitized asynchronously by the caller. */
 export function renderBody(body: MessageBody | null): RenderedBody {

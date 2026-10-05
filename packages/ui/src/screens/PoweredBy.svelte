@@ -17,10 +17,8 @@
   >
     <span>Powered</span>
     <!-- The mustache keeps the space. A plain space here is collapsed. -->
-    <!-- eslint-disable-next-line svelte/no-useless-mustaches -->
     <span class="sep" aria-hidden="true">{' '}</span>
     <span>by</span>
-    <!-- eslint-disable-next-line svelte/no-useless-mustaches -->
     <span class="sep" aria-hidden="true">{' '}</span>
     <svg viewBox="0 0 65.499 13" aria-hidden="true">
       <path

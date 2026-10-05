@@ -1,5 +1,4 @@
 <script lang="ts">
-  /* eslint-disable svelte/no-at-html-tags -- text/markdown are escaped; html is DOMPurify-sanitized */
   import type { MessageBody } from '@ticketping/core'
   import { renderBody } from '../lib/body.ts'
   import { sanitizeHtml } from '../lib/sanitize.ts'

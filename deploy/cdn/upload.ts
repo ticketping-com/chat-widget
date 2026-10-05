@@ -1,4 +1,4 @@
-/* eslint-disable no-console -- CLI output */
+/* oxlint-disable no-console -- CLI output */
 // Uploads packages/widget/dist/cdn to the R2 bucket behind widget.ticketping.com.
 // Versioned files are immutable: if <version>/widget.js already exists, the version is
 // skipped rather than overwritten. Requires CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID.
