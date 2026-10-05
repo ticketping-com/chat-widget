@@ -16,6 +16,7 @@
     messageTooLong,
     takeFiles
   } from '../lib/files.ts'
+  import { isMobileLayout } from '../lib/viewport.ts'
   import LoginWall from './LoginWall.svelte'
 
   interface Pending {
@@ -82,6 +83,9 @@
     }
     if (!area || focusedNew) return
     focusedNew = true
+    // Desktop: focus so typing can start. Mobile: leave it alone so the keyboard
+    // does not cover the sheet the moment the launcher opens.
+    if (isMobileLayout()) return
     const input = area
     queueMicrotask(() => {
       input.focus({ preventScroll: true })

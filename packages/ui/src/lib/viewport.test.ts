@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mobileFrame, type ViewportSnapshot } from './viewport.ts'
+import { isMobileLayout, mobileFrame, type ViewportSnapshot } from './viewport.ts'
 
 const phone: ViewportSnapshot = {
   width: 390,
@@ -34,5 +34,14 @@ describe('mobileFrame', () => {
     expect(mobileFrame({ ...phone, layoutWidth: 1280, width: 1280 }, true)).toBeNull()
     expect(mobileFrame(phone, false)).toBeNull()
     expect(mobileFrame({ ...phone, layoutWidth: 0 }, true)).toBeNull()
+  })
+})
+
+describe('isMobileLayout', () => {
+  it('matches the fullscreen panel breakpoint', () => {
+    expect(isMobileLayout(phone)).toBe(true)
+    expect(isMobileLayout({ ...phone, layoutWidth: 480 })).toBe(true)
+    expect(isMobileLayout({ ...phone, layoutWidth: 481, width: 481 })).toBe(false)
+    expect(isMobileLayout({ ...phone, layoutWidth: 0 })).toBe(false)
   })
 })

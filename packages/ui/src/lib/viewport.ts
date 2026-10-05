@@ -52,6 +52,11 @@ export function readViewport(): ViewportSnapshot {
   }
 }
 
+/** Same breakpoint as the fullscreen panel. Soft keyboards open on focus here. */
+export function isMobileLayout(view: ViewportSnapshot = readViewport()): boolean {
+  return view.layoutWidth > 0 && view.layoutWidth <= MOBILE_MAX_WIDTH
+}
+
 interface SavedScroll {
   position: string
   top: string
