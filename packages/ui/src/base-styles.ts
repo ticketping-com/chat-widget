@@ -24,6 +24,8 @@ export const baseStyles = `
   --tp-danger: oklch(57.7% 0.245 27.325); /* red-600 */
   --tp-image-outline: rgb(0 0 0 / 0.08);
   --tp-shadow: 0 6px 24px rgb(0 0 0 / 0.12);
+  --tp-scrollbar: color-mix(in oklab, var(--tp-muted) 45%, transparent);
+  --tp-scrollbar-hover: color-mix(in oklab, var(--tp-muted) 70%, transparent);
   --tp-radius-launcher: 9999px;
   --tp-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --tp-ease-icon: cubic-bezier(0.2, 0, 0, 1);
@@ -74,6 +76,8 @@ export const baseStyles = `
   --tp-focus: #ededed;
   --tp-image-outline: rgb(255 255 255 / 0.12);
   --tp-shadow: 0 6px 24px rgb(0 0 0 / 0.45);
+  --tp-scrollbar: color-mix(in oklab, var(--tp-muted) 50%, transparent);
+  --tp-scrollbar-hover: color-mix(in oklab, var(--tp-muted) 75%, transparent);
 }
 :host([hidden]) {
   display: none;
@@ -89,6 +93,29 @@ export const baseStyles = `
   line-height: 1.4;
   color: var(--tp-text);
   text-align: start;
+  scrollbar-width: thin;
+  scrollbar-color: var(--tp-scrollbar) transparent;
+}
+.tp-root * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tp-scrollbar) transparent;
+}
+.tp-root *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.tp-root *::-webkit-scrollbar-track {
+  background: transparent;
+}
+.tp-root *::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--tp-scrollbar);
+}
+.tp-root *::-webkit-scrollbar-thumb:hover {
+  background: var(--tp-scrollbar-hover);
+}
+.tp-root *::-webkit-scrollbar-corner {
+  background: transparent;
 }
 /* The cross axis follows dir, but the position is physical. */
 :host(:not([data-position='bottom-left'])) .tp-root[dir='ltr'],
