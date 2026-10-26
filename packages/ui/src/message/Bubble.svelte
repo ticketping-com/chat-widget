@@ -2,6 +2,7 @@
   import type { I18n, ThreadMessage, WidgetController } from '@ticketping/core'
   import Attachments from './Attachments.svelte'
   import Body from './Body.svelte'
+  import { citationLinks } from '../lib/body.ts'
 
   interface Props {
     message: ThreadMessage
@@ -26,6 +27,7 @@
   const sending = $derived(message.delivery === 'sending')
   const failed = $derived(message.delivery === 'failed')
   const showByline = $derived(showTime || sending)
+  const sources = $derived(mine ? [] : citationLinks(message.body))
   let holdSending = $state(false)
   $effect.pre(() => {
     if (sending) holdSending = true
@@ -50,11 +52,24 @@
   class:joins-next={joinNext}
   data-sender={message.sender.type}
   data-delivery={message.delivery ?? 'stored'}
+  aria-busy={message.streaming ? 'true' : undefined}
 >
   <div class="bubble">
     <Body body={message.body} />
     {#if message.attachments.length}
       <Attachments attachments={message.attachments} {i18n} />
+    {/if}
+    {#if sources.length}
+      <div class="sources">
+        <p class="sources-title">{i18n.t('message.sources')}</p>
+        <ul>
+          {#each sources as source, index (index)}
+            <li>
+              <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a>
+            </li>
+          {/each}
+        </ul>
+      </div>
     {/if}
   </div>
   {#if showByline}
@@ -165,6 +180,38 @@
   .row.mine.joins-next .bubble {
     border-end-start-radius: 18px;
     border-end-end-radius: 6px;
+  }
+
+  .sources {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--tp-border);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .sources-title {
+    margin: 0 0 2px;
+    color: var(--tp-muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .sources ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sources a {
+    color: inherit;
+    text-decoration: underline;
+    overflow-wrap: anywhere;
+  }
+
+  .sources a:focus-visible {
+    outline: 3px solid var(--tp-focus);
+    outline-offset: 2px;
   }
 
   .status {

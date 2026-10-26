@@ -246,13 +246,14 @@ A conversation exists only once the visitor has sent a message (no empty convers
 }
 ```
 
-| Field         | Rules                                                                                                                                                                                                                                                                                                                  |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sender.type` | `USER` (the visitor), `AGENT` (a person on the team), `AI`, `SYSTEM`                                                                                                                                                                                                                                                   |
-| `clientId`    | Present only on the visitor's own messages: the ID the widget generated (6.3)                                                                                                                                                                                                                                          |
-| `kind`        | `message` (render a bubble) or `event` (render a divider or inline UI from `event`)                                                                                                                                                                                                                                    |
-| `body.format` | `text` (visitor messages; render as text with links detected), `markdown` (agents and AI; safe subset: emphasis, links, lists, code, quotes), `html` (email replies only; sanitized by the server with an allowlist and sanitized **again** by the widget with DOMPurify). Unknown formats: render `body.fallbackText` |
-| `event`       | Set when `kind` is `event`: `{ "type": "handoff" }`, `{ "type": "contact_requested" }`, `{ "type": "contact_saved" }`, `{ "type": "ticket_created", "ticketId": "..." }`, `{ "type": "status_changed", "status": {...} }`                                                                                              |
+| Field            | Rules                                                                                                                                                                                                                                                                                                                  |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sender.type`    | `USER` (the visitor), `AGENT` (a person on the team), `AI`, `SYSTEM`                                                                                                                                                                                                                                                   |
+| `clientId`       | Present only on the visitor's own messages: the ID the widget generated (6.3)                                                                                                                                                                                                                                          |
+| `kind`           | `message` (render a bubble) or `event` (render a divider or inline UI from `event`)                                                                                                                                                                                                                                    |
+| `body.format`    | `text` (visitor messages; render as text with links detected), `markdown` (agents and AI; safe subset: emphasis, links, lists, code, quotes), `html` (email replies only; sanitized by the server with an allowlist and sanitized **again** by the widget with DOMPurify). Unknown formats: render `body.fallbackText` |
+| `body.citations` | Optional, AI replies only: `[{ "title", "url" }]` sources shown under the reply (9.2)                                                                                                                                                                                                                                  |
+| `event`          | Set when `kind` is `event`: `{ "type": "handoff" }`, `{ "type": "contact_requested" }`, `{ "type": "contact_saved" }`, `{ "type": "ticket_created", "ticketId": "..." }`, `{ "type": "status_changed", "status": {...} }`                                                                                              |
 
 Event messages have `sender.type` `SYSTEM`. Their `body` is a short English text (for example "Ticket #42 created" or "Status changed to Resolved"). Use it when the widget doesn't know the event type.
 
@@ -561,6 +562,7 @@ Every frame is `{ "v": 1, "type": "<name>", "id"?: "<client frame id>", "data": 
 | `ack`                  | `{ "clientId", "message", "conversation"? }`                                 | Reply to `message.send`. `conversation` is present when one was just created            |
 | `error`                | `{ "error": { "code", "message", "details"?, "retryAfter"? }, "clientId"? }` | Reply to a failed frame (e.g. `rate_limited`, `not_found`, `invalid_request`)           |
 | `message.created`      | `{ "message" }` + `cursor`                                                   | Any new message in a visible conversation, including the visitor's own from another tab |
+| `message.delta`        | `{ "conversationId", "messageId", "delta", "sender"? }`                      | A chunk of a streamed AI reply (9.1). Not replayed                                      |
 | `conversation.updated` | `{ "conversation" }` + `cursor`                                              | Phase, ticket status, assignee or unread changed                                        |
 | `typing`               | `{ "conversationId", "sender": { "type", "name" }, "isTyping" }`             | Treat as `false` after 6 s without an update. `name` is `null` for `AI`                 |
 | `unread.updated`       | `{ "total" }`                                                                | Total across conversations, for the launcher badge                                      |
@@ -673,11 +675,55 @@ Emoji are plain Unicode in `body` text everywhere. They're never images or attac
 
 ---
 
-## 9. Reserved for v2.x
+## 9. v2.x additions
+
+### 9.1 Streamed AI replies (`message.delta`)
+
+Supported. Additive: older clients ignore the frame (1, Forward compatibility) and still get the full reply from `message.created`.
+
+```json
+{
+  "v": 1,
+  "type": "message.delta",
+  "data": {
+    "conversationId": "cs_2k3j4h",
+    "messageId": "cm_5g6h7j",
+    "delta": "Open **Settings**",
+    "sender": { "type": "AI", "name": null }
+  }
+}
+```
+
+| Field            | Rules                                                                                                      |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| `conversationId` | The conversation being answered                                                                            |
+| `messageId`      | Stable for the whole reply, and the same `id` the final `message.created` carries                          |
+| `delta`          | Text to append, in order. Chunks join into `markdown`; the widget re-renders the whole text on every delta |
+| `sender`         | Optional. Defaults to `{ "type": "AI", "name": null }`                                                     |
+
+- Deltas carry no `cursor` and are never replayed (6.4). Delivery always ends with `message.created` holding the full `body.content`, which **replaces** the streamed text (same `messageId`). A reply that never gets its `message.created` is dropped on the next `sync.reset` or REST refetch.
+- The server stops `typing` for the AI before the first delta. The widget hides the typing dots as soon as a delta arrives.
+- Deltas for a conversation the widget hasn't opened can be ignored; `message.created` is enough.
+- Unread counts, `conversation.updated` and the `messageReceived` event follow `message.created` only.
+
+### 9.2 Citations (`body.citations`)
+
+Supported. AI replies can list sources on the final `message.created` (and in REST history):
+
+```json
+{
+  "format": "markdown",
+  "content": "Open **Settings**, then **Export**.",
+  "citations": [{ "title": "Exporting data", "url": "https://docs.acme.com/export" }]
+}
+```
+
+`citations` is optional; omit it or send `[]` when there are none. `url` must be `http` or `https`; the widget skips anything else and shows `url` when `title` is empty. Citations render as a "Sources" list of links under the reply.
+
+### 9.3 Reserved
 
 These aren't in v2.0. The names are reserved so v2.0 clients ignore them safely:
 
-- `message.delta` for streamed AI replies, plus `body.citations`.
 - `body.format: "blocks"` for interactive messages (buttons, forms), always with `fallbackText`.
 - Event types `csat_requested` and `csat_submitted`.
 - Emoji reactions on messages (`message.react`, `reactions` on `Message`), synced with Slack reactions.

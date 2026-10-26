@@ -26,6 +26,8 @@ export interface ThreadMessage extends Message {
   delivery?: DeliveryState
   /** Why delivery failed, e.g. `rate_limited`, `delivery_failed`, `invalid_request`. */
   error?: WidgetError
+  /** An AI reply still arriving as `message.delta` frames; `message.created` replaces it. */
+  streaming?: true
 }
 
 export interface ThreadState {
@@ -94,7 +96,7 @@ export interface WidgetState {
   typing: Readonly<Record<string, TypingIndicator>>
   /**
    * Conversations where the visitor is waiting on an AI reply.
-   * Set about 2 s after send, so a missed server typing frame still shows the dots.
+   * Set about 0.5 s after send, so a missed server typing frame still shows the dots.
    */
   pendingReply: Readonly<Record<string, true>>
   /** Total for the launcher badge (protocol 6.2 `unread.updated`). */
@@ -312,7 +314,7 @@ export function updateMessage(
 export function lastServerMessage(messages: ThreadMessage[]): ThreadMessage | null {
   for (let i = messages.length - 1; i >= 0; i--) {
     const message = messages[i]
-    if (message && !isLocal(message)) return message
+    if (message && !isLocal(message) && !message.streaming) return message
   }
   return null
 }

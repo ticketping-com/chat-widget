@@ -1,6 +1,20 @@
 import { escapeHtml, renderText } from './html.ts'
 import { renderMarkdown } from './markdown.ts'
-import type { MessageBody } from '@ticketping/core'
+import type { Citation, MessageBody } from '@ticketping/core'
+
+/** `body.citations` with an http(s) URL. A missing title falls back to the URL. */
+export function citationLinks(body: MessageBody | null): Citation[] {
+  if (!Array.isArray(body?.citations)) return []
+  const out: Citation[] = []
+  for (const item of body.citations as unknown[]) {
+    const { title, url } = (item ?? {}) as Partial<Record<keyof Citation, unknown>>
+    const href = typeof url === 'string' ? url.trim() : ''
+    if (!/^https?:\/\/\S/i.test(href)) continue
+    const label = typeof title === 'string' ? title.trim() : ''
+    out.push({ title: label || href, url: href })
+  }
+  return out
+}
 
 export type RenderedBody =
   | { mode: 'html'; raw: string; fallback: string }

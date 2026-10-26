@@ -37,7 +37,8 @@
     const only = ids.length === 1 ? ids[0] : undefined
     return only ? widget.typing[only] : undefined
   })
-  const showTyping = $derived(Boolean(typing) || widget.pendingReply[key] === true)
+  const streaming = $derived(messages.some((message) => message.streaming))
+  const showTyping = $derived(!streaming && (Boolean(typing) || widget.pendingReply[key] === true))
   const showEmail = $derived.by(() => {
     if (!widget.config.features.emailCapture || !conversation) return false
     if (widget.identity.contactEmail || widget.identity.email) return false

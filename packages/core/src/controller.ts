@@ -70,8 +70,8 @@ export const MAX_MESSAGE_LENGTH = 10_000
 export const MAX_ATTACHMENTS = 5
 export const MAX_UPLOAD_BYTES: number = 10 * 1024 * 1024
 export const TYPING_TTL_MS = 6_000
-/** Quiet period before the typing dots, matching the server's AI reply pause. */
-export const REPLY_WAIT_MS = 2_000
+/** Quiet period before the typing dots, so a fast AI reply doesn't flash them. */
+export const REPLY_WAIT_MS = 500
 export const TYPING_THROTTLE_MS = 2_000
 /** While the visitor keeps typing, `isTyping: true` is repeated this often so it doesn't expire. */
 export const TYPING_REPEAT_MS = 3_000
@@ -942,6 +942,8 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
       case 'message.created':
         if (isMessage(data.message)) onMessage(l, data.message)
         return
+      case 'message.delta':
+        return onDelta(l, data)
       case 'conversation.updated':
         if (isConversation(data.conversation)) {
           const conversation = data.conversation
@@ -949,7 +951,7 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
           const last = conversation.lastMessage
           const thread = last && get().threads[last.conversationId]
           if (conversation.phase !== 'ai') clearReplyWait(l, conversation.id)
-          if (isMessage(last) && !thread?.messages.some((m) => m.id === last.id)) {
+          if (isMessage(last) && !thread?.messages.some((m) => m.id === last.id && !m.streaming)) {
             onMessage(l, last)
           }
           autoMarkRead()
@@ -1017,23 +1019,30 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
     if (!conversations && live) scheduleListRefresh(live)
   }
 
+  /** A reply to a conversation started from the blank composer can beat its `ack`. */
+  function startingConversation(conversationId: string): boolean {
+    const state = get()
+    return (
+      state.view.name === 'thread' &&
+      state.view.conversationId === null &&
+      !!state.threads[NEW_CONVERSATION] &&
+      !state.conversations.some((c) => c.id === conversationId) &&
+      !state.threads[conversationId]
+    )
+  }
+
   function onMessage(l: Live, message: Message): void {
     const state = get()
     const pending = state.threads[NEW_CONVERSATION]
     const echoesPending =
       !!message.clientId && !!pending?.messages.some((m) => m.clientId === message.clientId)
-    const knownConversation =
-      state.conversations.some((c) => c.id === message.conversationId) ||
-      !!state.threads[message.conversationId]
     const replyWhileStarting =
-      state.view.name === 'thread' &&
-      state.view.conversationId === null &&
-      !!pending &&
-      message.sender.type !== 'USER' &&
-      !knownConversation
+      message.sender.type !== 'USER' && startingConversation(message.conversationId)
     if (echoesPending || replyWhileStarting) adoptNewConversation(message.conversationId)
     const seen =
-      get().threads[message.conversationId]?.messages.some((m) => m.id === message.id) ||
+      get().threads[message.conversationId]?.messages.some(
+        (m) => m.id === message.id && !m.streaming
+      ) ||
       state.conversations.find((c) => c.id === message.conversationId)?.lastMessage?.id ===
         message.id
     addServerMessage(message)
@@ -1047,6 +1056,53 @@ export function createWidgetController(options: ControllerOptions): WidgetContro
       messageId: message.id
     })
     autoMarkRead()
+  }
+
+  /** Grows a provisional AI bubble. `message.created` with the same ID replaces it (protocol 9). */
+  function onDelta(l: Live, data: Record<string, unknown>): void {
+    const { conversationId, messageId, delta } = data
+    if (
+      typeof conversationId !== 'string' ||
+      typeof messageId !== 'string' ||
+      typeof delta !== 'string'
+    ) {
+      return
+    }
+    if (startingConversation(conversationId)) adoptNewConversation(conversationId)
+    const state = get()
+    const thread = state.threads[conversationId]
+    // Nobody has this thread open: the final `message.created` is enough.
+    if (!thread) return
+    const current = thread.messages.find((m) => m.id === messageId)
+    if (current && !current.streaming) return
+    let next: ThreadMessage
+    if (current) {
+      const content = (current.body?.content ?? '') + delta
+      next = { ...current, body: { format: 'markdown', content } }
+    } else {
+      const sender = data.sender as { name?: unknown } | undefined
+      const now = new Date().toISOString()
+      const after = lastServerMessage(thread.messages)?.createdAt ?? ''
+      next = {
+        id: messageId,
+        conversationId,
+        createdAt: after > now ? after : now,
+        sender: { type: 'AI', name: typeof sender?.name === 'string' ? sender.name : null },
+        kind: 'message',
+        body: { format: 'markdown', content: delta },
+        attachments: [],
+        event: null,
+        streaming: true
+      }
+    }
+    set({
+      threads: {
+        ...state.threads,
+        [conversationId]: { ...thread, messages: mergeMessages(thread.messages, [next]) }
+      }
+    })
+    clearTyping(l, conversationId)
+    clearReplyWait(l, conversationId)
   }
 
   function onAck(l: Live, data: Record<string, unknown>): void {

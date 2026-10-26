@@ -85,6 +85,7 @@ export const en = {
   'sender.you': 'You',
   'sender.ai': 'AI Agent',
   'sender.aiLabel': 'AI',
+  'message.sources': 'Sources',
   'sender.agentFallback': 'Support',
   'sender.system': '{team}',
   'sender.avatarAlt': '{name}',

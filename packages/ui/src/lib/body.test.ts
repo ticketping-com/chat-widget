@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { renderBody } from './body.ts'
+import { citationLinks, renderBody } from './body.ts'
 import { renderMarkdown } from './markdown.ts'
 import { escapeHtml, renderText, safeHref } from './html.ts'
 
@@ -44,6 +44,23 @@ describe('renderBody', () => {
       mode: 'safe',
       html: escapeHtml('Try again')
     })
+  })
+
+  it('keeps only http(s) citations and falls back to the URL as the title', () => {
+    const citations = [
+      { title: ' Exporting data ', url: 'https://docs.acme.com/export' },
+      { title: '', url: 'http://acme.com/faq' },
+      { title: 'Bad', url: 'javascript:alert(1)' },
+      { title: 'Relative', url: '//evil.com' },
+      null,
+      { title: 'No URL' }
+    ] as unknown as { title: string; url: string }[]
+    expect(citationLinks({ format: 'markdown', content: 'x', citations })).toEqual([
+      { title: 'Exporting data', url: 'https://docs.acme.com/export' },
+      { title: 'http://acme.com/faq', url: 'http://acme.com/faq' }
+    ])
+    expect(citationLinks({ format: 'markdown', content: 'x' })).toEqual([])
+    expect(citationLinks(null)).toEqual([])
   })
 
   it('defers html format for DOMPurify', () => {

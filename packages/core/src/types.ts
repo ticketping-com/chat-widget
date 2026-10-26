@@ -124,11 +124,19 @@ export interface Sender {
   avatarUrl?: string | null
 }
 
+/** A source an AI reply drew on (protocol 3.4 `body.citations`). */
+export interface Citation {
+  title: string
+  url: string
+}
+
 export interface MessageBody {
   /** `text`, `markdown` or `html`. Render `fallbackText` for anything else. */
   format: string
   content: string
   fallbackText?: string
+  /** AI replies only. Untrusted: render `url` only when it is http(s). */
+  citations?: Citation[]
 }
 
 export type ConversationEvent =

@@ -269,7 +269,7 @@ describe('sending (protocol 6.3)', () => {
     const socket = await start()
     widget.showNewMessage()
     const clientId = widget.send({ conversationId: null, text: 'Hello' })
-    await vi.advanceTimersByTimeAsync(1_999)
+    await vi.advanceTimersByTimeAsync(499)
     expect(widget.getState().pendingReply).toEqual({})
 
     await vi.advanceTimersByTimeAsync(1)
@@ -343,6 +343,105 @@ describe('sending (protocol 6.3)', () => {
       })
     })
     expect(widget.getState().threads.cs_new!.messages.map((m) => m.id)).toEqual(['cm_1', 'cm_ai'])
+  })
+
+  it('streams an AI reply with message.delta, then replaces it with message.created', async () => {
+    backend.conversations = [conversation('cs_1')]
+    const socket = await start()
+    widget.send({ conversationId: 'cs_1', text: 'How do I export?' })
+    await vi.advanceTimersByTimeAsync(500)
+    expect(widget.getState().pendingReply).toEqual({ cs_1: true })
+    socket.push('typing', {
+      conversationId: 'cs_1',
+      sender: { type: 'AI', name: null },
+      isTyping: true
+    })
+
+    const delta = (text: string) =>
+      socket.push('message.delta', {
+        conversationId: 'cs_1',
+        messageId: 'cm_ai',
+        delta: text,
+        sender: { type: 'AI', name: null }
+      })
+    const streamed = () => widget.getState().threads.cs_1!.messages.find((m) => m.id === 'cm_ai')
+
+    delta('Open **Settings')
+    expect(streamed()).toMatchObject({
+      sender: { type: 'AI', name: null },
+      kind: 'message',
+      body: { format: 'markdown', content: 'Open **Settings' },
+      streaming: true
+    })
+    expect(widget.getState().typing).toEqual({})
+    expect(widget.getState().pendingReply).toEqual({})
+    expect(events('messageReceived')).toEqual([])
+
+    delta('**.')
+    expect(streamed()!.body!.content).toBe('Open **Settings**.')
+
+    const citations = [{ title: 'Exporting data', url: 'https://docs.acme.com/export' }]
+    socket.push('message.created', {
+      message: message('cm_ai', {
+        sender: { type: 'AI', name: null },
+        createdAt: '2026-05-01T10:00:02.000Z',
+        body: { format: 'markdown', content: 'Open **Settings**, then Export.', citations }
+      })
+    })
+    const final = streamed()!
+    expect(final.streaming).toBeUndefined()
+    expect(final.body).toEqual({
+      format: 'markdown',
+      content: 'Open **Settings**, then Export.',
+      citations
+    })
+    expect(widget.getState().threads.cs_1!.messages.filter((m) => m.id === 'cm_ai')).toHaveLength(1)
+    expect(events('messageReceived')).toEqual([{ conversationId: 'cs_1', messageId: 'cm_ai' }])
+
+    // A late delta doesn't touch the final message.
+    delta(' late')
+    expect(streamed()!.body!.content).toBe('Open **Settings**, then Export.')
+  })
+
+  it('streams into a conversation started before its ack arrives', async () => {
+    const socket = await start()
+    widget.showNewMessage()
+    const clientId = widget.send({ conversationId: null, text: 'Hello' })
+    socket.push('message.delta', { conversationId: 'cs_new', messageId: 'cm_ai', delta: 'Hi' })
+
+    const state = widget.getState()
+    expect(state.view).toEqual({ name: 'thread', conversationId: 'cs_new' })
+    expect(state.threads.cs_new!.messages.map((m) => m.id)).toEqual(['cm_ai', `local:${clientId}`])
+  })
+
+  it('ignores deltas for a thread that was never opened', async () => {
+    backend.conversations = [conversation('cs_1')]
+    const socket = await start()
+    socket.push('message.delta', { conversationId: 'cs_1', messageId: 'cm_ai', delta: 'Hi' })
+    expect(widget.getState().threads.cs_1).toBeUndefined()
+  })
+
+  it('clears the pending AI reply on handoff', async () => {
+    backend.conversations = [conversation('cs_1')]
+    const socket = await start()
+    widget.send({ conversationId: 'cs_1', text: 'I want a person' })
+    await vi.advanceTimersByTimeAsync(500)
+    expect(widget.getState().pendingReply).toEqual({ cs_1: true })
+
+    socket.push('conversation.updated', {
+      conversation: conversation('cs_1', {
+        phase: 'needs_contact',
+        updatedAt: '2026-05-01T10:00:01.000Z',
+        lastMessage: message('cm_handoff', {
+          sender: { type: 'SYSTEM' },
+          kind: 'event',
+          event: { type: 'handoff' },
+          createdAt: '2026-05-01T10:00:01.000Z'
+        })
+      })
+    })
+    expect(widget.getState().pendingReply).toEqual({})
+    expect(widget.getState().conversations[0]!.phase).toBe('needs_contact')
   })
 
   it('reconnects after an ack timeout, re-sends, then fails after 3 attempts and retries on demand', async () => {
