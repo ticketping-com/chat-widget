@@ -179,74 +179,85 @@
     </div>
   {/if}
 
-  <div bind:this={scroller} class="history" role="log" aria-live="polite" onscroll={onScroll}>
-    <div bind:this={feed} class="feed">
-      {#if thread?.hasMore && conversationId}
-        <button
-          type="button"
-          class="older"
-          disabled={thread.loading}
-          onclick={() => void controller.loadOlder(conversationId)}
-        >
-          {thread.loading ? i18n.t('thread.loading') : i18n.t('thread.loadOlder')}
-        </button>
-      {/if}
-
-      {#if thread?.loading && !thread.loaded}
-        <p class="state">{i18n.t('thread.loading')}</p>
-      {:else if thread?.error && !messages.length}
-        <div class="state">
-          <p>{i18n.t('thread.error')}</p>
+  <div class="history-wrap">
+    <div bind:this={scroller} class="history" role="log" aria-live="polite" onscroll={onScroll}>
+      <div bind:this={feed} class="feed">
+        {#if thread?.hasMore && conversationId}
           <button
             type="button"
             class="older"
-            onclick={() => void controller.loadMessages(conversationId ?? '')}
+            disabled={thread.loading}
+            onclick={() => void controller.loadOlder(conversationId)}
           >
-            {i18n.t('thread.retryLoad')}
+            {thread.loading ? i18n.t('thread.loading') : i18n.t('thread.loadOlder')}
           </button>
-        </div>
-      {:else if conversationId && thread?.loaded && !conversation && !messages.length}
-        <p class="state">{i18n.t('thread.notFound')}</p>
-      {/if}
-
-      {#if showStarter}
-        <article class="starter">
-          <div class="bubble">{i18n.t('conversationStarter')}</div>
-          <p class="byline">{widget.config.team.name || i18n.t('sender.agentFallback')}</p>
-        </article>
-      {/if}
-
-      {#each visibleMessages as message, index (message.clientId ?? message.id)}
-        {@const day = dayLabel(index)}
-        {@const prev = visibleMessages[index - 1]}
-        {@const next = visibleMessages[index + 1]}
-        {#if day}
-          <div class="day"><span>{day}</span></div>
         {/if}
-        {#if message.kind === 'event'}
-          <Event {message} {i18n} />
-        {:else}
-          <Bubble
-            {message}
-            {i18n}
-            {controller}
-            showTime={showTime(index)}
-            arrive={(message.clientId ?? message.id) === freshKey}
-            joinPrev={Boolean(!day && prev && sameGroup(prev, message))}
-            joinNext={Boolean(next && !dayLabel(index + 1) && sameGroup(message, next))}
-          />
-        {/if}
-      {/each}
 
-      {#if showTyping}
-        <article class="typing" role="status">
-          <div class="bubble">
-            <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
+        {#if thread?.loading && !thread.loaded}
+          <p class="state">{i18n.t('thread.loading')}</p>
+        {:else if thread?.error && !messages.length}
+          <div class="state">
+            <p>{i18n.t('thread.error')}</p>
+            <button
+              type="button"
+              class="older"
+              onclick={() => void controller.loadMessages(conversationId ?? '')}
+            >
+              {i18n.t('thread.retryLoad')}
+            </button>
           </div>
-          <span class="tp-sr">{i18n.t('thread.typingSomeone')}</span>
-        </article>
-      {/if}
+        {:else if conversationId && thread?.loaded && !conversation && !messages.length}
+          <p class="state">{i18n.t('thread.notFound')}</p>
+        {/if}
+
+        {#if showStarter}
+          <article class="starter">
+            <div class="bubble">{i18n.t('conversationStarter')}</div>
+            <p class="byline">{widget.config.team.name || i18n.t('sender.agentFallback')}</p>
+          </article>
+        {/if}
+
+        {#each visibleMessages as message, index (message.clientId ?? message.id)}
+          {@const day = dayLabel(index)}
+          {@const prev = visibleMessages[index - 1]}
+          {@const next = visibleMessages[index + 1]}
+          {#if day}
+            <div class="day"><span>{day}</span></div>
+          {/if}
+          {#if message.kind === 'event'}
+            <Event {message} {i18n} />
+          {:else}
+            <Bubble
+              {message}
+              {i18n}
+              {controller}
+              showTime={showTime(index)}
+              arrive={(message.clientId ?? message.id) === freshKey}
+              joinPrev={Boolean(!day && prev && sameGroup(prev, message))}
+              joinNext={Boolean(next && !dayLabel(index + 1) && sameGroup(message, next))}
+            />
+          {/if}
+        {/each}
+
+        {#if showTyping}
+          <article class="typing" role="status">
+            <div class="bubble">
+              <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
+            </div>
+            <span class="tp-sr">{i18n.t('thread.typingSomeone')}</span>
+          </article>
+        {/if}
+      </div>
     </div>
+
+    {#if !pinned}
+      <button
+        type="button"
+        class="more-below"
+        aria-label={i18n.t('thread.moreBelow')}
+        onclick={scrollToEnd}
+      ></button>
+    {/if}
   </div>
 
   {#if unseen > 0}
@@ -309,6 +320,14 @@
     line-height: 1.3;
   }
 
+  .history-wrap {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+
   .history {
     flex: 1;
     min-height: 0;
@@ -316,6 +335,40 @@
     overflow-anchor: none;
     overscroll-behavior: contain;
     padding: 12px 16px;
+  }
+
+  /* Soft fade when the visitor has scrolled up — content continues under the composer. */
+  .more-below {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 1;
+    height: 56px;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    background: linear-gradient(
+      to top,
+      var(--tp-surface) 8%,
+      color-mix(in oklab, var(--tp-surface) 55%, transparent) 45%,
+      transparent 100%
+    );
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    -webkit-mask-image: linear-gradient(to top, black 20%, transparent 95%);
+    mask-image: linear-gradient(to top, black 20%, transparent 95%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .more-below {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  .more-below:focus-visible {
+    outline: 3px solid var(--tp-focus);
+    outline-offset: -3px;
   }
 
   .feed {

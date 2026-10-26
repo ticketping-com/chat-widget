@@ -78,6 +78,7 @@ export const en = {
   'thread.typingSomeone': 'Typing...',
   'thread.aiThinking': 'AI is thinking...',
   'thread.newMessages': { one: '{count} new message', other: '{count} new messages' },
+  'thread.moreBelow': 'More messages below',
   'thread.today': 'Today',
   'thread.yesterday': 'Yesterday',
 
