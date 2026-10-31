@@ -42,6 +42,12 @@ export const baseStyles = `
   left: var(--tp-vv-left, 0px);
   width: var(--tp-vv-width, 100%);
   height: var(--tp-vv-height, 100dvh);
+  transition: background-color 200ms var(--tp-ease-out);
+}
+/* iOS Safari tints its status bar and toolbar from a fixed element's own background at the edge.
+   Without one it samples the page, which shows the host behind the sheet while the keyboard is up. */
+:host([data-mobile='true'][data-open='true']) {
+  background-color: var(--tp-surface);
 }
 :host([data-mobile='true']) .tp-root {
   position: relative;

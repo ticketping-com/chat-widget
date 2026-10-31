@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { isMobileLayout, mobileFrame, type ViewportSnapshot } from './viewport.ts'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { applyMobileFrame, isMobileLayout, mobileFrame, type ViewportSnapshot } from './viewport.ts'
 
 const phone: ViewportSnapshot = {
   width: 390,
@@ -43,5 +43,27 @@ describe('isMobileLayout', () => {
     expect(isMobileLayout({ ...phone, layoutWidth: 480 })).toBe(true)
     expect(isMobileLayout({ ...phone, layoutWidth: 481, width: 481 })).toBe(false)
     expect(isMobileLayout({ ...phone, layoutWidth: 0 })).toBe(false)
+  })
+})
+
+describe('applyMobileFrame', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    document.body.removeAttribute('style')
+  })
+
+  it('keeps the open sheet shown over host hide-on-scroll rules', () => {
+    vi.stubGlobal('innerWidth', 390)
+    vi.stubGlobal('scrollTo', () => {})
+    const host = document.createElement('ticketping-widget')
+    applyMobileFrame(host, true)
+    expect(host.style.getPropertyValue('opacity')).toBe('1')
+    expect(host.style.getPropertyPriority('opacity')).toBe('important')
+    expect(host.style.getPropertyPriority('pointer-events')).toBe('important')
+
+    vi.stubGlobal('innerWidth', 1024)
+    applyMobileFrame(host, true)
+    expect(host.style.getPropertyValue('opacity')).toBe('')
+    expect(host.style.getPropertyValue('pointer-events')).toBe('')
   })
 })

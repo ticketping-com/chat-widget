@@ -106,8 +106,20 @@ export const CLOSE_HOLD_MS = 300
 
 let releaseTimer = 0
 
+/**
+ * Hosts often fade the launcher on scroll (`body.scrolling-down ticketping-widget { opacity: 0 }`).
+ * Focusing the composer scrolls the page on iOS, which would blank the open sheet, so inline
+ * `!important` (above any host stylesheet) keeps it shown while open.
+ */
+const SHOWN = [
+  ['opacity', '1'],
+  ['visibility', 'visible'],
+  ['pointer-events', 'auto']
+] as const
+
 function writeFrame(host: HTMLElement, frame: MobileFrame): void {
   host.dataset.mobile = 'true'
+  for (const [name, value] of SHOWN) host.style.setProperty(name, value, 'important')
   host.style.setProperty('--tp-vv-top', `${frame.top}px`)
   host.style.setProperty('--tp-vv-left', `${frame.left}px`)
   host.style.setProperty('--tp-vv-width', `${frame.width}px`)
@@ -119,6 +131,7 @@ function writeFrame(host: HTMLElement, frame: MobileFrame): void {
 
 function clearFrame(host: HTMLElement): void {
   delete host.dataset.mobile
+  for (const [name] of SHOWN) host.style.removeProperty(name)
   host.style.removeProperty('--tp-vv-top')
   host.style.removeProperty('--tp-vv-left')
   host.style.removeProperty('--tp-vv-width')
