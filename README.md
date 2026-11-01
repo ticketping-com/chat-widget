@@ -45,11 +45,11 @@ Open `http://127.0.0.1:5180/?api=http://localhost:7800&key=pk_...` to talk to a 
 
 `@ticketping/chat-widget` is the npm client (`Ticketping`, `createTicketping`). Framework adapters are separate entries, each with an optional peer dependency:
 
-| Import                           | Export                                |
-| -------------------------------- | ------------------------------------- |
-| `@ticketping/chat-widget/react`  | `TicketpingProvider`, `useTicketping` |
-| `@ticketping/chat-widget/vue`    | `TicketpingPlugin`, `useTicketping`   |
-| `@ticketping/chat-widget/svelte` | `Ticketping` component                |
+| Import                           | Export                                            |
+| -------------------------------- | ------------------------------------------------- |
+| `@ticketping/chat-widget/react`  | `TicketpingProvider`, `useTicketping`             |
+| `@ticketping/chat-widget/vue`    | `TicketpingPlugin`, `useTicketping`               |
+| `@ticketping/chat-widget/svelte` | `Ticketping`, `useTicketping`, `createTicketping` |
 
 Builds land in `packages/widget/dist`:
 
